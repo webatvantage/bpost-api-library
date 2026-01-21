@@ -262,7 +262,7 @@ class AtBpost extends National
 
     /**
      * @param SimpleXMLElement $xml
-     * @param National|null    $self
+     * @param National|null $self
      *
      * @return AtBpost
      *
@@ -271,7 +271,7 @@ class AtBpost extends National
      * @throws \Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidLengthException
      * @throws \Bpost\BpostApiClient\Exception\XmlException\BpostXmlInvalidItemException
      */
-    public static function createFromXML(SimpleXMLElement $xml, National $self = null)
+    public static function createFromXML(SimpleXMLElement $xml, ?National $self = null)
     {
         if ($self === null) {
             $self = new self();

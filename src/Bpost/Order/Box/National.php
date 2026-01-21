@@ -216,14 +216,14 @@ abstract class National extends ComplexAttribute implements IBox
 
     /**
      * @param SimpleXMLElement $nationalXml
-     * @param National         $self
+     * @param National|null $self
      *
      * @return National
      *
      * @throws BpostException
      * @throws BpostXmlInvalidItemException
      */
-    public static function createFromXML(SimpleXMLElement $nationalXml, National $self = null)
+    public static function createFromXML(SimpleXMLElement $nationalXml, ?National $self = null)
     {
         if ($self === null) {
             throw new BpostException('Set an instance of National');

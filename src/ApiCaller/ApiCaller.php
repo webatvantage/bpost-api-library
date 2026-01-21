@@ -32,9 +32,9 @@ class ApiCaller
     /**
      * ApiCaller constructor.
      *
-     * @param Logger $logger
+     * @param Logger|null $logger
      */
-    public function __construct(Logger $logger = null)
+    public function __construct(?Logger $logger = null)
     {
         $this->logger = $logger;
     }

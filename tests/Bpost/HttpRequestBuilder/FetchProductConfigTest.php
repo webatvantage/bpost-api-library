@@ -3,9 +3,9 @@
 namespace Tests\Bpost\HttpRequestBuilder;
 
 use Bpost\BpostApiClient\Bpost\HttpRequestBuilder\FetchProductConfigBuilder;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class FetchProductConfigTest extends PHPUnit_Framework_TestCase
+class FetchProductConfigTest extends TestCase
 {
     /**
      * @param array  $input

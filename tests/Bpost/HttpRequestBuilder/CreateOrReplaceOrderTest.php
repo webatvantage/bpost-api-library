@@ -13,9 +13,9 @@ use Bpost\BpostApiClient\Bpost\Order\Box\Option\SaturdayDelivery;
 use Bpost\BpostApiClient\Bpost\Order\Line;
 use Bpost\BpostApiClient\Bpost\Order\PugoAddress;
 use Bpost\BpostApiClient\Bpost\Order\Sender;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CreateOrReplaceOrderTest extends PHPUnit_Framework_TestCase
+class CreateOrReplaceOrderTest extends TestCase
 {
     /**
      * @param array  $input

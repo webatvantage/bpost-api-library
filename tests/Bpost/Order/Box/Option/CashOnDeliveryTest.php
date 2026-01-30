@@ -4,9 +4,9 @@ namespace Tests\Bpost\Order\Box\Option;
 
 use Bpost\BpostApiClient\Bpost\Order\Box\Option\CashOnDelivery;
 use DOMDocument;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CashOnDeliveryTest extends PHPUnit_Framework_TestCase
+class CashOnDeliveryTest extends TestCase
 {
     /**
      * Create a generic DOM Document

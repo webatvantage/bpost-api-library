@@ -8,10 +8,10 @@ use Bpost\BpostApiClient\Bpost\Order\Box\BpostOnAppointment;
 use Bpost\BpostApiClient\Bpost\Order\Receiver;
 use DOMDocument;
 use DOMElement;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SimpleXMLElement;
 
-class BpostOnAppointmentTest extends PHPUnit_Framework_TestCase
+class BpostOnAppointmentTest extends TestCase
 {
     /**
      * Create a generic DOM Document
@@ -90,11 +90,10 @@ class BpostOnAppointmentTest extends PHPUnit_Framework_TestCase
         $this->assertSame('Antidot', $self->getReceiver()->getCompany());
     }
 
-    /**
-     * @expectedException \Bpost\BpostApiClient\Exception\XmlException\BpostXmlInvalidItemException
-     */
     public function testCreateFromNotBpostOnAppointmentXml()
     {
+		$this->expectException(\Bpost\BpostApiClient\Exception\XmlException\BpostXmlInvalidItemException::class);
+
         BpostOnAppointment::createFromXml(new SimpleXMLElement($this->getNotBpostOnAppointmentXml()));
     }
 

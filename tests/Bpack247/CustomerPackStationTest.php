@@ -4,9 +4,9 @@ namespace Tests\Bpack247;
 
 use Bpost\BpostApiClient\Bpack247\CustomerPackStation;
 use DOMDocument;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CustomerPackStationTest extends PHPUnit_Framework_TestCase
+class CustomerPackStationTest extends TestCase
 {
     /**
      * Create a generic DOM Document

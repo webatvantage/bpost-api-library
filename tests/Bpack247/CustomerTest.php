@@ -8,9 +8,9 @@ use Bpost\BpostApiClient\Exception\XmlException\BpostXmlNoUserIdFoundException;
 use DateTime;
 use DOMDocument;
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CustomerTest extends PHPUnit_Framework_TestCase
+class CustomerTest extends TestCase
 {
     /**
      * Create a generic DOM Document

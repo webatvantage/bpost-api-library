@@ -5,9 +5,9 @@ namespace Tests\Bpost\Order\Box\National;
 use Bpost\BpostApiClient\Bpost\Order\Box\National\ShopHandlingInstruction;
 use Bpost\BpostApiClient\BpostException;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidLengthException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ShopHandlingInstructionTest extends PHPUnit_Framework_TestCase
+class ShopHandlingInstructionTest extends TestCase
 {
     public function testValidate()
     {

@@ -5,9 +5,9 @@ namespace Tests\Bpost\HttpRequestBuilder;
 use Bpost\BpostApiClient\Bpost\HttpRequestBuilder\CreateLabelInBulkForOrdersBuilder;
 use Bpost\BpostApiClient\Common\ValidatedValue\LabelFormat;
 use DOMException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CreateLabelInBulkForOrdersTest extends PHPUnit_Framework_TestCase
+class CreateLabelInBulkForOrdersTest extends TestCase
 {
     /**
      * @param array  $input

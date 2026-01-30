@@ -3,9 +3,9 @@
 namespace Bpost\BpostApiClient\Bpack247\test;
 
 use Bpost\BpostApiClient\Bpack247;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class Bpack247Test extends PHPUnit_Framework_TestCase
+class Bpack247Test extends TestCase
 {
     /**
      * @var Bpack247

@@ -7,9 +7,9 @@ use Bpost\BpostApiClient\Bpost\Order\Customer;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidLengthException;
 use DOMDocument;
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CustomerTest extends PHPUnit_Framework_TestCase
+class CustomerTest extends TestCase
 {
     /**
      * Create a generic DOM Document

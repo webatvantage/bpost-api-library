@@ -11,9 +11,9 @@ use Bpost\BpostApiClient\Bpost\Order\Sender;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
 use DOMDocument;
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class BoxTest extends PHPUnit_Framework_TestCase
+class BoxTest extends TestCase
 {
     /**
      * Create a generic DOM Document

@@ -6,9 +6,9 @@ use Bpost\BpostApiClient\Bpost\Order\Box\OpeningHour\Day;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
 use DOMDocument;
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class DayTest extends PHPUnit_Framework_TestCase
+class DayTest extends TestCase
 {
     /**
      * Create a generic DOM Document

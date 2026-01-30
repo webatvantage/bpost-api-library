@@ -8,9 +8,9 @@ use Bpost\BpostApiClient\Bpost\Order\ParcelsDepotAddress;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
 use DOMDocument;
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class At247Test extends PHPUnit_Framework_TestCase
+class At247Test extends TestCase
 {
     /**
      * Create a generic DOM Document

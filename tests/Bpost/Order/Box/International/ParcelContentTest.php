@@ -5,9 +5,9 @@ namespace Tests\Bpost\Order\Box\International;
 use Bpost\BpostApiClient\Bpost;
 use Bpost\BpostApiClient\Bpost\Order\Box\International\ParcelContent;
 use DOMDocument;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ParcelContentTest extends PHPUnit_Framework_TestCase
+class ParcelContentTest extends TestCase
 {
     /**
      * Create a generic DOM Document

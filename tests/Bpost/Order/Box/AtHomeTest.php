@@ -10,10 +10,10 @@ use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueExceptio
 use DOMDocument;
 use DOMElement;
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SimpleXMLElement;
 
-class AtHomeTest extends PHPUnit_Framework_TestCase
+class AtHomeTest extends TestCase
 {
     /**
      * Create a generic DOM Document
@@ -90,11 +90,10 @@ class AtHomeTest extends PHPUnit_Framework_TestCase
         $this->assertSame('Antidot', $self->getReceiver()->getCompany());
     }
 
-    /**
-     * @expectedException \Bpost\BpostApiClient\Exception\XmlException\BpostXmlInvalidItemException
-     */
     public function testCreateFromBadXml()
     {
+		$this->expectException(\Bpost\BpostApiClient\Exception\XmlException\BpostXmlInvalidItemException::class);
+
         AtHome::createFromXML(new SimpleXMLElement($this->getNotAtHomeXml()));
     }
 

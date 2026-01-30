@@ -5,9 +5,9 @@ namespace Bpost\BpostApiClient\Geo6\test;
 use Bpost\BpostApiClient\Exception\BpostApiResponseException\BpostTaxipostLocatorException;
 use Bpost\BpostApiClient\Geo6;
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class Geo6Test extends PHPUnit_Framework_TestCase
+class Geo6Test extends TestCase
 {
     /**
      * @var Geo6

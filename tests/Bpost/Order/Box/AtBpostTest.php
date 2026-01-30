@@ -7,9 +7,9 @@ use Bpost\BpostApiClient\Bpost\Order\PugoAddress;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
 use DOMDocument;
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class AtBpostTest extends PHPUnit_Framework_TestCase
+class AtBpostTest extends TestCase
 {
     /**
      * Create a generic DOM Document

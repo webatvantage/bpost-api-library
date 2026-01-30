@@ -4,9 +4,9 @@ namespace Tests\Bpost\Order\Box\Option;
 
 use Bpost\BpostApiClient\Bpost\Order\Box\Option\Signed;
 use DOMDocument;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class SignatureTest extends PHPUnit_Framework_TestCase
+class SignatureTest extends TestCase
 {
     /**
      * Create a generic DOM Document

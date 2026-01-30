@@ -4,9 +4,9 @@ namespace Tests\Bpost\Order\Box\Option;
 
 use Bpost\BpostApiClient\Bpost\Order\Box\Option\AutomaticSecondPresentation;
 use DOMDocument;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class AutomaticSecondPresentationTest extends PHPUnit_Framework_TestCase
+class AutomaticSecondPresentationTest extends TestCase
 {
     /**
      * Create a generic DOM Document

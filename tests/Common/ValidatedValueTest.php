@@ -7,7 +7,7 @@ use Bpost\BpostApiClient\Exception\BpostLogicException;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidLengthException;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidPatternException;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 class ValidatedValueFake extends ValidatedValue
 {
@@ -22,11 +22,8 @@ class ValidatedValueFake extends ValidatedValue
     }
 }
 
-class ValidatedValueTest extends PHPUnit_Framework_TestCase
+class ValidatedValueTest extends TestCase
 {
-    /**
-     * @expectedException \Bpost\BpostApiClient\Exception\BpostLogicException
-     */
     public function testGetValue()
     {
         $fake = new ValidatedValueFake('qsd');
@@ -34,6 +31,8 @@ class ValidatedValueTest extends PHPUnit_Framework_TestCase
 
         $fake = new ValidatedValueFake('qsd');
         $this->assertSame('qsd', (string) $fake);
+
+		$this->expectException(\Bpost\BpostApiClient\Exception\BpostLogicException::class);
 
         new ValidatedValueFake('aze');
     }

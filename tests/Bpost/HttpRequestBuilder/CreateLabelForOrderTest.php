@@ -4,9 +4,9 @@ namespace Tests\Bpost\HttpRequestBuilder;
 
 use Bpost\BpostApiClient\Bpost\HttpRequestBuilder\CreateLabelForOrderBuilder;
 use Bpost\BpostApiClient\Common\ValidatedValue\LabelFormat;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CreateLabelForOrderTest extends PHPUnit_Framework_TestCase
+class CreateLabelForOrderTest extends TestCase
 {
     /**
      * @param array  $input

@@ -5,10 +5,10 @@ namespace Tests\Bpost;
 use Bpost\BpostApiClient\Bpost\Label;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SimpleXMLElement;
 
-class LabelTest extends PHPUnit_Framework_TestCase
+class LabelTest extends TestCase
 {
     /**
      * Test validation in the setters

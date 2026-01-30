@@ -3,10 +3,10 @@
 namespace Tests\Bpost\Label;
 
 use Bpost\BpostApiClient\Bpost\Label\Barcode;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SimpleXMLElement;
 
-class BarcodeTest extends PHPUnit_Framework_TestCase
+class BarcodeTest extends TestCase
 {
     private function getBarcodeXml()
     {

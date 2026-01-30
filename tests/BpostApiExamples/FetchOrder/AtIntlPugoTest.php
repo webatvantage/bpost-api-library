@@ -5,9 +5,9 @@ namespace Tests\BpostApiExamples\FetchOrder;
 use Bpost\BpostApiClient\Bpost\Order;
 use Bpost\BpostApiClient\Bpost\Order\Box;
 use Bpost\BpostApiClient\Bpost\ProductConfiguration\Product;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class AtIntlPugoTest extends PHPUnit_Framework_TestCase
+class AtIntlPugoTest extends TestCase
 {
 
     private function getXmlFromBpost()

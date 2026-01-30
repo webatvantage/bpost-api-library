@@ -15,10 +15,10 @@ use Bpost\BpostApiClient\Bpost\Order\PugoAddress;
 use Bpost\BpostApiClient\Bpost\Order\Sender;
 use DOMDocument;
 use DOMElement;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SimpleXMLElement;
 
-class OrderTest extends PHPUnit_Framework_TestCase
+class OrderTest extends TestCase
 {
     public function testToXml()
     {
@@ -93,6 +93,8 @@ class OrderTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateFromXmlWithException()
     {
+		$this->expectException(\Bpost\BpostApiClient\Exception\XmlException\BpostXmlNoReferenceFoundException::class);
+
         Order::createFromXML(new SimpleXMLElement($this->getFetchOrderWithReferenceXml()));
     }
 

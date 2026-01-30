@@ -1,31 +1,46 @@
+name: Run tests
+
 on:
-  push:
   pull_request:
+  push:
 
 jobs:
-  build-and-test:
-    name: Build and test
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        php: [ 8.2, 8.5 ]
+
+    name: P${{ matrix.php }} - ${{ matrix.os }}
+
     steps:
-      - name: checkout
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: install composer dependencies
-        uses: php-actions/composer@v6
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php_version: 7.4
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pdo, pdo_mysql, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, sodium
+          coverage: none
 
-#      - name: php-cs-fixer static analysis
-#        uses: docker://oskarstark/php-cs-fixer-ga
-#        with:
-#          args: --using-cache=no --diff --dry-run -v
-
-      - name: PHPUnit Tests
-        uses: php-actions/phpunit@v3
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        shell: bash
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v4
         with:
-          version: 5
-          php_version: 7.1
-          bootstrap: vendor/autoload.php
-          configuration: phpunit.xml.dist
-          args: --coverage-text
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: dependencies-${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            dependencies-${{ runner.os }}-php-${{ matrix.php }}-composer-
 
+      - name: Install Composer dependencies
+        run: |
+          composer install --prefer-dist --no-interaction
+
+      - name: Execute tests
+        run: vendor/bin/phpunit --no-coverage

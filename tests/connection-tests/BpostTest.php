@@ -10,12 +10,12 @@ use Bpost\BpostApiClient\Bpost\Order\Box\Option\Messaging;
 use Bpost\BpostApiClient\Bpost\Order\Line as OrderLine;
 use Bpost\BpostApiClient\Bpost\Order\Receiver;
 use Bpost\BpostApiClient\Bpost\Order\Sender;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * test case.
  */
-class BpostTest extends PHPUnit_Framework_TestCase
+class BpostTest extends TestCase
 {
     /**
      * @var Bpost

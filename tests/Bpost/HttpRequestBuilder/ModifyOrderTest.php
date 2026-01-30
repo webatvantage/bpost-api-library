@@ -4,9 +4,9 @@ namespace Tests\Bpost\HttpRequestBuilder;
 
 use Bpost\BpostApiClient\Bpost\HttpRequestBuilder\ModifyOrderBuilder;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ModifyOrderTest extends PHPUnit_Framework_TestCase
+class ModifyOrderTest extends TestCase
 {
     /**
      * @param array  $input

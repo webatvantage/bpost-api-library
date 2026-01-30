@@ -11,7 +11,7 @@ use Bpost\BpostApiClient\Bpost\ProductConfiguration\Option;
 use Bpost\BpostApiClient\Common\XmlHelper;
 use DOMDocument;
 use DOMElement;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SimpleXMLElement;
 
 class NationalFake extends National
@@ -45,7 +45,7 @@ class NationalFake extends National
     }
 }
 
-class NationalTest extends PHPUnit_Framework_TestCase
+class NationalTest extends TestCase
 {
     /**
      * Tests the methods that are implemented by the children
@@ -54,7 +54,7 @@ class NationalTest extends PHPUnit_Framework_TestCase
     public function testMethodsThatAreImplementedByChildren()
     {
         $possibleProductValues = National::getPossibleProductValues();
-        $this->assertInternalType('array', $possibleProductValues);
+        $this->assertIsArray($possibleProductValues);
         $this->assertEmpty($possibleProductValues);
     }
 

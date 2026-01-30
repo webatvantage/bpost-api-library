@@ -3,9 +3,9 @@
 namespace Tests\Geo6;
 
 use Bpost\BpostApiClient\Geo6\Poi;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class PoiTest extends PHPUnit_Framework_TestCase
+class PoiTest extends TestCase
 {
     /**
      * Tests Poi::createFromXml()

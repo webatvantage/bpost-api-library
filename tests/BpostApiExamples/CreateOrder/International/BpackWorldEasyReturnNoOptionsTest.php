@@ -13,9 +13,9 @@ use Bpost\BpostApiClient\Bpost\Order\Receiver;
 use Bpost\BpostApiClient\Bpost\Order\Sender;
 use DOMDocument;
 use DOMElement;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class BpackWorldEasyReturnNoOptionsTest extends PHPUnit_Framework_TestCase
+class BpackWorldEasyReturnNoOptionsTest extends TestCase
 {
     public function testToXml()
     {

@@ -3,9 +3,9 @@
 namespace Tests\Exception\BpostApiResponseException;
 
 use Bpost\BpostApiClient\Exception\BpostApiResponseException\BpostApiBusinessException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class BpostApiBusinessExceptionTest extends PHPUnit_Framework_TestCase
+class BpostApiBusinessExceptionTest extends TestCase
 {
     public function testGetMessage()
     {

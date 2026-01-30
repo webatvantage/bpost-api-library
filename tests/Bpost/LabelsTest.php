@@ -3,10 +3,10 @@
 namespace Tests\Bpost;
 
 use Bpost\BpostApiClient\Bpost\Labels;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SimpleXMLElement;
 
-class LabelsTest extends PHPUnit_Framework_TestCase
+class LabelsTest extends TestCase
 {
     public function testCreateFromXML()
     {

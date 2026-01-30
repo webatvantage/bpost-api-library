@@ -3,9 +3,9 @@
 namespace Tests\Bpost\HttpRequestBuilder;
 
 use Bpost\BpostApiClient\Bpost\HttpRequestBuilder\FetchOrderBuilder;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class FetchOrderTest extends PHPUnit_Framework_TestCase
+class FetchOrderTest extends TestCase
 {
     /**
      * @param array  $input

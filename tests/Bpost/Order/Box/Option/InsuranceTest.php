@@ -8,10 +8,10 @@ use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueExceptio
 use DOMDocument;
 use DOMElement;
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SimpleXMLElement;
 
-class InsuranceTest extends PHPUnit_Framework_TestCase
+class InsuranceTest extends TestCase
 {
     /**
      * Create a generic DOM Document

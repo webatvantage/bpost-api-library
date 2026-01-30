@@ -6,9 +6,9 @@ use Bpost\BpostApiClient\BpostException;
 use Bpost\BpostApiClient\Common\BasicAttribute\EmailAddressCharacteristic;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidLengthException;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidPatternException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class EmailAddressCharacteristicTest extends PHPUnit_Framework_TestCase
+class EmailAddressCharacteristicTest extends TestCase
 {
     public function testValidate()
     {

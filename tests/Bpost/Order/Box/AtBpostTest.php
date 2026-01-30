@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Bpost\Order\Box;
+namespace Bpost\BpostApiClient\Tests\Bpost\Order\Box;
 
 use Bpost\BpostApiClient\Bpost\Order\Box\AtBpost;
 use Bpost\BpostApiClient\Bpost\Order\PugoAddress;

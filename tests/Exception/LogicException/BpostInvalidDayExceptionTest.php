@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Exception\LogicException;
+namespace Bpost\BpostApiClient\Tests\Exception\LogicException;
 
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidDayException;
 use PHPUnit\Framework\TestCase;

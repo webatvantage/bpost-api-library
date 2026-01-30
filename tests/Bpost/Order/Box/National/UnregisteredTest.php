@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Bpost\Order\Box\National;
+namespace Bpost\BpostApiClient\Tests\Bpost\Order\Box\National;
 
 use Bpost\BpostApiClient\Bpost\Order\Box\National\ParcelLockerReducedMobilityZone;
 use Bpost\BpostApiClient\Bpost\Order\Box\National\Unregistered;

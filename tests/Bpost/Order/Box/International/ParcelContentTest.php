@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Bpost\Order\Box\International;
+namespace Bpost\BpostApiClient\Tests\Bpost\Order\Box\International;
 
 use Bpost\BpostApiClient\Bpost;
 use Bpost\BpostApiClient\Bpost\Order\Box\International\ParcelContent;

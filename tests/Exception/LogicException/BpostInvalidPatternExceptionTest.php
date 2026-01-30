@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Exception\BpostLogicException;
+namespace Bpost\BpostApiClient\Tests\Exception\BpostLogicException;
 
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidPatternException;
 use PHPUnit\Framework\TestCase;

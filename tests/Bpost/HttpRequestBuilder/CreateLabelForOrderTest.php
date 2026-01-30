@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Bpost\HttpRequestBuilder;
+namespace Bpost\BpostApiClient\Tests\Bpost\HttpRequestBuilder;
 
 use Bpost\BpostApiClient\Bpost\HttpRequestBuilder\CreateLabelForOrderBuilder;
 use Bpost\BpostApiClient\Common\ValidatedValue\LabelFormat;

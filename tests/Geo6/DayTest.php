@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Geo6;
+namespace Bpost\BpostApiClient\Tests\Geo6;
 
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidDayException;
 use Bpost\BpostApiClient\Geo6\Day;

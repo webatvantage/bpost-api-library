@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Common;
+namespace Bpost\BpostApiClient\Tests\Common;
 
 use Bpost\BpostApiClient\Common\ValidatedValue;
 use Bpost\BpostApiClient\Exception\BpostLogicException;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Geo6;
+namespace Bpost\BpostApiClient\Tests\Geo6;
 
 use Bpost\BpostApiClient\Geo6\Service;
 use PHPUnit\Framework\TestCase;

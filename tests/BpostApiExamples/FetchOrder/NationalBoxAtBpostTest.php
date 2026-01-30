@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\BpostApiExamples\FetchOrder;
+namespace Bpost\BpostApiClient\Tests\BpostApiExamples\FetchOrder;
 
 use Bpost\BpostApiClient\Bpost\Order;
 use Bpost\BpostApiClient\Bpost\Order\Box;

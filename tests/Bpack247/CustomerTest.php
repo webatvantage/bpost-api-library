@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Bpack247;
+namespace Bpost\BpostApiClient\Tests\Bpack247;
 
 use Bpost\BpostApiClient\Bpack247\Customer;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;

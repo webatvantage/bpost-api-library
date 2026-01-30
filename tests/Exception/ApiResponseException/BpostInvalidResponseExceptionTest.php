@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Exception\BpostApiResponseException;
+namespace Bpost\BpostApiClient\Tests\Exception\BpostApiResponseException;
 
 use Bpost\BpostApiClient\Exception\BpostApiResponseException\BpostInvalidResponseException;
 use PHPUnit\Framework\TestCase;

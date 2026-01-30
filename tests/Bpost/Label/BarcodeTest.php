@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Bpost\Label;
+namespace Bpost\BpostApiClient\Tests\Bpost\Label;
 
 use Bpost\BpostApiClient\Bpost\Label\Barcode;
 use PHPUnit\Framework\TestCase;

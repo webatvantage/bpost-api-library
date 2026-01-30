@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\BpostApiExamples\CreateOrder\International;
+namespace Bpost\BpostApiClient\Tests\BpostApiExamples\CreateOrder\International;
 
 use Bpost\BpostApiClient\Bpost;
 use Bpost\BpostApiClient\Bpost\Order;

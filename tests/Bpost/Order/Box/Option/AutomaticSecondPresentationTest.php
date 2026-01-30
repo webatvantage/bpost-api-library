@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Bpost\Order\Box\Option;
+namespace Bpost\BpostApiClient\Tests\Bpost\Order\Box\Option;
 
 use Bpost\BpostApiClient\Bpost\Order\Box\Option\AutomaticSecondPresentation;
 use DOMDocument;

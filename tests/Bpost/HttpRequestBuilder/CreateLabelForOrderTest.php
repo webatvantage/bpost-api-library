@@ -4,6 +4,7 @@ namespace Bpost\BpostApiClient\Tests\Bpost\HttpRequestBuilder;
 
 use Bpost\BpostApiClient\Bpost\HttpRequestBuilder\CreateLabelForOrderBuilder;
 use Bpost\BpostApiClient\Common\ValidatedValue\LabelFormat;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CreateLabelForOrderTest extends TestCase
@@ -17,9 +18,8 @@ class CreateLabelForOrderTest extends TestCase
      * @param bool   $isExpectXml
      *
      * @return void
-     *
-     * @dataProvider dataResults
      */
+	#[DataProvider('dataResults')]
     public function testResults(array $input, $url, $headers, $xml, $method, $isExpectXml)
     {
         $builder = new CreateLabelForOrderBuilder($input[0], $input[1], $input[2], $input[3]);
@@ -30,92 +30,92 @@ class CreateLabelForOrderTest extends TestCase
         $this->assertSame($headers, $builder->getHeaders());
     }
 
-    public function dataResults()
+    public static function dataResults(): array
     {
         $labelA4 = new LabelFormat(LabelFormat::FORMAT_A4);
         $labelA6 = new LabelFormat(LabelFormat::FORMAT_A6);
 
-        return array(
-            array(
-                'input' => array('123', $labelA4, false, false),
+        return [
+            [
+                'input' => ['123', $labelA4, false, false],
                 'url' => '/orders/123/labels/A4',
-                'headers' => $this->getHeadersForImage(),
+                'headers' => static::getHeadersForImage(),
                 'xml' => null,
                 'method' => 'GET',
                 'isExpectXml' => true,
-            ),
-            array(
-                'input' => array('123', $labelA6, false, false),
+			],
+            [
+                'input' => ['123', $labelA6, false, false],
                 'url' => '/orders/123/labels/A6',
-                'headers' => $this->getHeadersForImage(),
+                'headers' => static::getHeadersForImage(),
                 'xml' => null,
                 'method' => 'GET',
                 'isExpectXml' => true,
-            ),
-            array(
-                'input' => array('123', $labelA4, true, false),
+			],
+            [
+                'input' => ['123', $labelA4, true, false],
                 'url' => '/orders/123/labels/A4',
-                'headers' => $this->getHeadersForPdf(),
+                'headers' => static::getHeadersForPdf(),
                 'xml' => null,
                 'method' => 'GET',
                 'isExpectXml' => true,
-            ),
-            array(
-                'input' => array('123', $labelA6, true, false),
+			],
+            [
+                'input' => ['123', $labelA6, true, false],
                 'url' => '/orders/123/labels/A6',
-                'headers' => $this->getHeadersForPdf(),
+                'headers' => static::getHeadersForPdf(),
                 'xml' => null,
                 'method' => 'GET',
                 'isExpectXml' => true,
-            ),
-            array(
-                'input' => array('123', $labelA4, false, true),
+			],
+            [
+                'input' => ['123', $labelA4, false, true],
                 'url' => '/orders/123/labels/A4/withReturnLabels',
-                'headers' => $this->getHeadersForImage(),
+                'headers' => static::getHeadersForImage(),
                 'xml' => null,
                 'method' => 'GET',
                 'isExpectXml' => true,
-            ),
-            array(
-                'input' => array('123', $labelA6, false, true),
+			],
+            [
+                'input' => ['123', $labelA6, false, true],
                 'url' => '/orders/123/labels/A6/withReturnLabels',
-                'headers' => $this->getHeadersForImage(),
+                'headers' => static::getHeadersForImage(),
                 'xml' => null,
                 'method' => 'GET',
                 'isExpectXml' => true,
-            ),
-            array(
-                'input' => array('123', $labelA4, true, true),
+			],
+            [
+                'input' => ['123', $labelA4, true, true],
                 'url' => '/orders/123/labels/A4/withReturnLabels',
-                'headers' => $this->getHeadersForPdf(),
+                'headers' => static::getHeadersForPdf(),
                 'xml' => null,
                 'method' => 'GET',
                 'isExpectXml' => true,
-            ),
-            array(
-                'input' => array('123', $labelA6, true, true),
+			],
+            [
+                'input' => ['123', $labelA6, true, true],
                 'url' => '/orders/123/labels/A6/withReturnLabels',
-                'headers' => $this->getHeadersForPdf(),
+                'headers' => static::getHeadersForPdf(),
                 'xml' => null,
                 'method' => 'GET',
                 'isExpectXml' => true,
-            ),
-        );
+			],
+		];
     }
 
-    private function getHeadersForPdf()
+    private static function getHeadersForPdf(): array
     {
-        return array(
+        return [
             'Accept: application/vnd.bpost.shm-label-pdf-v3.4+XML',
             'Content-Type: application/vnd.bpost.shm-labelRequest-v3+XML',
-        );
+		];
     }
 
-    private function getHeadersForImage()
+    private static function getHeadersForImage(): array
     {
-        return array(
+        return [
             'Accept: application/vnd.bpost.shm-label-image-v3.4+XML',
             'Content-Type: application/vnd.bpost.shm-labelRequest-v3+XML',
-        );
+		];
     }
 }

@@ -33,7 +33,7 @@ class Day
     const DAY_NAME_SATURDAY = 'Saturday';
     const DAY_NAME_SUNDAY = 'Sunday';
 
-    private static $dayMap = array(
+    private static array $dayMap = [
         self::DAY_NAME_MONDAY => self::DAY_INDEX_MONDAY,
         self::DAY_NAME_TUESDAY => self::DAY_INDEX_TUESDAY,
         self::DAY_NAME_WEDNESDAY => self::DAY_INDEX_WEDNESDAY,
@@ -41,7 +41,7 @@ class Day
         self::DAY_NAME_FRIDAY => self::DAY_INDEX_FRIDAY,
         self::DAY_NAME_SATURDAY => self::DAY_INDEX_SATURDAY,
         self::DAY_NAME_SUNDAY => self::DAY_INDEX_SUNDAY,
-    );
+	];
 
     /**
      * @var string
@@ -68,7 +68,12 @@ class Day
      */
     private $day;
 
-    /**
+	public function __construct(string $dayName)
+	{
+		$this->setDay($dayName);
+	}
+
+	/**
      * @param string $amClose
      */
     public function setAmClose($amClose)
@@ -123,7 +128,7 @@ class Day
      *
      * @throws BpostInvalidDayException
      */
-    public function getDayIndex()
+    public function getDayIndex(): int
     {
         $day = ucfirst(strtolower($this->getDay()));
 
@@ -173,8 +178,7 @@ class Day
      */
     public static function createFromXML(SimpleXMLElement $xml)
     {
-        $day = new Day();
-        $day->setDay($xml->getName());
+        $day = new Day($xml->getName());
 
         if (isset($xml->AMOpen) && $xml->AMOpen != '') {
             $day->setAmOpen((string) $xml->AMOpen);

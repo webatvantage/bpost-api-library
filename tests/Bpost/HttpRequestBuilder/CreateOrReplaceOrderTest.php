@@ -13,6 +13,7 @@ use Bpost\BpostApiClient\Bpost\Order\Box\Option\SaturdayDelivery;
 use Bpost\BpostApiClient\Bpost\Order\Line;
 use Bpost\BpostApiClient\Bpost\Order\PugoAddress;
 use Bpost\BpostApiClient\Bpost\Order\Sender;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CreateOrReplaceOrderTest extends TestCase
@@ -26,40 +27,36 @@ class CreateOrReplaceOrderTest extends TestCase
      * @param array  $headers
      *
      * @return void
-     *
-     * @dataProvider dataResults
      */
+	 #[DataProvider('dataResults')]
     public function testResults(array $input, $url, $xml, $headers, $method, $isExpectXml)
     {
         $builder = new CreateOrReplaceOrderBuilder($input[0], $input[1]);
 
-        $this->assertSame($url, $builder->getUrl());
-        $this->assertSame($method, $builder->getMethod());
-        $this->assertSame($xml, $builder->getXml());
-        $this->assertSame($isExpectXml, $builder->isExpectXml());
-        $this->assertSame($headers, $builder->getHeaders());
+        $this->assertEquals($url, $builder->getUrl());
+        $this->assertEquals($method, $builder->getMethod());
+        $this->assertEquals($xml, $builder->getXml());
+        $this->assertEquals($isExpectXml, $builder->isExpectXml());
+        $this->assertEquals($headers, $builder->getHeaders());
     }
 
-    public function dataResults()
+    public static function dataResults(): array
     {
         $accountId = '123456789';
 
-        return array(
-            array(
-                'input' => array($this->getOrder(), $accountId),
+        return [
+            [
+                'input' => [static::getOrder(), $accountId],
                 'url' => '/orders',
-                'xml' => $this->getOrderXml(),
-                'headers' => array('Content-type: application/vnd.bpost.shm-order-v5+XML'),
+                'xml' => static::getOrderXml(),
+                'headers' => ['Content-type: application/vnd.bpost.shm-order-v5+XML'],
                 'method' => 'POST',
                 'isExpectXml' => false,
-            ),
-        );
+			],
+		];
     }
 
-    /**
-     * @return Order
-     */
-    private function getOrder()
+    private static function getOrder(): Order
     {
         $order = new Order('ref_1');
 
@@ -117,14 +114,13 @@ class CreateOrReplaceOrderTest extends TestCase
         $box->setAdditionalCustomerReference('Reference used for bpost statistics');
         $box->setAdditionalCustomerReferenceSuffix('PHPx.y');
 
-        $order->setBoxes(array());
-        $this->assertCount(0, $order->getBoxes());
+        $order->setBoxes([]);
         $order->addBox($box);
 
         return $order;
     }
 
-    private function getOrderXml()
+    private static function getOrderXml(): string
     {
         return <<< XML
 <?xml version="1.0" encoding="utf-8"?>

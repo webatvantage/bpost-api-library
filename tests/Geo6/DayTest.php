@@ -5,6 +5,7 @@ namespace Bpost\BpostApiClient\Tests\Geo6;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidDayException;
 use Bpost\BpostApiClient\Geo6\Day;
 use Exception;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class DayTest extends TestCase
@@ -40,33 +41,29 @@ class DayTest extends TestCase
     /**
      * Tests Day->getDayIndex()
      */
-    public function testGetDayIndex()
+	#[DataProvider('getDayDataset')]
+    public function testGetDayIndex(string $dayName, int $expectedIndex)
     {
-        $day = new Day();
-        $day->setDay('Monday');
-        $this->assertSame(1, $day->getDayIndex());
-        $day->setDay('Tuesday');
-        $this->assertSame(2, $day->getDayIndex());
-        $day->setDay('Wednesday');
-        $this->assertSame(3, $day->getDayIndex());
-        $day->setDay('Thursday');
-        $this->assertSame(4, $day->getDayIndex());
-        $day->setDay('Friday');
-        $this->assertSame(5, $day->getDayIndex());
-        $day->setDay('Saturday');
-        $this->assertSame(6, $day->getDayIndex());
-        $day->setDay('Sunday');
-        $this->assertSame(7, $day->getDayIndex());
-
-        $day = new Day();
-
-        try {
-            $day->getDayIndex();
-            $this->fail('BpostInvalidDayException not launched');
-        } catch (BpostInvalidDayException $e) {
-            // Nothing, the exception is good
-        } catch (Exception $e) {
-            $this->fail('BpostInvalidDayException not caught');
-        }
+        $day = new Day($dayName);
+        $this->assertEquals($expectedIndex, $day->getDayIndex());
     }
+
+	public function testGetInvalidDayIndex()
+	{
+		$this->expectException(BpostInvalidDayException::class);
+		(new Day('Test'))->getDayIndex();
+	}
+
+	public static function getDayDataset(): array
+	{
+		return [
+			['Monday', 1],
+			['Tuesday', 2],
+			['Wednesday', 3],
+			['Thursday', 4],
+			['Friday', 5],
+			['Saturday', 6],
+			['Sunday', 7],
+		];
+	}
 }

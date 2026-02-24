@@ -4,6 +4,7 @@ namespace Bpost\BpostApiClient\Tests\Bpost\HttpRequestBuilder;
 
 use Bpost\BpostApiClient\Bpost\HttpRequestBuilder\ModifyOrderBuilder;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ModifyOrderTest extends TestCase
@@ -17,10 +18,9 @@ class ModifyOrderTest extends TestCase
      * @param bool   $isExpectXml
      *
      * @throws BpostInvalidValueException
-     *
-     * @dataProvider dataResults
      */
-    public function testResults(array $input, $url, $xml, $headers, $method, $isExpectXml)
+	#[DataProvider('dataResults')]
+    public function testResults(array $input, $url, $xml, $headers, $method, $isExpectXml): void
     {
         $builder = new ModifyOrderBuilder($input[0], $input[1]);
 
@@ -33,25 +33,26 @@ class ModifyOrderTest extends TestCase
 
     public function testInvalidValue()
     {
-        $this->expectException('Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException');
-        new ModifyOrderBuilder('123', 'maybe');
+        $this->expectException(BpostInvalidValueException::class);
+
+		new ModifyOrderBuilder('123', 'maybe');
     }
 
-    public function dataResults()
+    public static function dataResults(): array
     {
-        return array(
-            array(
-                'input' => array('123', 'pending'),
+        return [
+            [
+                'input' => ['123', 'pending'],
                 'url' => '/orders/123',
                 'xml' => '<?xml version="1.0" encoding="utf-8"?>
 <orderUpdate xmlns="http://schema.post.be/shm/deepintegration/v3/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <status>PENDING</status>
 </orderUpdate>
 ',
-                'headers' => array('Content-type: application/vnd.bpost.shm-orderUpdate-v3+XML'),
+                'headers' => ['Content-type: application/vnd.bpost.shm-orderUpdate-v3+XML'],
                 'method' => 'POST',
                 'isExpectXml' => false,
-            ),
-        );
+			],
+		];
     }
 }

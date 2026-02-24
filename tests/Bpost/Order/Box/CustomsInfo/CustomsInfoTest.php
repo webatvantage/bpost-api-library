@@ -106,7 +106,7 @@ class CustomsInfoTest extends TestCase
      */
     public function testCreateFromXML()
     {
-        $data = array(
+        $data = [
             'parcelValue' => 700,
             'contentDescription' => 'BOOK',
             'shipmentType' => 'DOCUMENTS',
@@ -114,13 +114,13 @@ class CustomsInfoTest extends TestCase
             'privateAddress' => null,
             'currency' => 'EUR',
             'amtPostagePaidByAddresse' => 12.50,
-        );
+		];
 
         $document = self::createDomDocument();
         $customsInfo = $document->createElement('CustomsInfo');
         foreach ($data as $key => $value) {
             $customsInfo->appendChild(
-                $document->createElement($key, $value)
+                $document->createElement($key, $value ?? '')
             );
         }
         $document->appendChild($customsInfo);
@@ -135,7 +135,7 @@ class CustomsInfoTest extends TestCase
         $this->assertSame($data['parcelReturnInstructions'], $customsInfo->getParcelReturnInstructions());
         $this->assertSame($data['contentDescription'], $customsInfo->getContentDescription());
         $this->assertSame($data['shipmentType'], $customsInfo->getShipmentType());
-        $this->assertSame($data['privateAddress'], $customsInfo->getPrivateAddress());
+        $this->assertEquals($data['privateAddress'], $customsInfo->getPrivateAddress());
         $this->assertSame($data['currency'], $customsInfo->getCurrency());
         $this->assertSame($data['amtPostagePaidByAddresse'], $customsInfo->getAmtPostagePaidByAddresse());
 

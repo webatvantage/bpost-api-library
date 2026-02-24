@@ -6,6 +6,7 @@ use Bpost\BpostApiClient\Bpost;
 use Bpost\BpostApiClient\Common\XmlHelper;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidLengthException;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
+use Bpost\BpostApiClient\Exception\BpostLogicException\BpostMultipleCommunicationMethodException;
 use DomDocument;
 use DomElement;
 use SimpleXMLElement;
@@ -170,19 +171,24 @@ class Messaging extends Option
         return $this->type;
     }
 
-    /**
-     * @param string      $type
-     * @param string      $language
-     * @param string|null $emailAddress
-     * @param string|null $mobilePhone
-     *
-     * @throws BpostInvalidLengthException
-     * @throws BpostInvalidValueException
-     */
+	/**
+	 * @param string $type
+	 * @param string $language
+	 * @param string|null $emailAddress
+	 * @param string|null $mobilePhone
+	 *
+	 * @throws BpostMultipleCommunicationMethodException
+	 * @throws BpostInvalidValueException
+	 * @throws BpostInvalidLengthException
+	 */
     public function __construct($type, $language, $emailAddress = null, $mobilePhone = null)
     {
         $this->setType($type);
         $this->setLanguage($language);
+
+		if (isset($emailAddress) && isset($mobilePhone)) {
+			throw new BpostMultipleCommunicationMethodException('message', 'emailAddress', 'mobilePhone');
+		}
 
         if ($emailAddress !== null) {
             $this->setEmailAddress($emailAddress);

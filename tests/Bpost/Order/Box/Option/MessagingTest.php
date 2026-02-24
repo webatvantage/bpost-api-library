@@ -5,6 +5,7 @@ namespace Bpost\BpostApiClient\Tests\Bpost\Order\Box\Option;
 use Bpost\BpostApiClient\Bpost\Order\Box\Option\Messaging;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidLengthException;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
+use Bpost\BpostApiClient\Exception\BpostLogicException\BpostMultipleCommunicationMethodException;
 use DOMDocument;
 use Exception;
 use PHPUnit\Framework\TestCase;
@@ -135,7 +136,13 @@ class MessagingTest extends TestCase
             $this->fail('BpostInvalidLengthException not caught');
         }
 
-        // Exceptions were caught,
-        $this->assertTrue(true);
+		$this->expectException(BpostMultipleCommunicationMethodException::class);
+
+		new Messaging(
+			Messaging::MESSAGING_TYPE_INFO_DISTRIBUTED,
+			Messaging::MESSAGING_LANGUAGE_NL,
+			'someone@test.com',
+			'0495151689',
+		);
     }
 }

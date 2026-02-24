@@ -1,9 +1,9 @@
 {
-  "name": "antidot-be/bpost-api-library",
-  "version": "3.7.0",
+  "name": "webatvantage/bpost-api-library",
+  "version": "1.0.0",
   "type": "library",
   "description": "bpost API library is a PHP library to communicate with the bpost API.",
-  "homepage": "https://github.com/Antidot-be/bpost-api-library",
+  "homepage": "https://github.com/webatvantage/bpost-api-library",
   "license": "BSD-3-Clause",
   "authors": [
     {
@@ -19,6 +19,11 @@
     {
       "name": "Tijs Verkoyen",
       "email": "bpost@verkoyen.eu",
+      "role": "Developer"
+    },
+    {
+      "name": "Tom Six",
+      "email": "tom@webatvantage.be",
       "role": "Developer"
     }
   ],

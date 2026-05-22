@@ -20,7 +20,9 @@ class Geo6Test extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->geo6 = new Geo6(GEO6_PARTNER, GEO6_APP_ID);
+        $this->geo6 = new Geo6();
+		$this->geo6->setPartner(GEO6_PARTNER);
+		$this->geo6->setAppId(GEO6_APP_ID);
     }
 
     /**

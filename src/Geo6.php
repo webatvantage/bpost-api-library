@@ -39,15 +39,11 @@ class Geo6
     /** @var ApiCaller */
     private $apiCaller;
 
-    /**
-     * @var string
-     */
-    private $appId;
+    private ?string $appId = null;
 
-    /**
-     * @var string
-     */
-    private $partner;
+    private ?string $partner = null;
+
+	private ?string $account = null;
 
     /**
      * The timeout
@@ -69,10 +65,8 @@ class Geo6
      * @param string $partner Static parameter used for protection/statistics
      * @param string $appId   Static parameter used for protection/statistics
      */
-    public function __construct($partner, $appId)
+    public function __construct()
     {
-        $this->setPartner((string) $partner);
-        $this->setAppId((string) $appId);
     }
 
     /**
@@ -120,8 +114,22 @@ class Geo6
     {
         // add credentials
         $parameters['Function'] = $method;
-        $parameters['Partner'] = $this->getPartner();
-        $parameters['AppId'] = $this->getAppId();
+
+		if ($this->getAccount() !== null)
+		{
+			$parameters['Account'] = $this->getAccount();
+		}
+
+		if ($this->getPartner() !== null)
+		{
+			$parameters['Partner'] = $this->getPartner();
+		}
+
+		if ($this->getAppId() !== null)
+		{
+			$parameters['AppId'] = $this->getAppId();
+		}
+
         $parameters['Format'] = 'xml';
 
         return http_build_query($parameters);
@@ -181,10 +189,7 @@ class Geo6
         $this->appId = $appId;
     }
 
-    /**
-     * @return string
-     */
-    public function getAppId()
+    public function getAppId(): ?string
     {
         return $this->appId;
     }
@@ -204,6 +209,16 @@ class Geo6
     {
         return $this->partner;
     }
+
+	public function setAccount(string $account)
+	{
+		$this->account = $account;
+	}
+
+	public function getAccount(): ?string
+	{
+		return $this->account;
+	}
 
     /**
      * Set the timeout
@@ -376,7 +391,42 @@ class Geo6
         return $this->getServicePointPageUrl($id, $language, $type, $country);
     }
 
-    /**
+	public function getServicePoints(string $language = 'nl', string $country = 'BE', ?int $type = null, ?string $zip = null): array
+	{
+		$parameters = array_filter([
+			'Language' => $language,
+			'Country' => $country,
+			'Type' => $type,
+			'Zip' => $zip,
+		], static fn($value) => $value !== null);
+
+		$xml = $this->doCall('getallservicepoints', $parameters);
+
+		$servicePoints = [];
+		foreach ($xml->PickupPointList->Point as $point)
+		{
+			$data = new SimpleXMLElement('<root><Record/></root>');
+			$record = $data->Record;
+
+			// IMPORTANT: import full node structure
+			$domRecord = dom_import_simplexml($record);
+			$domPoint = dom_import_simplexml($point);
+
+			$imported = $domRecord->ownerDocument->importNode($domPoint, true);
+
+			// unwrap <Point> so Record contains direct fields
+			foreach ($imported->childNodes as $child)
+			{
+				$domRecord->appendChild($child->cloneNode(true));
+			}
+
+			$servicePoints[] = Poi::createFromXml($data);
+		}
+
+		return $servicePoints;
+	}
+
+	/**
      * @param bool $withPostOffice
      * @param bool $withPostPoint
      * @param bool $withBpack247

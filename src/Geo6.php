@@ -7,6 +7,7 @@ use Bpost\BpostApiClient\Exception\BpostApiResponseException\BpostCurlException;
 use Bpost\BpostApiClient\Exception\BpostApiResponseException\BpostInvalidXmlResponseException;
 use Bpost\BpostApiClient\Exception\BpostApiResponseException\BpostTaxipostLocatorException;
 use Bpost\BpostApiClient\Geo6\Poi;
+use Exception;
 use SimpleXMLElement;
 
 /**
@@ -290,6 +291,16 @@ class Geo6
     // public function getNearestServicePoint($street, $number, $zone, $country = 'BE', $language = 'nl', $type = 3, $limit = 10)
     public function getNearestServicePoint($street, $number, $zone, $language = 'nl', $type = 3, $limit = 10, $country = 'BE')
     {
+        if ($this->getPartner() === null)
+        {
+            throw new Exception("Partner parameter is required to collect the nearest service points.");
+        }
+
+        if ($this->getAppId() === null)
+        {
+            throw new Exception("AppId parameter is required to collect the nearest service points.");
+        }
+
         $parameters = array(
             'Street' => (string) $street,
             'Number' => (string) $number,
@@ -337,6 +348,16 @@ class Geo6
      */
     public function getServicePointDetails($id, $language = 'nl', $type = 3, $country = 'BE')
     {
+        if ($this->getPartner() === null)
+        {
+            throw new Exception("Partner parameter is required to collect the service point details.");
+        }
+
+        if ($this->getAppId() === null)
+        {
+            throw new Exception("AppId parameter is required to collect the service point details.");
+        }
+
         $parameters = array(
             'Id' => (string) $id,
             'Language' => (string) $language,
@@ -391,8 +412,18 @@ class Geo6
         return $this->getServicePointPageUrl($id, $language, $type, $country);
     }
 
-	public function getServicePoints(string $language = 'nl', string $country = 'BE', ?int $type = null, ?string $zip = null): array
+    /**
+     * @throws BpostCurlException
+     * @throws BpostTaxipostLocatorException
+     * @throws BpostInvalidXmlResponseException
+     */
+    public function getServicePoints(string $language = 'nl', string $country = 'BE', ?int $type = null, ?string $zip = null): array
 	{
+        if ($this->getAccount() === null)
+        {
+            throw new Exception("Account parameter is required to collect the service points.");
+        }
+
 		$parameters = array_filter([
 			'Language' => $language,
 			'Country' => $country,

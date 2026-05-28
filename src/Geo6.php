@@ -40,12 +40,6 @@ class Geo6
     /** @var ApiCaller */
     private $apiCaller;
 
-    private ?string $appId = null;
-
-    private ?string $partner = null;
-
-	private ?string $account = null;
-
     /**
      * The timeout
      *
@@ -100,40 +94,7 @@ class Geo6
      */
     private function buildUrl($method, array $parameters = array())
     {
-        return self::API_URL . '?' . $this->buildParameters($method, $parameters);
-    }
-
-    /**
-     * Build the parameters to send (URL-encoded string)
-     *
-     * @param string $method
-     * @param array  $parameters
-     *
-     * @return string
-     */
-    private function buildParameters($method, array $parameters = array())
-    {
-        // add credentials
-        $parameters['Function'] = $method;
-
-		if ($this->getAccount() !== null)
-		{
-			$parameters['Account'] = $this->getAccount();
-		}
-
-		if ($this->getPartner() !== null)
-		{
-			$parameters['Partner'] = $this->getPartner();
-		}
-
-		if ($this->getAppId() !== null)
-		{
-			$parameters['AppId'] = $this->getAppId();
-		}
-
-        $parameters['Format'] = 'xml';
-
-        return http_build_query($parameters);
+        return self::API_URL . '?' . http_build_query($parameters);
     }
 
     /**
@@ -148,7 +109,7 @@ class Geo6
      * @throws BpostInvalidXmlResponseException
      * @throws BpostTaxipostLocatorException
      */
-    private function doCall($method, array $parameters = array())
+    protected function doCall(array $parameters): SimpleXMLElement
     {
         $options = array(
             CURLOPT_URL => self::API_URL,
@@ -157,10 +118,10 @@ class Geo6
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => (int) $this->getTimeOut(),
+            CURLOPT_TIMEOUT => $this->getTimeOut(),
 
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $this->buildParameters($method, $parameters),
+            CURLOPT_POSTFIELDS => http_build_query($parameters),
         );
 
         $this->getApiCaller()->doCall($options);
@@ -265,115 +226,6 @@ class Geo6
         $this->userAgent = (string) $userAgent;
     }
 
-    // webservice methods
-    /**
-     * The GetNearestServicePoints web service delivers the nearest bpost pick-up points to a location
-     *
-     * @param string $street   Street name
-     * @param string $number   Street number
-     * @param string $zone     Postal code and/or city
-     * @param string $language Language, possible values are: nl, fr
-     * @param int    $type     Requested point type, possible values are:
-     *                         - 1: Post Office
-     *                         - 2: Post Point
-     *                         - 3: (1+2, Post Office + Post Point)
-     *                         - 4: bpack 24/7
-     *                         - 7: (1+2+4, Post Office + Post Point + bpack 24/7)
-     * @param int    $limit
-     * @param string $country  Country: "BE", "FR"...
-     *
-     * @return array
-     *
-     * @throws BpostCurlException
-     * @throws BpostInvalidXmlResponseException
-     * @throws BpostTaxipostLocatorException
-     */
-    // public function getNearestServicePoint($street, $number, $zone, $country = 'BE', $language = 'nl', $type = 3, $limit = 10)
-    public function getNearestServicePoint($street, $number, $zone, $language = 'nl', $type = 3, $limit = 10, $country = 'BE')
-    {
-        if ($this->getPartner() === null)
-        {
-            throw new Exception("Partner parameter is required to collect the nearest service points.");
-        }
-
-        if ($this->getAppId() === null)
-        {
-            throw new Exception("AppId parameter is required to collect the nearest service points.");
-        }
-
-        $parameters = array(
-            'Street' => (string) $street,
-            'Number' => (string) $number,
-            'Zone' => (string) $zone,
-            'Country' => (string) $country,
-            'Language' => (string) $language,
-            'Type' => (int) $type,
-            'Limit' => (int) $limit,
-        );
-
-        $xml = $this->doCall('search', $parameters);
-
-        if (!isset($xml->PoiList->Poi)) {
-            throw new BpostInvalidXmlResponseException();
-        }
-
-        $pois = array();
-        foreach ($xml->PoiList->Poi as $poi) {
-            $pois[] = array(
-                'poi' => Poi::createFromXML($poi),
-                'distance' => (float) $poi->Distance,
-            );
-        }
-
-        return $pois;
-    }
-
-    /**
-     * The GetServicePointDetails web service delivers the details for a bpost
-     * pick up point referred to by its identifier.
-     *
-     * @param string $id       Requested point identifier
-     * @param string $language Language, possible values: nl, fr
-     * @param int    $type     Requested point type, possible values are:
-     *                         - 1: Post Office
-     *                         - 2: Post Point
-     *                         - 4: bpack 24/7
-     * @param string $country  Country: "BE", "FR"...
-     *
-     * @return Poi
-     *
-     * @throws BpostCurlException
-     * @throws BpostInvalidXmlResponseException
-     * @throws BpostTaxipostLocatorException
-     */
-    public function getServicePointDetails($id, $language = 'nl', $type = 3, $country = 'BE')
-    {
-        if ($this->getPartner() === null)
-        {
-            throw new Exception("Partner parameter is required to collect the service point details.");
-        }
-
-        if ($this->getAppId() === null)
-        {
-            throw new Exception("AppId parameter is required to collect the service point details.");
-        }
-
-        $parameters = array(
-            'Id' => (string) $id,
-            'Language' => (string) $language,
-            'Type' => (int) $type,
-            'Country' => (string) $country,
-        );
-
-        $xml = $this->doCall('info', $parameters);
-
-        if (!isset($xml->Poi)) {
-            throw new BpostInvalidXmlResponseException();
-        }
-
-        return Poi::createFromXML($xml->Poi);
-    }
-
     /**
      * @param int    $id
      * @param string $language
@@ -411,51 +263,6 @@ class Geo6
     {
         return $this->getServicePointPageUrl($id, $language, $type, $country);
     }
-
-    /**
-     * @throws BpostCurlException
-     * @throws BpostTaxipostLocatorException
-     * @throws BpostInvalidXmlResponseException
-     */
-    public function getServicePoints(string $language = 'nl', string $country = 'BE', ?int $type = null, ?string $zip = null): array
-	{
-        if ($this->getAccount() === null)
-        {
-            throw new Exception("Account parameter is required to collect the service points.");
-        }
-
-		$parameters = array_filter([
-			'Language' => $language,
-			'Country' => $country,
-			'Type' => $type,
-			'Zip' => $zip,
-		], static fn($value) => $value !== null);
-
-		$xml = $this->doCall('getallservicepoints', $parameters);
-
-		$servicePoints = [];
-		foreach ($xml->PickupPointList->Point as $point)
-		{
-			$data = new SimpleXMLElement('<root><Record/></root>');
-			$record = $data->Record;
-
-			// IMPORTANT: import full node structure
-			$domRecord = dom_import_simplexml($record);
-			$domPoint = dom_import_simplexml($point);
-
-			$imported = $domRecord->ownerDocument->importNode($domPoint, true);
-
-			// unwrap <Point> so Record contains direct fields
-			foreach ($imported->childNodes as $child)
-			{
-				$domRecord->appendChild($child->cloneNode(true));
-			}
-
-			$servicePoints[] = Poi::createFromXml($data);
-		}
-
-		return $servicePoints;
-	}
 
 	/**
      * @param bool $withPostOffice

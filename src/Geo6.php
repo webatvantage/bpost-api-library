@@ -6,8 +6,6 @@ use Bpost\BpostApiClient\ApiCaller\ApiCaller;
 use Bpost\BpostApiClient\Exception\BpostApiResponseException\BpostCurlException;
 use Bpost\BpostApiClient\Exception\BpostApiResponseException\BpostInvalidXmlResponseException;
 use Bpost\BpostApiClient\Exception\BpostApiResponseException\BpostTaxipostLocatorException;
-use Bpost\BpostApiClient\Geo6\Poi;
-use Exception;
 use SimpleXMLElement;
 
 /**
@@ -142,45 +140,6 @@ class Geo6
         // return
         return $xml;
     }
-
-    /**
-     * @param string $appId
-     */
-    public function setAppId($appId)
-    {
-        $this->appId = $appId;
-    }
-
-    public function getAppId(): ?string
-    {
-        return $this->appId;
-    }
-
-    /**
-     * @param string $partner
-     */
-    public function setPartner($partner)
-    {
-        $this->partner = $partner;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPartner()
-    {
-        return $this->partner;
-    }
-
-	public function setAccount(string $account)
-	{
-		$this->account = $account;
-	}
-
-	public function getAccount(): ?string
-	{
-		return $this->account;
-	}
 
     /**
      * Set the timeout

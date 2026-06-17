@@ -42,7 +42,7 @@ class Geo6Partner extends Geo6
      * @throws BpostInvalidXmlResponseException
      * @throws BpostTaxipostLocatorException
      */
-    public function getNearestServicePoint(string $street, string $number, string $zone, string $country = 'BE', string $language = 'nl', int $type = 3, int $limit = 10): array
+    public function getNearestServicePoint(string $street, string $number, string $zone, string $country = 'BE', string $language = 'NL', int $type = 3, int $limit = 10): array
     {
         $parameters = array(
             'Function' => self::METHOD_GET_NEAREST_SERVICE_POINTS,
@@ -93,7 +93,7 @@ class Geo6Partner extends Geo6
      * @throws BpostInvalidXmlResponseException
      * @throws BpostTaxipostLocatorException
      */
-    public function getServicePointDetails(string $id, string $language = 'nl', int $type = 3, string $country = 'BE'): Poi
+    public function getServicePointDetails(string $id, string $language = 'NL', int $type = 3, string $country = 'BE'): Poi
     {
         $parameters = array(
             'Function' => self::METHOD_GET_SERVICE_POINT_DETAILS,

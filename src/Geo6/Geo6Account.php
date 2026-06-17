@@ -24,7 +24,7 @@ class Geo6Account extends Geo6
      *
      * @return list<Poi>
      */
-    public function getServicePoints(string $language = 'nl', string $country = 'BE', ?int $type = null, ?string $zip = null): array
+    public function getServicePoints(string $language = 'NL', string $country = 'BE', ?int $type = null, ?string $zip = null): array
     {
         $parameters = [
             'Account' => $this->account,

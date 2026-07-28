@@ -54,7 +54,7 @@ class Address
      */
     public function setBox($box)
     {
-        $length = 8;
+        $length = 9;
         if (mb_strlen($box) > $length) {
             throw new BpostInvalidLengthException('box', mb_strlen($box), $length);
         }

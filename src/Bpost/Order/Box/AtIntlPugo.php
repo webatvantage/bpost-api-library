@@ -7,6 +7,7 @@ use Bpost\BpostApiClient\Bpost\Order\Box\Option\Messaging;
 use Bpost\BpostApiClient\Bpost\Order\PugoAddress;
 use Bpost\BpostApiClient\Bpost\Order\Receiver;
 use Bpost\BpostApiClient\Bpost\ProductConfiguration\Product;
+use Bpost\BpostApiClient\Common\XmlHelper;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
 use Bpost\BpostApiClient\Exception\BpostNotImplementedException;
 
@@ -191,12 +192,12 @@ class AtIntlPugo extends International
 
         if ($this->getPugoId() !== null) {
             $boxElement->appendChild(
-                $document->createElement('international:pugoId', $this->getPugoId())
+                XmlHelper::createTextElement($document, 'international:pugoId', $this->getPugoId())
             );
         }
         if ($this->getPugoName() !== null) {
             $boxElement->appendChild(
-                $document->createElement('international:pugoName', $this->getPugoName())
+                XmlHelper::createTextElement($document, 'international:pugoName', $this->getPugoName())
             );
         }
 
@@ -220,7 +221,7 @@ class AtIntlPugo extends International
     {
         if ($this->getRequestedDeliveryDate() !== null) {
             $typeElement->appendChild(
-                $document->createElement('requestedDeliveryDate', $this->getRequestedDeliveryDate())
+                XmlHelper::createTextElement($document, 'requestedDeliveryDate', $this->getRequestedDeliveryDate())
             );
         }
     }
@@ -229,7 +230,7 @@ class AtIntlPugo extends International
     {
         if ($this->getShopHandlingInstruction() !== null) {
             $typeElement->appendChild(
-                $document->createElement('shopHandlingInstruction', $this->getShopHandlingInstruction())
+                XmlHelper::createTextElement($document, 'shopHandlingInstruction', $this->getShopHandlingInstruction())
             );
         }
     }

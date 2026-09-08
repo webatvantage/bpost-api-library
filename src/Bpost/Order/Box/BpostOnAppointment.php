@@ -97,7 +97,8 @@ class BpostOnAppointment extends National
     {
         if ($this->getInNetworkCutOff() !== null) {
             $typeElement->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('inNetworkCutOff', $prefix),
                     $this->getInNetworkCutOff()
                 )

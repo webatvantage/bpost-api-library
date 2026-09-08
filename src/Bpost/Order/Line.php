@@ -84,7 +84,8 @@ class Line
 
         if ($this->getText() !== null) {
             $line->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('text', $prefix),
                     $this->getText()
                 )
@@ -92,7 +93,8 @@ class Line
         }
         if ($this->getNumberOfItems() !== null) {
             $line->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('nbOfItems', $prefix),
                     $this->getNumberOfItems()
                 )

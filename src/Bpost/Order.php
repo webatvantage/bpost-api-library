@@ -5,6 +5,7 @@ namespace Bpost\BpostApiClient\Bpost;
 use Bpost\BpostApiClient\Bpost;
 use Bpost\BpostApiClient\Bpost\Order\Box;
 use Bpost\BpostApiClient\Bpost\Order\Line;
+use Bpost\BpostApiClient\Common\XmlHelper;
 use Bpost\BpostApiClient\Exception\BpostNotImplementedException;
 use Bpost\BpostApiClient\Exception\XmlException\BpostXmlNoReferenceFoundException;
 use DOMDocument;
@@ -169,7 +170,8 @@ class Order
         $document->appendChild($order);
 
         $order->appendChild(
-            $document->createElement(
+            XmlHelper::createTextElement(
+                $document,
                 'tns:accountId',
                 (string) $accountId
             )
@@ -177,7 +179,8 @@ class Order
 
         if ($this->getReference() !== null) {
             $order->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'tns:reference',
                     $this->getReference()
                 )
@@ -185,7 +188,8 @@ class Order
         }
         if ($this->getCostCenter() !== null) {
             $order->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'tns:costCenter',
                     $this->getCostCenter()
                 )

@@ -208,12 +208,12 @@ class AtBpost extends National
 
         if ($this->getPugoId() !== null) {
             $boxElement->appendChild(
-                $document->createElement('pugoId', $this->getPugoId())
+                XmlHelper::createTextElement($document, 'pugoId', $this->getPugoId())
             );
         }
         if ($this->getPugoName() !== null) {
             $boxElement->appendChild(
-                $document->createElement('pugoName', $this->getPugoName())
+                XmlHelper::createTextElement($document, 'pugoName', $this->getPugoName())
             );
         }
         if ($this->getPugoAddress() !== null) {
@@ -223,12 +223,12 @@ class AtBpost extends National
         }
         if ($this->getReceiverName() !== null) {
             $boxElement->appendChild(
-                $document->createElement('receiverName', $this->getReceiverName())
+                XmlHelper::createTextElement($document, 'receiverName', $this->getReceiverName())
             );
         }
         if ($this->getReceiverCompany() !== null) {
             $boxElement->appendChild(
-                $document->createElement('receiverCompany', $this->getReceiverCompany())
+                XmlHelper::createTextElement($document, 'receiverCompany', $this->getReceiverCompany())
             );
         }
         $this->addToXmlRequestedDeliveryDate($document, $boxElement, $prefix);
@@ -246,7 +246,7 @@ class AtBpost extends National
     {
         if ($this->getRequestedDeliveryDate() !== null) {
             $typeElement->appendChild(
-                $document->createElement('requestedDeliveryDate', $this->getRequestedDeliveryDate())
+                XmlHelper::createTextElement($document, 'requestedDeliveryDate', $this->getRequestedDeliveryDate())
             );
         }
     }
@@ -255,7 +255,7 @@ class AtBpost extends National
     {
         if ($this->getShopHandlingInstruction() !== null) {
             $typeElement->appendChild(
-                $document->createElement('shopHandlingInstruction', $this->getShopHandlingInstruction())
+                XmlHelper::createTextElement($document, 'shopHandlingInstruction', $this->getShopHandlingInstruction())
             );
         }
     }

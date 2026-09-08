@@ -113,7 +113,8 @@ class Day
      */
     public function toXML(DOMDocument $document, $prefix = null)
     {
-        return $document->createElement(
+        return XmlHelper::createTextElement(
+            $document,
             XmlHelper::getPrefixedTagName($this->getDay(), $prefix),
             $this->getValue()
         );

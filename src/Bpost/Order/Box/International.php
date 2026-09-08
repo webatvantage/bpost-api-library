@@ -227,7 +227,7 @@ class International implements IBox
 
         if ($this->getProduct() !== null) {
             $international->appendChild(
-                $document->createElement(XmlHelper::getPrefixedTagName('product', $prefix), $this->getProduct())
+                XmlHelper::createTextElement($document, XmlHelper::getPrefixedTagName('product', $prefix), $this->getProduct())
             );
         }
 
@@ -250,7 +250,8 @@ class International implements IBox
 
         if ($this->getParcelWeight() !== null) {
             $international->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('parcelWeight', $prefix),
                     $this->getParcelWeight()
                 )

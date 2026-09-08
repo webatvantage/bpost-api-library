@@ -136,17 +136,17 @@ class Unregistered extends ComplexAttribute
 
         if ($this->hasLanguage()) {
             $tagName = XmlHelper::getPrefixedTagName('language', $prefix);
-            $xml->appendChild($document->createElement($tagName, $this->getLanguage()));
+            $xml->appendChild(XmlHelper::createTextElement($document, $tagName, $this->getLanguage()));
         }
 
         if ($this->getMobilePhone() !== null) {
             $tagName = XmlHelper::getPrefixedTagName('mobilePhone', $prefix);
-            $xml->appendChild($document->createElement($tagName, $this->getMobilePhone()));
+            $xml->appendChild(XmlHelper::createTextElement($document, $tagName, $this->getMobilePhone()));
         }
 
         if ($this->getEmailAddress() !== null) {
             $tagName = XmlHelper::getPrefixedTagName('emailAddress', $prefix);
-            $xml->appendChild($document->createElement($tagName, $this->getEmailAddress()));
+            $xml->appendChild(XmlHelper::createTextElement($document, $tagName, $this->getEmailAddress()));
         }
 
         if ($this->hasParcelLockerReducedMobilityZone()) {

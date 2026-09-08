@@ -202,37 +202,43 @@ class ParcelContent
         $parcelContent = $document->createElement(XmlHelper::getPrefixedTagName('parcelContent', $prefix));
 
         $parcelContent->appendChild(
-            $document->createElement(
+            XmlHelper::createTextElement(
+                $document,
                 XmlHelper::getPrefixedTagName('numberOfItemType', $prefix),
                 $this->getNumberOfItemType()
             )
         );
         $parcelContent->appendChild(
-            $document->createElement(
+            XmlHelper::createTextElement(
+                $document,
                 XmlHelper::getPrefixedTagName('valueOfItem', $prefix),
                 $this->getValueOfItem()
             )
         );
         $parcelContent->appendChild(
-            $document->createElement(
+            XmlHelper::createTextElement(
+                $document,
                 XmlHelper::getPrefixedTagName('itemDescription', $prefix),
                 $this->getItemDescription()
             )
         );
         $parcelContent->appendChild(
-            $document->createElement(
+            XmlHelper::createTextElement(
+                $document,
                 XmlHelper::getPrefixedTagName('nettoWeight', $prefix),
                 $this->getNettoWeight()
             )
         );
         $parcelContent->appendChild(
-            $document->createElement(
+            XmlHelper::createTextElement(
+                $document,
                 XmlHelper::getPrefixedTagName('hsTariffCode', $prefix),
                 $this->getHsTariffCode()
             )
         );
         $parcelContent->appendChild(
-            $document->createElement(
+            XmlHelper::createTextElement(
+                $document,
                 XmlHelper::getPrefixedTagName('originOfGoods', $prefix),
                 $this->getOriginOfGoods()
             )

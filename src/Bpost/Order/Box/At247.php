@@ -224,12 +224,13 @@ class At247 extends National
 
         if ($this->getParcelsDepotId() !== null) {
             $boxElement->appendChild(
-                $document->createElement('parcelsDepotId', $this->getParcelsDepotId())
+                XmlHelper::createTextElement($document, 'parcelsDepotId', $this->getParcelsDepotId())
             );
         }
         if ($this->getParcelsDepotName() !== null) {
             $boxElement->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'parcelsDepotName',
                     $this->getParcelsDepotName()
                 )
@@ -242,7 +243,8 @@ class At247 extends National
         }
         if ($this->getMemberId() !== null) {
             $boxElement->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'memberId',
                     $this->getMemberId()
                 )
@@ -251,7 +253,8 @@ class At247 extends National
         $this->addToXmlUnregistered($document, $boxElement, $prefix);
         if ($this->getReceiverName() !== null) {
             $boxElement->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'receiverName',
                     $this->getReceiverName()
                 )
@@ -259,7 +262,8 @@ class At247 extends National
         }
         if ($this->getReceiverCompany() !== null) {
             $boxElement->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'receiverCompany',
                     $this->getReceiverCompany()
                 )
@@ -279,7 +283,8 @@ class At247 extends National
     {
         if ($this->getRequestedDeliveryDate() !== null) {
             $typeElement->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('requestedDeliveryDate', $prefix),
                     $this->getRequestedDeliveryDate()
                 )

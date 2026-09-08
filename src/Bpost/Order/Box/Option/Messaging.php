@@ -213,7 +213,8 @@ class Messaging extends Option
 
         if ($this->getEmailAddress() !== null) {
             $messaging->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('emailAddress', $prefix),
                     $this->getEmailAddress()
                 )
@@ -221,7 +222,8 @@ class Messaging extends Option
         }
         if ($this->getMobilePhone() !== null) {
             $messaging->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('mobilePhone', $prefix),
                     $this->getMobilePhone()
                 )

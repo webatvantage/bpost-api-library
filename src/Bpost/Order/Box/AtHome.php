@@ -126,7 +126,8 @@ class AtHome extends National
     {
         if ($this->getRequestedDeliveryDate() !== null) {
             $typeElement->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'requestedDeliveryDate',
                     $this->getRequestedDeliveryDate()
                 )

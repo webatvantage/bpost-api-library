@@ -66,7 +66,7 @@ class AddressTest extends TestCase
 		$this->expectException(\Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidLengthException::class);
 
         $address = new Address();
-        $address->setBox(str_repeat('a', 9));
+        $address->setBox(str_repeat('a', 10));
     }
 
     public function testFaultyCountryCodeProperties()

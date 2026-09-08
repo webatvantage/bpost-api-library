@@ -70,7 +70,7 @@ class ParcelsDepotAddressTest extends TestCase
 		$this->expectException(\Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidLengthException::class);
 
         $address = new ParcelsDepotAddress();
-        $address->setBox(str_repeat('a', 9));
+        $address->setBox(str_repeat('a', 10));
     }
 
     /**

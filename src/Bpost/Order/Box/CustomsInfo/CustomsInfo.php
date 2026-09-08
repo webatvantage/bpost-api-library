@@ -350,7 +350,8 @@ class CustomsInfo
     {
         if ($this->getParcelValue() !== null) {
             $customsInfo->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('parcelValue', $prefix),
                     $this->getParcelValue()
                 )
@@ -369,7 +370,8 @@ class CustomsInfo
     {
         if ($this->getCurrency() !== null) {
             $customsInfo->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('currency', $prefix),
                     $this->getCurrency()
                 )
@@ -388,7 +390,8 @@ class CustomsInfo
     {
         if ($this->getAmtPostagePaidByAddresse() !== null) {
             $customsInfo->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('amtPostagePaidByAddresse', $prefix),
                     sprintf('%0.2f', $this->getAmtPostagePaidByAddresse())
                 )
@@ -407,7 +410,8 @@ class CustomsInfo
     {
         if ($this->getContentDescription() !== null) {
             $customsInfo->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('contentDescription', $prefix),
                     $this->getContentDescription()
                 )
@@ -426,7 +430,8 @@ class CustomsInfo
     {
         if ($this->getShipmentType() !== null) {
             $customsInfo->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('shipmentType', $prefix),
                     $this->getShipmentType()
                 )
@@ -445,7 +450,8 @@ class CustomsInfo
     {
         if ($this->getParcelReturnInstructions() !== null) {
             $customsInfo->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('parcelReturnInstructions', $prefix),
                     $this->getParcelReturnInstructions()
                 )
@@ -469,7 +475,8 @@ class CustomsInfo
                 $value = 'false';
             }
             $customsInfo->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('privateAddress', $prefix),
                     $value
                 )

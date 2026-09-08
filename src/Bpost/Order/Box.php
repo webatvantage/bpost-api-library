@@ -322,7 +322,8 @@ class Box
     {
         if ($this->getBarcode() !== null) {
             $box->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('barcode', $prefix),
                     $this->getBarcode()
                 )
@@ -372,7 +373,8 @@ class Box
     {
         if ($this->getRemark() !== null) {
             $box->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('remark', $prefix),
                     $this->getRemark()
                 )
@@ -392,7 +394,8 @@ class Box
         $additionalCustomerReferenceSplits = str_split($additionalCustomerReference, 50);
         $additionalCustomerReference = $additionalCustomerReferenceSplits[0];
         $box->appendChild(
-            $document->createElement(
+            XmlHelper::createTextElement(
+                $document,
                 XmlHelper::getPrefixedTagName('additionalCustomerReference', $prefix),
                 $additionalCustomerReference
             )

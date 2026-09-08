@@ -4,6 +4,7 @@ namespace Bpost\BpostApiClient\Bpost\HttpRequestBuilder;
 
 use Bpost\BpostApiClient\Bpost;
 use Bpost\BpostApiClient\Common\ValidatedValue\LabelFormat;
+use Bpost\BpostApiClient\Common\XmlHelper;
 use DOMDocument;
 use DOMException;
 
@@ -61,7 +62,7 @@ class CreateLabelInBulkForOrdersBuilder implements HttpRequestBuilderInterface
         $batchLabels->setAttribute('xmlns', Bpost::NS_V3_GLOBAL);
         foreach ($this->references as $reference) {
             $batchLabels->appendChild(
-                $document->createElement('order', $reference)
+                XmlHelper::createTextElement($document, 'order', $reference)
             );
         }
         $document->appendChild($batchLabels);

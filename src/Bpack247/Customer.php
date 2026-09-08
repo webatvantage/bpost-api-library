@@ -2,6 +2,7 @@
 
 namespace Bpost\BpostApiClient\Bpack247;
 
+use Bpost\BpostApiClient\Common\XmlHelper;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
 use Bpost\BpostApiClient\Exception\XmlException\BpostXmlNoUserIdFoundException;
 use DateTime;
@@ -674,7 +675,8 @@ class Customer
     {
         if ($this->getFirstName() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'FirstName',
                     $this->getFirstName()
                 )
@@ -682,7 +684,8 @@ class Customer
         }
         if ($this->getLastName() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'LastName',
                     $this->getLastName()
                 )
@@ -698,7 +701,8 @@ class Customer
     {
         if ($this->getEmail() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'Email',
                     $this->getEmail()
                 )
@@ -706,7 +710,8 @@ class Customer
         }
         if ($this->getMobilePrefix() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'MobilePrefix',
                     $this->getMobilePrefix()
                 )
@@ -714,7 +719,8 @@ class Customer
         }
         if ($this->getMobileNumber() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'MobileNumber',
                     $this->getMobileNumber()
                 )
@@ -730,7 +736,8 @@ class Customer
     {
         if ($this->getStreet() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'Street',
                     $this->getStreet()
                 )
@@ -738,7 +745,8 @@ class Customer
         }
         if ($this->getNumber() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'Number',
                     $this->getNumber()
                 )
@@ -754,7 +762,8 @@ class Customer
     {
         if ($this->getPreferredLanguage() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'PreferredLanguage',
                     $this->getPreferredLanguage()
                 )
@@ -770,7 +779,8 @@ class Customer
     {
         if ($this->getTitle() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'Title',
                     $this->getTitle()
                 )
@@ -786,7 +796,8 @@ class Customer
     {
         if ($this->getPostalCode() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'PostalCode',
                     $this->getPostalCode()
                 )

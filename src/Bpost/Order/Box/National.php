@@ -166,7 +166,8 @@ abstract class National extends ComplexAttribute implements IBox
 
         if ($this->getProduct() !== null) {
             $typeElement->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('product', $prefix),
                     $this->getProduct()
                 )
@@ -186,7 +187,7 @@ abstract class National extends ComplexAttribute implements IBox
 
         if ($this->getWeight() !== null) {
             $typeElement->appendChild(
-                $document->createElement(XmlHelper::getPrefixedTagName('weight', $prefix), $this->getWeight())
+                XmlHelper::createTextElement($document, XmlHelper::getPrefixedTagName('weight', $prefix), $this->getWeight())
             );
         }
 
@@ -204,7 +205,8 @@ abstract class National extends ComplexAttribute implements IBox
 
         if ($this->getDesiredDeliveryPlace() !== null) {
             $typeElement->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('desiredDeliveryPlace', $prefix),
                     $this->getDesiredDeliveryPlace()
                 )

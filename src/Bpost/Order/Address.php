@@ -281,7 +281,8 @@ class Address
     {
         if ($this->getStreetName() !== null) {
             $address->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('streetName', $prefix),
                     $this->getStreetName()
                 )
@@ -298,7 +299,8 @@ class Address
     {
         if ($this->getPostalCode() !== null) {
             $address->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('postalCode', $prefix),
                     $this->getPostalCode()
                 )
@@ -306,7 +308,8 @@ class Address
         }
         if ($this->getLocality() !== null) {
             $address->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('locality', $prefix),
                     $this->getLocality()
                 )
@@ -323,7 +326,8 @@ class Address
     {
         if ($this->getCountryCode() !== null) {
             $address->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('countryCode', $prefix),
                     $this->getCountryCode()
                 )
@@ -340,7 +344,8 @@ class Address
     {
         if ($this->getNumber() !== null) {
             $address->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('number', $prefix),
                     $this->getNumber()
                 )
@@ -348,7 +353,8 @@ class Address
         }
         if ($this->getBox() !== null) {
             $address->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('box', $prefix),
                     $this->getBox()
                 )

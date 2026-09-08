@@ -52,4 +52,24 @@ class LineTest extends TestCase
 
         $this->assertEquals($expectedDocument, $actualDocument);
     }
+
+    /**
+     * Tests Line->toXML with a text that has to be escaped
+     */
+    public function testToXMLWithSpecialCharactersInTheText()
+    {
+        $document = self::createDomDocument();
+        $line = new Line('Lisa&jo sandalen <goud>', 1);
+        $document->appendChild(
+            $line->toXML($document, null)
+        );
+
+        $this->assertStringContainsString(
+            '<text>Lisa&amp;jo sandalen &lt;goud&gt;</text>',
+            $document->saveXML()
+        );
+
+        $xml = simplexml_load_string($document->saveXML());
+        $this->assertSame('Lisa&jo sandalen <goud>', (string) $xml->text);
+    }
 }

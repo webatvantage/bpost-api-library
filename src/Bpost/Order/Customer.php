@@ -148,7 +148,8 @@ class Customer
 
         if ($this->getName() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'common:name',
                     $this->getName()
                 )
@@ -156,7 +157,8 @@ class Customer
         }
         if ($this->getCompany() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'common:company',
                     $this->getCompany()
                 )
@@ -169,7 +171,8 @@ class Customer
         }
         if ($this->getEmailAddress() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'common:emailAddress',
                     $this->getEmailAddress()
                 )
@@ -177,7 +180,8 @@ class Customer
         }
         if ($this->getPhoneNumber() !== null) {
             $customer->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     'common:phoneNumber',
                     $this->getPhoneNumber()
                 )

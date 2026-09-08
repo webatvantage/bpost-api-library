@@ -111,7 +111,8 @@ class CashOnDelivery extends Option
 
         if ($this->getAmount() !== null) {
             $cod->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('codAmount', $prefix),
                     $this->getAmount()
                 )
@@ -119,7 +120,8 @@ class CashOnDelivery extends Option
         }
         if ($this->getIban() !== null) {
             $cod->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('iban', $prefix),
                     $this->getIban()
                 )
@@ -127,7 +129,8 @@ class CashOnDelivery extends Option
         }
         if ($this->getBic() !== null) {
             $cod->appendChild(
-                $document->createElement(
+                XmlHelper::createTextElement(
+                    $document,
                     XmlHelper::getPrefixedTagName('bic', $prefix),
                     $this->getBic()
                 )

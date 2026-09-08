@@ -4,6 +4,7 @@ namespace Bpost\BpostApiClient\Bpost\HttpRequestBuilder;
 
 use Bpost\BpostApiClient\Bpost;
 use Bpost\BpostApiClient\Bpost\Order\Box;
+use Bpost\BpostApiClient\Common\XmlHelper;
 use Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidValueException;
 use DOMDocument;
 
@@ -44,7 +45,7 @@ class ModifyOrderBuilder implements HttpRequestBuilderInterface
         $orderUpdate->setAttribute('xmlns', Bpost::NS_V3_GLOBAL);
         $orderUpdate->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
         $orderUpdate->appendChild(
-            $document->createElement('status', $this->status)
+            XmlHelper::createTextElement($document, 'status', $this->status)
         );
         $document->appendChild($orderUpdate);
 

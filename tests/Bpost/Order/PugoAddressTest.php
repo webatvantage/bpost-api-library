@@ -66,7 +66,7 @@ class PugoAddressTest extends TestCase
 		$this->expectException(\Bpost\BpostApiClient\Exception\BpostLogicException\BpostInvalidLengthException::class);
 
         $address = new PugoAddress();
-        $address->setBox(str_repeat('a', 9));
+        $address->setBox(str_repeat('a', 10));
     }
 
     public function testFaultyCountryCodeProperties()

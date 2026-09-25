@@ -11,3 +11,6 @@
 /tests/phpunit-credentials.php
 /.php-cs-fixer.cache
 /.phpunit.result.cache
+
+# Temp docs
+/docs

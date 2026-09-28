@@ -1,17 +1,17 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Tests\Shm\DataObjects\Option;
+namespace Webatvantage\Bpost\Api\Tests\Shm\DataObjects\Options;
 
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\CashOnDelivery;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\AutomaticSecondPresentation;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\Fragile;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\SaturdayDelivery;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\Signed;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Insured;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Messaging;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\OptionFactory;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\CashOnDelivery;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\AutomaticSecondPresentation;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\Fragile;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\SaturdayDelivery;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\Signed;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Insured;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Messaging;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\OptionFactory;
 use Webatvantage\Bpost\Api\Shm\Enums\InsuranceAmount;
 use Webatvantage\Bpost\Api\Tests\Shm\ShmTestCase;
 

@@ -14,6 +14,9 @@ use SimpleXMLElement;
  */
 class Xml
 {
+	/** Addresses, parties and options are written under this prefix by every bpost service. */
+	public const string PREFIX_COMMON = 'common';
+
 	public static function document(): DOMDocument
 	{
 		$document = new DOMDocument('1.0', 'UTF-8');

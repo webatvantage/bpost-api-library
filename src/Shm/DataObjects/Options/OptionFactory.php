@@ -1,13 +1,14 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Shm\DataObjects\Option;
+namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 
 use SimpleXMLElement;
+use Webatvantage\Bpost\Api\DataObjects\Options\Option;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\AutomaticSecondPresentation;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\Fragile;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\SaturdayDelivery;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\Signed;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\AutomaticSecondPresentation;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\Fragile;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\SaturdayDelivery;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\Signed;
 use Webatvantage\Bpost\Api\Shm\Enums\MessagingType;
 
 /**

@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
 
 use DOMDocument;
 use DOMElement;
+use Webatvantage\Bpost\Api\DataObjects\Options\Option;
 use Webatvantage\Bpost\Api\Parcel\Support\Xml;
 use Webatvantage\Bpost\Api\Support\Assert;
 

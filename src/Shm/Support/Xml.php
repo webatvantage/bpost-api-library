@@ -28,9 +28,6 @@ class Xml extends BaseXml
 	/** Prefix for elements in the order namespace. */
 	public const string PREFIX_GLOBAL = 'tns';
 
-	/** Prefix for addresses, names and options, which are shared between national and international. */
-	public const string PREFIX_COMMON = 'common';
-
 	/** Prefix for the international box and everything inside it. */
 	public const string PREFIX_INTERNATIONAL = 'international';
 

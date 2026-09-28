@@ -1,11 +1,14 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
+namespace Webatvantage\Bpost\Api\DataObjects\Options;
 
 use DOMDocument;
 use DOMElement;
-use Webatvantage\Bpost\Api\Parcel\Support\Xml;
+use Webatvantage\Bpost\Api\Support\Xml;
 
+/**
+ * An option that is nothing but its own presence, written as an empty element.
+ */
 abstract class Flag implements Option
 {
 	abstract protected function tagName(): string;

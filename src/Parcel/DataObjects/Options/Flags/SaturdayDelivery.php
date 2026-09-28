@@ -1,6 +1,8 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags;
+namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options\Flags;
+
+use Webatvantage\Bpost\Api\DataObjects\Options\Flag;
 
 /**
  * Deliver on Saturday.

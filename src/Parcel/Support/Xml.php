@@ -20,9 +20,6 @@ class Xml extends BaseXml
 	/** Prefix for the announcement's own elements. */
 	public const string PREFIX_ANNOUNCEMENT = 'inst';
 
-	/** Prefix for addresses, parties and options, shared with tracking. */
-	public const string PREFIX_COMMON = 'common';
-
 	public static function declareNamespaces(DOMElement $root): DOMElement
 	{
 		$root->setAttribute('xmlns:' . self::PREFIX_COMMON, self::COMMON);

@@ -1,6 +1,8 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
+namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options\Flags;
+
+use Webatvantage\Bpost\Api\DataObjects\Options\Flag;
 
 /**
  * Basic warranty, up to 500 EUR.

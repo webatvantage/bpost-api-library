@@ -1,11 +1,12 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Shm\DataObjects\Option;
+namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 
 use DOMDocument;
 use DOMElement;
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\DataObjects\Options\Option;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
 
 /**

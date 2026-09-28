@@ -1,6 +1,8 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
+namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options\Flags;
+
+use Webatvantage\Bpost\Api\DataObjects\Options\Flag;
 
 /**
  * Require a signature on delivery.

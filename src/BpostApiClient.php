@@ -10,10 +10,6 @@ use Webatvantage\Bpost\Api\Shm\ShmApiClient;
 
 /**
  * One entry point for the bpost services.
- *
- * They are genuinely separate APIs — different hosts, different credentials, different schemas — so
- * each is also usable on its own (`new GeoApiClient($config)`). This exists so an integration that
- * talks to more than one does not have to wire up each of them by hand.
  */
 readonly class BpostApiClient
 {

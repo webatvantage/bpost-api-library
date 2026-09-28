@@ -5,6 +5,9 @@
 /vendor/
 /composer.phar
 
+# Build & analysis
+/build
+
 # Tests & reports
 /.phpunit.cache
 /reports

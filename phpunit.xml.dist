@@ -1,29 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <phpunit colors="true" bootstrap="tests/phpunit-bootstrap.php" cacheDirectory=".phpunit.cache">
-  <coverage>
-    <report>
-      <clover outputFile="reports/coverage-clover.xml"/>
-      <html outputDirectory="reports/coverage-clover-html"/>
-    </report>
-  </coverage>
+  <coverage/>
   <testsuites>
     <testsuite name="unit-tests">
       <directory>tests</directory>
       <exclude>tests/connection-tests</exclude>
     </testsuite>
   </testsuites>
-  <logging>
-    <junit outputFile="reports/phpunit.xml"/>
-  </logging>
   <source>
     <include>
       <directory suffix=".php">src</directory>
     </include>
     <exclude>
-      <directory>src/Bpack247.php</directory>
-      <directory>src/Bpost.php</directory>
-      <directory>src/Geo6.php</directory>
-      <directory>tests/reports</directory>
+      <file>src/Bpack247.php</file>
+      <file>src/Bpost.php</file>
+      <file>src/Geo6.php</file>
     </exclude>
   </source>
 </phpunit>

@@ -1,0 +1,21 @@
+parameters:
+    level: 5
+    paths:
+        - src
+    tmpDir: build/phpstan
+    excludePaths:
+        analyseAndScan:
+            # Legacy tree, ported away phase by phase. Shrink this list as each
+            # phase lands; Phase 4 removes the key entirely.
+            - src/ApiCaller
+            - src/Bpack247
+            - src/Bpack247.php
+            - src/Bpost
+            - src/Bpost.php
+            - src/BpostException.php
+            - src/Common
+            - src/Exception
+            - src/FormHandler.php
+            - src/Geo6
+            - src/Geo6.php
+            - src/Logger.php

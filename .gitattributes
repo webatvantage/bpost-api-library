@@ -1,6 +1,11 @@
 * text=auto
 
-/tests export-ignore
-/.gitattributes export-ignore
-/CHANGELOG.md export-ignore
-/README.md export-ignore
+/.gitattributes     export-ignore
+/.github            export-ignore
+/.php-cs-fixer.php  export-ignore
+/CHANGELOG.md       export-ignore
+/MIGRATION.md       export-ignore
+/README.md          export-ignore
+/phpstan.neon.dist  export-ignore
+/phpunit.xml.dist   export-ignore
+/tests              export-ignore

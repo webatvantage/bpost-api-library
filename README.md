@@ -2,7 +2,7 @@
 
 ## About
 
-_bpost API library_ is a PHP client for the bpost APIs: the Shipping Manager, the Geolocator
+_bpost API library_ is a PHP client for the bpost APIs: the Shipping Manager, the Geolocator,
 parcel announcement and tracking.
 
 Built against the *bpack integration manual* v3.3.35 and bpost's own SHM API v5 example set.
@@ -237,6 +237,6 @@ $points = $geo->servicePoints()
 $url = $geo->servicePoints()->pageUrl('220000', PointType::PostOffice);
 ```
 
-## Would like contribute ?
+## Contributing
 
 You can read the [CONTRIBUTING.md](https://github.com/webatvantage/bpost-api-library/blob/main/CONTRIBUTING.md) file

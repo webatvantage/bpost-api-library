@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c1f7e26b7a935b8b4f6d7e88ab68ad31",
+    "content-hash": "b5fbb8df4ed3dbb9820ff9d3b63396ed",
     "packages": [
         {
             "name": "gmponos/guzzle_logger",
@@ -5403,16 +5403,16 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.4",
-        "ext-curl": "*",
         "ext-dom": "*",
         "ext-mbstring": "*",
-        "ext-simplexml": "*"
+        "ext-simplexml": "*",
+        "ext-libxml": "*"
     },
     "platform-dev": {},
     "plugin-api-version": "2.9.0"

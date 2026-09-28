@@ -122,9 +122,8 @@ class HttpApiAdapter
 	/**
 	 * Map a bpost fault document onto an exception.
 	 *
-	 * The body is always carried through. The previous implementation read the content type from
-	 * the wrong curl_getinfo key, so every error surfaced with an empty message and callers had no
-	 * idea what bpost had objected to.
+	 * The body is always carried through, since bpost's message is the only thing that says which
+	 * field it objected to.
 	 */
 	private static function toException(int $statusCode, string $contents): ApiException
 	{

@@ -4,6 +4,8 @@ namespace Webatvantage\Bpost\Api\Tests\ApiAdapter;
 
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Enums\Method;
@@ -32,6 +34,32 @@ class HttpApiAdapterTest extends TestCase
 		$this->mockResponse(201, '');
 
 		$this->assertSame('', $this->adapter()->request(new Request(Method::POST, '/orders')));
+	}
+
+	public function test_the_debug_callback_receives_the_request_and_the_response()
+	{
+		$this->mockResponse(400, '<businessException><message>Invalid weight</message></businessException>');
+
+		$seen = [];
+		$adapter = $this->adapter()->setDebugCallback(function (RequestInterface $request, ResponseInterface $response) use (&$seen) {
+			$seen = [$request, $response, (string)$response->getBody()];
+		});
+
+		try
+		{
+			$adapter->request(new Request(Method::POST, '/orders', body: '<order/>'));
+		}
+		catch (BusinessException)
+		{
+		}
+
+		[$request, $response, $body] = $seen;
+
+		$this->assertSame('POST', $request->getMethod());
+		$this->assertSame('https://example.test/orders', (string)$request->getUri());
+		$this->assertSame('<order/>', (string)$request->getBody());
+		$this->assertSame(400, $response->getStatusCode());
+		$this->assertStringContainsString('Invalid weight', $body);
 	}
 
 	public function test_it_merges_default_headers_with_request_headers()

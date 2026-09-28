@@ -7,6 +7,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleLogMiddleware\LogMiddleware;
 use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Exceptions\ApiException;
@@ -31,12 +33,15 @@ class HttpApiAdapter
 
 	private readonly string $baseUri;
 
+	/** @var (Closure(RequestInterface, ResponseInterface): void)|null */
 	private ?Closure $debugCallback;
 
 	/**
 	 * @param string $baseUri
 	 * @param array<string, string> $defaultHeaders
 	 * @param array<string, mixed> $httpClientOptions
+	 * @param LoggerInterface|null $logger
+	 * @param (Closure(RequestInterface $request, ResponseInterface $response): void)|null $debugCallback
 	 */
 	public function __construct(
 		string $baseUri,
@@ -87,7 +92,7 @@ class HttpApiAdapter
 
 		if (isset($this->debugCallback))
 		{
-			($this->debugCallback)($contents, (string)$psrRequest->getUri(), (string)$psrRequest->getBody());
+			($this->debugCallback)($psrRequest, $response);
 		}
 
 		if ($statusCode < 200 || $statusCode > 299)
@@ -114,6 +119,11 @@ class HttpApiAdapter
 		return $xml;
 	}
 
+	/**
+	 * @param (Closure(RequestInterface $request, ResponseInterface $response): void)|null $callback
+	 *
+	 * @return static
+	 */
 	public function setDebugCallback(?Closure $callback): static
 	{
 		$this->debugCallback = $callback;

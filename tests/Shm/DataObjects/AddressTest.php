@@ -49,16 +49,30 @@ class AddressTest extends ShmTestCase
 		$this->assertStringContainsString('<common:countryCode>BE</common:countryCode>', $xml);
 	}
 
-	public function test_a_pugo_address_is_named_differently()
+	/**
+	 * The wrapper and its children take different prefixes: a pick-up point's address element is
+	 * unprefixed while the fields inside it stay in the common namespace. bpost's own examples are
+	 * consistent about this, and writing the children under the wrapper's prefix produces a
+	 * document it rejects.
+	 */
+	public function test_a_pugo_address_is_named_differently_but_keeps_common_children()
 	{
-		$this->assertStringContainsString(
-			'<pugoAddress>',
-			$this->serialise(new PugoAddress()->streetName('Turnhoutsebaan')->toXml(...)),
+		$this->assertXmlFragment(
+			'<pugoAddress>'
+			. '<common:streetName>Turnhoutsebaan</common:streetName>'
+			. '<common:number>468</common:number>'
+			. '<common:countryCode>BE</common:countryCode>'
+			. '</pugoAddress>',
+			$this->serialise(new PugoAddress()->streetName('Turnhoutsebaan')->number(468)->toXml(...)),
 		);
 
-		$this->assertStringContainsString(
-			'<parcelsDepotAddress>',
-			$this->serialise(new ParcelsDepotAddress()->streetName('Turnhoutsebaan')->toXml(...)),
+		$this->assertXmlFragment(
+			'<parcelsDepotAddress>'
+			. '<common:streetName>Turnhoutsebaan</common:streetName>'
+			. '<common:number>468</common:number>'
+			. '<common:countryCode>BE</common:countryCode>'
+			. '</parcelsDepotAddress>',
+			$this->serialise(new ParcelsDepotAddress()->streetName('Turnhoutsebaan')->number(468)->toXml(...)),
 		);
 	}
 

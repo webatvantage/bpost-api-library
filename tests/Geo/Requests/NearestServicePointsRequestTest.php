@@ -165,6 +165,21 @@ class NearestServicePointsRequestTest extends GeoTestCase
 	}
 
 	/**
+	 * A search answers <Info ServiceRef>, which is the XML webservice rather than a page.
+	 */
+	public function test_the_page_url_is_a_page_and_not_the_info_webservice()
+	{
+		$this->mockResponse(200, self::RESPONSE);
+
+		$point = $this->client()->servicePoints()->nearest('1020')->get()[0];
+
+		$this->assertStringContainsString('Function=page', (string)$point->pageUrl);
+		$this->assertStringNotContainsString('Function=info', (string)$point->pageUrl);
+		$this->assertStringContainsString('Id=42599', (string)$point->pageUrl);
+		$this->assertStringContainsString('Partner=999999', (string)$point->pageUrl);
+	}
+
+	/**
 	 * The Geolocator answers HTTP 200 and reports failure inside the document.
 	 */
 	public function test_it_raises_a_locator_error_reported_in_the_body()

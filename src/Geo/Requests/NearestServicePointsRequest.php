@@ -23,7 +23,7 @@ class NearestServicePointsRequest extends GeoRequest
 
 	public function __construct(
 		HttpApiAdapter $apiAdapter,
-		GeoApiConfig $config,
+		private readonly GeoApiConfig $config,
 		string $zone,
 		?string $street = null,
 		?string $number = null,
@@ -113,14 +113,26 @@ class NearestServicePointsRequest extends GeoRequest
 
 		foreach ($xml->PoiList->Poi ?? [] as $poi)
 		{
-			$points[] = ServicePoint::fromXml(
-				$poi->Record,
-				isset($poi->Distance) ? (float)$poi->Distance : null,
-				isset($poi->Info['ServiceRef']) ? (string)$poi->Info['ServiceRef'] : null,
-			);
+			$point = ServicePoint::fromXml($poi->Record, isset($poi->Distance) ? (float)$poi->Distance : null);
+
+			$points[] = $point->withPageUrl($this->pageUrl($point));
 		}
 
 		return $points;
+	}
+
+	/**
+	 * A search answers `<Info ServiceRef>`, a Function=info URL, so the page URL is built here.
+	 */
+	private function pageUrl(ServicePoint $point): ?string
+	{
+		if ($point->id === '' || $point->type === null)
+		{
+			return null;
+		}
+
+		return new ServicePointPageRequest($this->config, $point->id, $point->type)
+			->toUrl($this->config->baseUri);
 	}
 
 	private function addAttributeFilter(string $filter): static

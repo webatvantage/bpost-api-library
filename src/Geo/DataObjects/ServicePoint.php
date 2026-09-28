@@ -40,8 +40,15 @@ class ServicePoint implements XmlDeserializable
 		public readonly OpeningHours $openingHours = new OpeningHours(),
 		public readonly Attributes $attributes = new Attributes(),
 		public readonly ?float $distance = null,
-		public readonly ?string $pageUrl = null,
+		public private(set) ?string $pageUrl = null,
 	) {}
+
+	public function withPageUrl(?string $pageUrl): static
+	{
+		$this->pageUrl = $pageUrl;
+
+		return $this;
+	}
 
 	/**
 	 * @param SimpleXMLElement $xml The record element, whose children are Id, Type, Name and so on

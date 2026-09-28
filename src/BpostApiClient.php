@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api;
 use Psr\Log\LoggerInterface;
 use Webatvantage\Bpost\Api\Exceptions\MissingConfigurationException;
 use Webatvantage\Bpost\Api\Geo\GeoApiClient;
+use Webatvantage\Bpost\Api\Shm\ShmApiClient;
 
 /**
  * One entry point for the bpost services.
@@ -23,6 +24,16 @@ readonly class BpostApiClient
 		private array $httpClientOptions = [],
 		private ?LoggerInterface $logger = null,
 	) {}
+
+	public function shm(): ShmApiClient
+	{
+		if ($this->config->shm === null)
+		{
+			throw MissingConfigurationException::forDomain('shm');
+		}
+
+		return new ShmApiClient($this->config->shm, $this->httpClientOptions, $this->logger);
+	}
 
 	public function geo(): GeoApiClient
 	{

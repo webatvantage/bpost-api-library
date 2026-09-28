@@ -3,6 +3,7 @@
 namespace Webatvantage\Bpost\Api;
 
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
+use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
 
 /**
  * Credentials for the bpost services you use.
@@ -13,5 +14,5 @@ use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
  */
 readonly class BpostApiConfig
 {
-	public function __construct(public ?GeoApiConfig $geo = null) {}
+	public function __construct(public ?ShmApiConfig $shm = null, public ?GeoApiConfig $geo = null) {}
 }

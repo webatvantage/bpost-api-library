@@ -11,15 +11,21 @@ use Webatvantage\Bpost\Api\Shm\ShmApiClient;
 /**
  * One entry point for the bpost services.
  */
-readonly class BpostApiClient
+class BpostApiClient
 {
+	private ?ShmApiClient $shm = null;
+
+	private ?GeoApiClient $geo = null;
+
+	private ?ParcelApiClient $parcel = null;
+
 	/**
 	 * @param array<string, mixed> $httpClientOptions
 	 */
 	public function __construct(
-		private BpostApiConfig $config,
-		private array $httpClientOptions = [],
-		private ?LoggerInterface $logger = null,
+		private readonly BpostApiConfig $config,
+		private readonly array $httpClientOptions = [],
+		private readonly ?LoggerInterface $logger = null,
 	) {}
 
 	public function shm(): ShmApiClient
@@ -29,7 +35,7 @@ readonly class BpostApiClient
 			throw MissingConfigurationException::forDomain('shm');
 		}
 
-		return new ShmApiClient($this->config->shm, $this->httpClientOptions, $this->logger);
+		return $this->shm ??= new ShmApiClient($this->config->shm, $this->httpClientOptions, $this->logger);
 	}
 
 	public function geo(): GeoApiClient
@@ -39,7 +45,7 @@ readonly class BpostApiClient
 			throw MissingConfigurationException::forDomain('geo');
 		}
 
-		return new GeoApiClient($this->config->geo, $this->httpClientOptions, $this->logger);
+		return $this->geo ??= new GeoApiClient($this->config->geo, $this->httpClientOptions, $this->logger);
 	}
 
 	public function parcel(): ParcelApiClient
@@ -49,6 +55,6 @@ readonly class BpostApiClient
 			throw MissingConfigurationException::forDomain('parcel');
 		}
 
-		return new ParcelApiClient($this->config->parcel, $this->httpClientOptions, $this->logger);
+		return $this->parcel ??= new ParcelApiClient($this->config->parcel, $this->httpClientOptions, $this->logger);
 	}
 }

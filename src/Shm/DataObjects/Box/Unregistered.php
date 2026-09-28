@@ -87,7 +87,9 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 
 		if (isset($xml->language) && trim((string)$xml->language) !== '')
 		{
-			$unregistered->language(Language::from(strtoupper(trim((string)$xml->language))));
+			$unregistered->language(
+				Assert::enum('language', Language::class, strtoupper(trim((string)$xml->language))),
+			);
 		}
 
 		if (isset($xml->mobilePhone) && trim((string)$xml->mobilePhone) !== '')

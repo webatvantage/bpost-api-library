@@ -2,6 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Support;
 
+use BackedEnum;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 
@@ -50,6 +51,30 @@ class Assert
 		}
 
 		return $value;
+	}
+
+	/**
+	 * @template T of BackedEnum
+	 *
+	 * @param class-string<T> $enum
+	 *
+	 * @return T
+	 *
+	 * @throws InvalidValueException
+	 */
+	public static function enum(string $name, string $enum, string|int $value): BackedEnum
+	{
+		$case = $enum::tryFrom($value);
+
+		if ($case === null)
+		{
+			throw new InvalidValueException($name, $value, array_map(
+				static fn (BackedEnum $case): string|int => $case->value,
+				$enum::cases(),
+			));
+		}
+
+		return $case;
 	}
 
 	/**

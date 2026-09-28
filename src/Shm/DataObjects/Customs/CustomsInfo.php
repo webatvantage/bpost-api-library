@@ -98,14 +98,18 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 		$info = new static(
 			(int)$xml->parcelValue,
 			(string)$xml->contentDescription,
-			ShipmentType::from(strtoupper(trim((string)$xml->shipmentType))),
-			ParcelReturnInstruction::from(strtoupper(trim((string)$xml->parcelReturnInstructions))),
+			Assert::enum('shipmentType', ShipmentType::class, strtoupper(trim((string)$xml->shipmentType))),
+			Assert::enum(
+				'parcelReturnInstructions',
+				ParcelReturnInstruction::class,
+				strtoupper(trim((string)$xml->parcelReturnInstructions)),
+			),
 			trim((string)$xml->privateAddress) === 'true',
 		);
 
 		if (isset($xml->currency) && trim((string)$xml->currency) !== '')
 		{
-			$info->currency(Currency::from(strtoupper(trim((string)$xml->currency))));
+			$info->currency(Assert::enum('currency', Currency::class, strtoupper(trim((string)$xml->currency))));
 		}
 
 		if (isset($xml->amtPostagePaidByAddresse) && trim((string)$xml->amtPostagePaidByAddresse) !== '')

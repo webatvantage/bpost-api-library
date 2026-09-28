@@ -146,6 +146,18 @@ class BoxTest extends ShmTestCase
 		$this->assertStringContainsString('<width>500</width>', $xml);
 	}
 
+	public function test_an_unknown_customs_value_raises_a_library_exception()
+	{
+		$this->expectException(InvalidValueException::class);
+
+		CustomsInfo::fromXml(simplexml_load_string(
+			'<customsInfo><parcelValue>1000</parcelValue><contentDescription>Books</contentDescription>'
+			. '<shipmentType>SOMETHING_NEW</shipmentType>'
+			. '<parcelReturnInstructions>RTS</parcelReturnInstructions>'
+			. '<privateAddress>false</privateAddress></customsInfo>',
+		));
+	}
+
 	public function test_dimensions_are_refused_for_other_products()
 	{
 		$this->expectException(InvalidValueException::class);

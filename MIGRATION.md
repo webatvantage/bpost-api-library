@@ -38,7 +38,25 @@ Filled in per phase as classes move.
 | `Geo6::POINT_TYPE_*` | `Webatvantage\Bpost\Api\Geo\Enums\PointType` |
 | `BpostTaxipostLocatorException` | `Webatvantage\Bpost\Api\Geo\Exceptions\LocatorException` |
 | `BpostInvalidDayException` | `Webatvantage\Bpost\Api\Exceptions\InvalidValueException` |
-| _(Phase 2 — Shipping Manager)_ | |
+| `Bpost\BpostApiClient\Bpost` | `Webatvantage\Bpost\Api\Shm\ShmApiClient` |
+| `…\Bpost\Order` | `…\Shm\DataObjects\Order` |
+| `…\Bpost\Order\Line` | `…\Shm\DataObjects\OrderLine` |
+| `…\Bpost\Order\Box` | `…\Shm\DataObjects\Box` |
+| `…\Bpost\Order\{Address,Sender,Receiver,PugoAddress,ParcelsDepotAddress}` | `…\Shm\DataObjects\…` |
+| `…\Bpost\Order\Box\{AtHome,AtBpost,At247,International,AtIntlPugo}` | `…\Shm\DataObjects\Box\…` |
+| `…\Bpost\Order\Box\National\Unregistered` | `…\Shm\DataObjects\Box\Unregistered` |
+| `…\Bpost\Order\Box\Option\{Messaging,CashOnDelivery,Insured}` | `…\Shm\DataObjects\Option\…` |
+| `…\Bpost\Order\Box\Option\{Signed,SaturdayDelivery,AutomaticSecondPresentation}` | `…\Shm\DataObjects\Option\Flags\…` |
+| `…\Bpost\Order\Box\CustomsInfo\CustomsInfo` | `…\Shm\DataObjects\Customs\CustomsInfo` |
+| `…\Bpost\Order\Box\International\ParcelContent` | `…\Shm\DataObjects\Customs\ParcelContent` |
+| `…\Bpost\{Label,Labels}` | `…\Shm\DataObjects\Label` |
+| `…\Bpost\Label\Barcode` | `…\Shm\DataObjects\Barcode` |
+| `…\Bpost\ProductConfiguration*` | `…\Shm\DataObjects\ProductConfiguration\…` |
+| `Product::PRODUCT_NAME_*` | `…\Shm\Enums\Product` |
+| `Box::BOX_STATUS_*` | `…\Shm\Enums\BoxStatus` |
+| `Bpost::LABEL_FORMAT_*` | `…\Shm\Enums\LabelFormat` |
+| `Insured::INSURANCE_*` | `…\Shm\Enums\{InsuranceType,InsuranceAmount}` |
+| `BpostException` and the `Exception\*` tree | `…\Exceptions\*` |
 | _(Phase 3 — Parcel)_ | |
 
 ## 3. Removed with no replacement
@@ -50,6 +68,70 @@ Filled in per phase.
 | `Geo6::getServicePointPage()` | Deprecated alias of `getServicePointPageUrl()` | `$geo->servicePoints()->pageUrl($id, $type)` |
 | `Geo6::getPointType()` | Replaced by a real enum | `PointType::mask(PointType::PostOffice, ...)` |
 | `Geo6::setTimeOut()` / `setUserAgent()` | Guzzle options replace them | Pass `['timeout' => 10]` as `$httpClientOptions` |
+| `FormHandler` | Not an API client: it built parameters for the Shipping Manager JavaScript widget and made no HTTP call. Its checksum was wrong anyway, hashing an `action` field the manual does not list | See the snippet below |
+| `Bpack247` and `Bpack247\*` | Undocumented service on a dead host, reached over plain HTTP with Basic credentials | none |
+| `Option\Insurance`, `Option\Signature` | Deprecated aliases since 3.5 | `Insured`, `Signed` |
+| `Box\AtIntlHome` | Never functional: it inherited `International`'s parser, which reads a different element | `International` |
+| `ProductConfiguration\Visibility` | Unreferenced, and its two values contradicted the ones on `DeliveryMethod` | `Shm\Enums\Visibility` |
+| `BpostOnAppointment` | Appears nowhere in the v3.3.35 manual, and its parser dropped product, options, weight and opening hours | none — ask bpost if you need it |
+| `Insured::INSURANCE_AMOUNT_UP_TO_7500_EUROS` … `_25000_EUROS` | bpost capped additional warranty at 5 000 EUR in 3.3.24; the library's own validation had rejected these ever since | `InsuranceAmount::UpTo2500`, `UpTo5000` |
+
+### Replacing FormHandler
+
+```php
+$checksum = hash('sha256', implode('&', [
+    'accountId=' . $accountId,
+    'costCenter=' . $costCenter,
+    'customerCountry=' . $countryCode,
+    'extraSecure=',
+    'orderReference=' . $reference,
+]) . '&' . $passphrase);
+```
+
+The fields are the ones the manual lists in B.2.2.2, in alphabetical order, with the passphrase
+appended after a final ampersand.
+
+### Shipping Manager, in detail
+
+```php
+// 3.x
+$bpost = new Bpost('123456', 'passphrase', 'https://api-parcel.bpost.be/services/shm/');
+$order = new Order('ref-123');
+$box = new Box();
+$atHome = new AtHome();
+$atHome->setProduct(Product::PRODUCT_NAME_BPACK_24H_PRO);
+$atHome->setReceiver($receiver);
+$atHome->addOption(new Insured(Insured::INSURANCE_TYPE_ADDITIONAL_INSURANCE, 2));
+$box->setNationalBox($atHome);
+$order->addBox($box);
+$bpost->createOrReplaceOrder($order);
+$labels = $bpost->createLabelForOrder('ref-123', Bpost::LABEL_FORMAT_A6, false, true);
+
+// 4.0
+$shm = new ShmApiClient(new ShmApiConfig(accountId: '123456', passphrase: 'passphrase'));
+$shm->orders()->create(
+    new Order('ref-123')->addBox(
+        new Box()->sender($sender)->deliverTo(
+            new AtHome(Product::Bpack24hPro)
+                ->weight(2000)
+                ->receiver($receiver)
+                ->withOption(Insured::additional(InsuranceAmount::UpTo2500)),
+        ),
+    ),
+);
+$labels = $shm->labels()->forOrder('ref-123', LabelFormat::A6, LabelOutput::Pdf)->get();
+```
+
+Setters lost their `set` prefix and return `$this`, so an order reads as one expression. Values are
+read as properties — `$box->deliveryBox->weight` — rather than through getters.
+
+Lengths the manual documents are now checked when you set them rather than by bpost when you send:
+sender and receiver name and company at 40, remark, order reference and cost centre at 50, and a
+box over 30 kg. Code that previously sent an over-long value and got a schema violation back will
+now get an `InvalidLengthException` at the point of the mistake.
+
+`bpack XL` exists, with `Dimensions` and the `Fragile` option. Labels can be asked for as ZPL,
+which bpost only produces in A6.
 
 ### Geolocator, in detail
 

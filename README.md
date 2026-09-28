@@ -1,16 +1,12 @@
 # bpost API client
 
-[![Build Status](https://scrutinizer-ci.com/g/Antidot-be/bpost-api-library/badges/build.png?b=master)](https://scrutinizer-ci.com/g/Antidot-be/bpost-api-library)
-[![Latest Stable Version](https://poser.pugx.org/antidot-be/bpost-api-library/v/stable)](https://packagist.org/packages/antidot-be/bpost-api-library)
-[![Latest Unstable Version](https://poser.pugx.org/antidot-be/bpost-api-library/v/unstable)](https://packagist.org/packages/antidot-be/bpost-api-library)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/Antidot-be/bpost-api-library/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Antidot-be/bpost-api-library)
-[![Code Coverage](https://scrutinizer-ci.com/g/Antidot-be/bpost-api-library/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Antidot-be/bpost-api-library)
-[![Total Downloads](https://poser.pugx.org/antidot-be/bpost-api-library/downloads)](https://packagist.org/packages/antidot-be/bpost-api-library)
-[![License](https://poser.pugx.org/antidot-be/bpost-api-library/license)](https://packagist.org/packages/antidot-be/bpost-api-library)
-
 ## About
 
-_bpost API library_ is a PHP library which permit to your PHP application to communicate with the [bpost API](http://bpost.be).
+_bpost API library_ is a PHP client for the bpost APIs: the Shipping Manager, the Geolocator
+and, in time, parcel announcement and tracking.
+
+Built against the *bpack integration manual* v3.3.35 and bpost's own SHM API v5 example set.
+Upgrading from 3.x? See [MIGRATION.md](MIGRATION.md).
 
 ## Installation
 
@@ -18,178 +14,131 @@ _bpost API library_ is a PHP library which permit to your PHP application to com
 composer require webatvantage/bpost-api-library
 ```
 
-## Usages
+## Usage
 
-### Orders
-
-#### Common objects
+Every bpost service is a separate API with its own host and credentials. Construct the one you
+need, or the central client if you use more than one.
 
 ```php
+use Webatvantage\Bpost\Api\BpostApiClient;
+use Webatvantage\Bpost\Api\BpostApiConfig;
+use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
+use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
 
-/* Call the Composer autoloader */
-require '../vendor/autoload.php';
+$bpost = new BpostApiClient(new BpostApiConfig(
+    shm: new ShmApiConfig(accountId: '123456', passphrase: 'MyGreatApiPassword'),
+    geo: new GeoApiConfig(partner: '123456', apiKey: 'xxxxxxxx'),
+));
 
-use Bpost\BpostApiClient\Bpost;
-use Bpost\BpostApiClient\Bpost\Order;
-use Bpost\BpostApiClient\Bpost\Order\Address;
-use Bpost\BpostApiClient\Bpost\Order\Box;
-use Bpost\BpostApiClient\Bpost\Order\Box\AtBpost;
-use Bpost\BpostApiClient\Bpost\Order\Box\AtHome;
-use Bpost\BpostApiClient\Bpost\Order\Box\CustomsInfo\CustomsInfo;
-use Bpost\BpostApiClient\Bpost\Order\Box\International;
-use Bpost\BpostApiClient\Bpost\Order\Box\Option\Insured;
-use Bpost\BpostApiClient\Bpost\Order\Box\Option\Messaging;
-use Bpost\BpostApiClient\Bpost\Order\Line;
-use Bpost\BpostApiClient\Bpost\Order\PugoAddress;
-use Bpost\BpostApiClient\Bpost\Order\Receiver;
-use Bpost\BpostApiClient\Bpost\ProductConfiguration\Product;
-use Bpost\BpostApiClient\BpostException;
-use Psr\Log\LoggerInterface;
+$bpost->shm()->orders()->create($order);
+$bpost->geo()->servicePoints()->nearest(zone: '1000')->get();
+```
 
+Reaching a service you did not configure throws `MissingConfigurationException` rather than failing
+later at the HTTP layer.
 
-$apiUrl = "https://api-parcel.bpost.be/services/shm/";
-$apiUsername = "107423";
-$apiPassword = "MyGreatApiPassword";
+### Shipping Manager
 
-$bpost = new Bpost($apiUsername, $apiPassword, $apiUrl);
+#### Building an order
 
-/* We set the receiver postal address, without the name */
-$receiverAddress = new Address();
-$receiverAddress->setStreetName("Rue du Grand Duc");
-$receiverAddress->setNumber(13);
-$receiverAddress->setPostalCode(1040);
-$receiverAddress->setLocality("Etterbeek");
-$receiverAddress->setCountryCode("BE"); // ISO2
+```php
+use Webatvantage\Bpost\Api\Enums\Language;
+use Webatvantage\Bpost\Api\Shm\DataObjects\{Order, Box, Sender, Receiver, Address};
+use Webatvantage\Bpost\Api\Shm\DataObjects\Box\AtHome;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Option\{Insured, Messaging};
+use Webatvantage\Bpost\Api\Shm\Enums\{InsuranceAmount, Product};
 
-/* We set the receiver postal address, without the name */
-$receiver = new Receiver();
-$receiver->setAddress($receiverAddress);
-$receiver->setName("Alma van Appel");
-$receiver->setPhoneNumber("+32 2 641 13 90");
-$receiver->setEmailAddress("alma@antidot.com");
-
-$orderReference = "ref_0123456789"; // An unique order reference
-$order = new Order($orderReference);
-
-/**
- * A order line is an order item, like a article
- */
-$order->addLine(
-    new Line("Article description", 1)
-);
-$order->addLine(
-    new Line("Some others articles", 5)
-);
-
-/**
- * A box is used to split your shipping in many packages
- * The box weight must be littlest than to 30kg
- */
-$box = new Box();
-
-/**
- * Available boxes for national box:
- * - AtHome: Delivered at the given address
- * - AtBpost: Delivered in a bpost office
- * - BpostOnAppointment: Delivered in a shop
- *
- * Available boxes for international box:
- * - International: Delivered at the given address
- */
-$atHome = new AtHome();
-$atHome->setProduct(Product::PRODUCT_NAME_BPACK_24H_BUSINESS);
-$atHome->setReceiver($receiver);
-
-/* Add options */
-$atHome->addOption(
-    new Insured(
-        Insured::INSURANCE_TYPE_ADDITIONAL_INSURANCE,
-        Insured::INSURANCE_AMOUNT_UP_TO_2500_EUROS
+$sender = new Sender()
+    ->name('Business Solutions Team')
+    ->company('bpost - bpack')
+    ->address(
+        new Address()
+            ->streetName('Muntcentrum')->number(1)
+            ->postalCode(1000)->locality('Brussel')->countryCode('BE'),
     )
-);
+    ->emailAddress('esolutions@bpost.be')
+    ->phoneNumber('0032499123456');
 
-$box->setNationalBox($atHome);
+$receiver = new Receiver()
+    ->name('Alma van Appel')
+    ->address(
+        new Address()
+            ->streetName('Rue du Grand Duc')->number(13)
+            ->postalCode(1040)->locality('Etterbeek')->countryCode('BE'),
+    )
+    ->emailAddress('alma@example.com');
 
-$order->addBox($box);
+$order = new Order('ref_0123456789')
+    ->costCenter('Webshop')
+    ->addLine('Article description', 1)
+    ->addBox(
+        new Box()
+            ->sender($sender)
+            ->deliverTo(
+                new AtHome(Product::Bpack24hPro)
+                    ->weight(2000)
+                    ->receiver($receiver)
+                    ->withOption(Messaging::infoNextDay(Language::EN)->email('alma@example.com'))
+                    ->withOption(Insured::additional(InsuranceAmount::UpTo2500)),
+            )
+            ->remark('Handle with care'),
+    );
 ```
 
-#### Create an order
+Other delivery methods take the place of `AtHome`: `AtBpost` for a pick-up point, `At247` for a
+parcel locker, `International` for an address abroad and `AtIntlPugo` for a pick-up point abroad.
 
-We use the variables set before.
+Lengths the manual documents are checked when you set them, so an over-long name throws
+`InvalidLengthException` rather than coming back as a schema violation from bpost.
 
-```php
-$bpost->createOrReplaceOrder($order); // The order is created with status Box::BOX_STATUS_PENDING
-```
-
-#### Update order status
+#### Orders
 
 ```php
-$bpost->modifyOrderStatus($orderReference, Box::BOX_STATUS_OPEN);
-```
+use Webatvantage\Bpost\Api\Shm\Enums\BoxStatus;
 
-#### Get order info
+$shm = $bpost->shm();
 
-```php
-$order = $bpost->fetchOrder($orderReference);
+$shm->orders()->create($order);
+$order = $shm->orders()->get('ref_0123456789');
+$shm->orders()->updateStatus('ref_0123456789', BoxStatus::Open);
 
-$boxes = $order->getBoxes();
-$lines = $order->getLines();
-```
-
-### Labels
-
-#### Get labels from an order
-
-```php
-$labels = $bpost->createLabelForOrder(
-    $orderReference,
-    Bpost::LABEL_FORMAT_A6, // $format
-    false, // $withReturnLabels
-    true // $asPdf
-);
-foreach ($labels as $label) {
-    $barcode = $label->getBarcode();
-    $mimeType = $label->getMimeType(); // Label::LABEL_MIME_TYPE_*
-    $bytes = $label->getBytes();
-    file_put_contents("$barcode.pdf", $bytes);
+foreach ($order->boxes as $box) {
+    $box->status;                 // BoxStatus
+    $box->barcode;
+    $box->deliveryBox->product;   // Product
 }
 ```
 
-#### Get labels from an existing barcode
+#### Labels
 
 ```php
-$labels = $bpost->createLabelForOrder(
-    $boxBarcode,
-    Bpost::LABEL_FORMAT_A6, // $format
-    false, // $withReturnLabels
-    true // $asPdf
-);
+use Webatvantage\Bpost\Api\Shm\Enums\{LabelFormat, LabelOutput};
+
+$labels = $shm->labels()->forOrder('ref_0123456789', LabelFormat::A6, LabelOutput::Pdf)->get();
+
 foreach ($labels as $label) {
-    $barcode = $label->getBarcode(); // Can be different than $boxBarcode if this is a return label
-    $mimeType = $label->getMimeType(); // Label::LABEL_MIME_TYPE_*
-    $bytes = $label->getBytes();
-    file_put_contents("$barcode.pdf", $bytes);
+    file_put_contents($label->barcode() . '.pdf', $label->contents());
 }
+
+// One box again, by barcode
+$labels = $shm->labels()->forBox($barcode)->get();
+
+// Several orders at once, with return labels
+$labels = $shm->labels()->inBulk(['ref_1', 'ref_2'], withReturnLabels: true)->get();
+
+// ZPL, which bpost only produces in A6
+$labels = $shm->labels()->forOrder('ref_1', LabelFormat::A6, LabelOutput::Zpl)->get();
 ```
 
-#### Get labels from an existing barcode
+#### Product configuration
+
+What this account may actually sell. Worth reading before building an order, since bpost refuses a
+product the account is not configured for.
 
 ```php
-$labels = $bpost->createLabelInBulkForOrders(
-    array(
-        $orderReference1,
-        $orderReference2,
-    ),
-    Bpost::LABEL_FORMAT_A6, // $format
-    false, // $withReturnLabels
-    true // $asPdf
-);
-foreach ($labels as $label) {
-    $barcode = $label->getBarcode(); // Can be different than $boxBarcode if this is a return label
-    $mimeType = $label->getMimeType(); // Label::LABEL_MIME_TYPE_*
-    $bytes = $label->getBytes();
-    file_put_contents("$barcode.pdf", $bytes);
-}
+$configuration = $shm->productConfiguration()->get();
+
+$configuration->offers(Product::Bpack24hPro);   // bool
 ```
 
 ### Geolocator (pick-up points, parcel points and parcel lockers)
@@ -246,11 +195,6 @@ $points = $geo->servicePoints()
 $url = $geo->servicePoints()->pageUrl('220000', PointType::PostOffice);
 ```
 
-## Sites using this class
-
-* [Each site based on the Web Retail Shop Platform](http://www.webretailcompany.be)
-* [The bpost plugin for WordPress](https://wordpress.org/plugins/bpost-shipping)
-
 ## Would like contribute ?
 
-You can read the [CONTRIBUTING.md](https://github.com/Antidot-be/bpost-api-library/blob/master/CONTRIBUTING.md) file
+You can read the [CONTRIBUTING.md](https://github.com/webatvantage/bpost-api-library/blob/main/CONTRIBUTING.md) file

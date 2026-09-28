@@ -14,6 +14,12 @@
   `AttributeFilter`
 * Geolocator: `PointType::ParcelPoint` (type 16), which was missing entirely
 * Geolocator: `ServicePoint` now reads `Country`, `BoxNumber` and the locker `Attributes`
+* Shipping Manager: the `bpack XL` product, its mandatory `Dimensions`, and the `fragile` option
+* Shipping Manager: ZPL label output, alongside PDF and PNG
+* Shipping Manager: `RETURNED` as a customs shipment type
+* Shipping Manager: the field lengths the manual documents are checked when set, rather than by
+  bpost on send — sender and receiver name and company, remark, order reference, cost centre, and
+  the 30 kg ceiling that `isValidWeight()` defined but no box ever called
 
 #### Changed
 
@@ -24,6 +30,9 @@
 * Geolocator host is now `pudo.bpost.cloud`, as documented, instead of `pudo.bpost.be`
 * A nearest-points search returns a flat list of `ServicePoint`; the distance is a property on the
   point rather than a parallel array key
+* Setters drop their `set` prefix and return `$this`; values are read as properties rather than
+  through getters
+* `getPossibleXValues()` arrays are replaced by enums throughout
 
 #### Removed
 
@@ -32,6 +41,15 @@
 * `Geo6::getServicePointPage()`, a deprecated alias, and `Geo6::getPointType()`, replaced by the
   `PointType` enum
 * `BpostTaxipostLocatorException` and `BpostInvalidDayException`
+* `FormHandler`, which built parameters for the Shipping Manager JavaScript widget and made no HTTP
+  call; see `MIGRATION.md` for the four-line checksum that replaces it
+* `Bpack247` and its customer classes, an undocumented service on a dead host reached over plain
+  HTTP
+* `Option\Insurance` and `Option\Signature`, deprecated aliases since 3.5
+* `Box\AtIntlHome`, which inherited a parser that reads a different element and so never worked
+* `ProductConfiguration\Visibility`, unreferenced and contradicting the values on `DeliveryMethod`
+* `BpostOnAppointment`, which appears nowhere in the v3.3.35 manual
+* The eight insurance bands above 5 000 EUR, which the library's own validation had always rejected
 
 #### Fixed
 
@@ -43,6 +61,19 @@
 * `ServicePoint` reads a `<Note>` as well as a `<NOTE>`; a nearest-points search uses the first
   spelling and 3.x only handled the second
 * TLS certificate verification is no longer disabled on Geolocator requests
+* Label requests send `Content-Type: application/vnd.bpost.shm-labelRequest-v5+XML`. 3.x sent v3,
+  which both the manual and every v5 example contradict
+* `<unregistered>` writes `<reducedMobilityZone/>`, the element bpost recognises, instead of
+  `<parcelLockerReducedMobilityZone/>`, and is read back from a retrieved order
+* An international pick-up box can be built at all: `AtIntlPugo::toXML()` called two methods that
+  existed nowhere in the library, so it was an unconditional fatal error
+* `AtIntlPugo` reads back `receiverName` and `receiverCompany`
+* Cash on delivery parses on an international box; the dispatch existed twice and the international
+  copy lacked the case
+* A box no longer emits an `additionalCustomerReference` nobody set, previously carrying a
+  generated `+PHP8.2` suffix
+* `Price::forWeight()` reports an overweight parcel in grams, the unit it was given; 3.x compared
+  grams and then reported them as kilograms
 
 ### 3.7.0
 

@@ -1,9 +1,10 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Shm\DataObjects\Option;
+namespace Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags;
 
 use DOMDocument;
 use DOMElement;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Option;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
 
 /**

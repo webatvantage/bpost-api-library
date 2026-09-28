@@ -22,7 +22,7 @@ use Webatvantage\Bpost\Api\Shm\Support\Xml;
 abstract class DeliveryBox implements XmlSerializable
 {
 	/** bpost rejects anything over 30 kg outright. */
-	public const MAX_WEIGHT = 30000;
+	public const MAX_WEIGHT = 30_000;
 
 	public private(set) ?Product $product = null;
 

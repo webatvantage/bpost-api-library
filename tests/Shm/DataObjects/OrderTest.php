@@ -7,7 +7,7 @@ use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Address;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\AtHome;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Signed;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\Signed;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Order;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Receiver;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Sender;

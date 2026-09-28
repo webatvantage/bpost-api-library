@@ -4,6 +4,10 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Option;
 
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\AutomaticSecondPresentation;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\Fragile;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\SaturdayDelivery;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\Signed;
 use Webatvantage\Bpost\Api\Shm\Enums\MessagingType;
 
 /**

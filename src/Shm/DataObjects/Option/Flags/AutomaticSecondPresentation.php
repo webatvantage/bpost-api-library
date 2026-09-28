@@ -1,6 +1,6 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Shm\DataObjects\Option;
+namespace Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags;
 
 /**
  * Attempt a second delivery after a failed first attempt.

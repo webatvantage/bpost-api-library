@@ -16,7 +16,7 @@ use Webatvantage\Bpost\Api\Shm\DataObjects\Box\Unregistered;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Customs\CustomsInfo;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Customs\ParcelContent;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Option\CashOnDelivery;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Fragile;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Option\Flags\Fragile;
 use Webatvantage\Bpost\Api\Shm\DataObjects\ParcelsDepotAddress;
 use Webatvantage\Bpost\Api\Shm\DataObjects\PugoAddress;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Receiver;

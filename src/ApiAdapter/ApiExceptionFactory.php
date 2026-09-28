@@ -1,8 +1,12 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Exceptions;
+namespace Webatvantage\Bpost\Api\ApiAdapter;
 
 use SimpleXMLElement;
+use Webatvantage\Bpost\Api\Exceptions\ApiException;
+use Webatvantage\Bpost\Api\Exceptions\BusinessException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidResponseException;
+use Webatvantage\Bpost\Api\Exceptions\SystemException;
 use Webatvantage\Bpost\Api\Support\Xml;
 
 /**

@@ -12,7 +12,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Contracts\Request;
-use Webatvantage\Bpost\Api\Exceptions\ApiExceptionFactory;
 use Webatvantage\Bpost\Api\Exceptions\TransporterException;
 use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
 use Webatvantage\Bpost\Api\Support\Xml;

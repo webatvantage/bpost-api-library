@@ -10,17 +10,16 @@ use Webatvantage\PhpCsFixer\Config\Config;
  * these lists as each phase lands rather than reformatting code that is about
  * to be deleted.
  */
-$legacySources = ['ApiCaller', 'Bpack247', 'Bpost', 'Common', 'Exception', 'Geo6'];
+$legacySources = ['ApiCaller', 'Bpack247', 'Bpost', 'Common', 'Exception'];
 $legacySourceFiles = [
 	'Bpack247.php',
 	'Bpost.php',
 	'BpostException.php',
 	'FormHandler.php',
-	'Geo6.php',
 	'Logger.php',
 ];
 
-$legacyTests = ['Bpack247', 'Bpost', 'BpostApiExamples', 'Common', 'Exception', 'Geo6', 'connection-tests'];
+$legacyTests = ['Bpack247', 'Bpost', 'BpostApiExamples', 'Common', 'Exception', 'connection-tests'];
 $legacyTestFiles = ['index.php', 'phpunit-bootstrap.php'];
 
 $finder = PhpCsFixer\Finder::create()

@@ -25,9 +25,9 @@ class TestCase extends BaseTestCase
 	}
 
 	/**
-	 * @param array<string, string> $defaultHeaders
+	 * A handler stack backed by the mock queue that also records what was sent.
 	 */
-	protected function adapter(array $defaultHeaders = []): HttpApiAdapter
+	protected function handlerStack(): HandlerStack
 	{
 		$stack = HandlerStack::create($this->mock);
 		$stack->push(function (callable $handler) {
@@ -38,7 +38,15 @@ class TestCase extends BaseTestCase
 			};
 		});
 
-		return new HttpApiAdapter('https://example.test', $defaultHeaders, ['handler' => $stack]);
+		return $stack;
+	}
+
+	/**
+	 * @param array<string, string> $defaultHeaders
+	 */
+	protected function adapter(array $defaultHeaders = []): HttpApiAdapter
+	{
+		return new HttpApiAdapter('https://example.test', $defaultHeaders, ['handler' => $this->handlerStack()]);
 	}
 
 	/**

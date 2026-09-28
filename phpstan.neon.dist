@@ -16,6 +16,4 @@ parameters:
             - src/Common
             - src/Exception
             - src/FormHandler.php
-            - src/Geo6
-            - src/Geo6.php
             - src/Logger.php

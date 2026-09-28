@@ -51,6 +51,18 @@ class OptionTest extends ShmTestCase
 		Messaging::infoDistributed()->email('a@b.com')->sms('0470000000');
 	}
 
+	public function test_a_retrieved_message_may_carry_both_channels()
+	{
+		$messaging = Messaging::fromXml(simplexml_load_string(
+			'<infoDistributed language="NL"><emailAddress>a@b.com</emailAddress>'
+			. '<mobilePhone>0470000000</mobilePhone></infoDistributed>',
+		));
+
+		$this->assertSame('a@b.com', $messaging->emailAddress);
+		$this->assertSame('0470000000', $messaging->mobilePhone);
+		$this->assertSame(Language::NL, $messaging->language);
+	}
+
 	public function test_cash_on_delivery_is_written_in_euro_cents()
 	{
 		$this->assertXmlFragment(

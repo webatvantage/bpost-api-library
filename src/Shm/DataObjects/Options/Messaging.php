@@ -94,12 +94,12 @@ class Messaging implements Option, XmlDeserializable
 
 		if (isset($children->emailAddress) && trim((string)$children->emailAddress) !== '')
 		{
-			$messaging->email((string)$children->emailAddress);
+			$messaging->emailAddress = trim((string)$children->emailAddress);
 		}
 
 		if (isset($children->mobilePhone) && trim((string)$children->mobilePhone) !== '')
 		{
-			$messaging->sms((string)$children->mobilePhone);
+			$messaging->mobilePhone = trim((string)$children->mobilePhone);
 		}
 
 		return $messaging;

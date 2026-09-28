@@ -8,4 +8,4 @@ namespace Webatvantage\Bpost\Api\Exceptions;
  * The message carries the support token bpost generates; keep it when reporting the failure, it is
  * the only handle their support has on the incident.
  */
-final class SystemException extends ApiException {}
+class SystemException extends ApiException {}

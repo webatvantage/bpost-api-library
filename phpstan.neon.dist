@@ -3,6 +3,10 @@ parameters:
     paths:
         - src
     tmpDir: build/phpstan
+    ignoreErrors:
+        # fromXml() returns `new static` so a subclass deserialises as itself. Classes here are not
+        # final, so PHPStan cannot prove a subclass keeps the same constructor signature.
+        - identifier: new.static
     excludePaths:
         analyseAndScan:
             # Legacy tree, ported away phase by phase. Shrink this list as each

@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Exceptions;
 
-final class MissingConfigurationException extends BpostException
+class MissingConfigurationException extends BpostException
 {
 	public static function forDomain(string $domain): self
 	{

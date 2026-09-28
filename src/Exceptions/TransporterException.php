@@ -7,7 +7,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 /**
  * The request never produced a response: DNS, TLS, connect or read timeout.
  */
-final class TransporterException extends BpostException
+class TransporterException extends BpostException
 {
 	public function __construct(ClientExceptionInterface $exception)
 	{

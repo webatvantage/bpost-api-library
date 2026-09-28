@@ -12,7 +12,7 @@ use SimpleXMLElement;
  * Namespace URIs and prefixed element names are deliberately *not* here — those differ per bpost
  * service and belong to that service's own support class.
  */
-final class Xml
+class Xml
 {
 	public static function document(): DOMDocument
 	{

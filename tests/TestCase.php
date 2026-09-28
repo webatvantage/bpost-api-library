@@ -13,7 +13,7 @@ class TestCase extends BaseTestCase
 {
 	protected MockHandler $mock;
 
-	/** @var list<PsrRequest> */
+	/** @var array<PsrRequest> */
 	protected array $recorded = [];
 
 	protected function setUp(): void

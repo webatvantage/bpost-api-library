@@ -26,7 +26,7 @@ abstract class GeoTestCase extends TestCase
 	/**
 	 * The query bpost actually received, as an associative array. Repeated keys become a list.
 	 *
-	 * @return array<string, string|list<string>>
+	 * @return array<string, string|array<string>>
 	 */
 	protected function sentQuery(): array
 	{

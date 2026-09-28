@@ -15,7 +15,7 @@ use Webatvantage\Bpost\Api\Requests\Request;
  * builds the URL. It still needs Function, Partner and AppId, which the 3.x implementation dropped
  * during a refactor and therefore produced a URL bpost could not answer.
  */
-final class ServicePointPageRequest extends Request
+class ServicePointPageRequest extends Request
 {
 	public function __construct(GeoApiConfig $config, string $id, PointType $type)
 	{

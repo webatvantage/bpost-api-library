@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Exceptions;
 
-final class InvalidPatternException extends LogicException
+class InvalidPatternException extends LogicException
 {
 	public function __construct(
 		public readonly string $name,

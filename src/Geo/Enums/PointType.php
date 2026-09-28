@@ -34,7 +34,7 @@ enum PointType: int
 	/**
 	 * Split a combined Type value back into its parts.
 	 *
-	 * @return list<self>
+	 * @return array<self>
 	 */
 	public static function fromMask(int $mask): array
 	{

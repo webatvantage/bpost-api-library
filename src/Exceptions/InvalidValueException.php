@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Exceptions;
 
-final class InvalidValueException extends LogicException
+class InvalidValueException extends LogicException
 {
 	/**
 	 * @param string $name

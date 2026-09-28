@@ -12,7 +12,7 @@ use Webatvantage\Bpost\Api\Geo\Enums\Weekday;
  *
  * A point that closes at midday has an AM pair and no PM pair; a point closed all day has neither.
  */
-final class Day implements XmlDeserializable
+class Day implements XmlDeserializable
 {
 	public function __construct(
 		public readonly Weekday $weekday,

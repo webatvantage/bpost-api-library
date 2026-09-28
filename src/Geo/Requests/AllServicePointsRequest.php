@@ -17,9 +17,9 @@ use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
  *
  * Note it identifies the caller with `Account` rather than `Partner`, though the value is the same.
  */
-final class AllServicePointsRequest extends GeoRequest
+class AllServicePointsRequest extends GeoRequest
 {
-	/** @var list<string> */
+	/** @var array<string> */
 	private array $attributeFilters = [];
 
 	public function __construct(HttpApiAdapter $apiAdapter, GeoApiConfig $config)
@@ -69,7 +69,7 @@ final class AllServicePointsRequest extends GeoRequest
 	}
 
 	/**
-	 * @return list<ServicePoint>
+	 * @return array<ServicePoint>
 	 */
 	public function get(): array
 	{

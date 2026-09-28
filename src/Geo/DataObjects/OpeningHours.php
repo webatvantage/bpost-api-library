@@ -17,7 +17,7 @@ use Webatvantage\Bpost\Api\Geo\Enums\Weekday;
  *
  * @implements IteratorAggregate<int, Day>
  */
-final class OpeningHours implements Countable, IteratorAggregate, XmlDeserializable
+class OpeningHours implements Countable, IteratorAggregate, XmlDeserializable
 {
 	/**
 	 * @param array<string, Day> $days

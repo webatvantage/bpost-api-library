@@ -12,7 +12,7 @@ use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
 /**
  * `Function=info` — the details of one pick-up point, by id and type.
  */
-final class ServicePointDetailsRequest extends GeoRequest
+class ServicePointDetailsRequest extends GeoRequest
 {
 	public function __construct(
 		HttpApiAdapter $apiAdapter,

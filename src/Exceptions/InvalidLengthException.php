@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Exceptions;
 
-final class InvalidLengthException extends LogicException
+class InvalidLengthException extends LogicException
 {
 	public function __construct(
 		public readonly string $name,

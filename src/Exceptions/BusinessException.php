@@ -8,4 +8,4 @@ namespace Webatvantage\Bpost\Api\Exceptions;
  *
  * Fixable by changing the request, so the code and message are worth showing to the caller.
  */
-final class BusinessException extends ApiException {}
+class BusinessException extends ApiException {}

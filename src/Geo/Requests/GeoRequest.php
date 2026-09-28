@@ -19,7 +19,7 @@ abstract class GeoRequest extends Request
 	/**
 	 * @param array<string, mixed> $parameters
 	 */
-	public function __construct(protected readonly HttpApiAdapter $apiAdapter, array $parameters,)
+	public function __construct(protected readonly HttpApiAdapter $apiAdapter, array $parameters)
 	{
 		parent::__construct(Method::GET, '/Locator', $parameters);
 	}

@@ -14,10 +14,10 @@ use Webatvantage\Bpost\Api\Geo\Enums\PointType;
  * `<Name>`/`<Street>`/`<Zip>` while a details lookup answers `<OFFICE>`/`<STREET>`/`<ZIP>` — so
  * every field is read under both spellings.
  */
-final class ServicePoint implements XmlDeserializable
+class ServicePoint implements XmlDeserializable
 {
 	/**
-	 * @param list<Service> $services
+	 * @param array<Service> $services
 	 */
 	public function __construct(
 		public readonly string $id,

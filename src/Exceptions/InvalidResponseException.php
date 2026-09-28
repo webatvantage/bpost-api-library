@@ -5,4 +5,4 @@ namespace Webatvantage\Bpost\Api\Exceptions;
 /**
  * A non-2xx response that carried no recognisable bpost fault document.
  */
-final class InvalidResponseException extends ApiException {}
+class InvalidResponseException extends ApiException {}

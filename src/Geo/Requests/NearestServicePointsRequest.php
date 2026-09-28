@@ -16,9 +16,9 @@ use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
  * DD, CheckDate and CheckOpen are mandatory per manual B.4.1.1 and are filled in here, since
  * leaving them out returns points that cannot actually take a delivery on the day concerned.
  */
-final class NearestServicePointsRequest extends GeoRequest
+class NearestServicePointsRequest extends GeoRequest
 {
-	/** @var list<string> */
+	/** @var array<string> */
 	private array $attributeFilters = [];
 
 	public function __construct(
@@ -104,7 +104,7 @@ final class NearestServicePointsRequest extends GeoRequest
 	}
 
 	/**
-	 * @return list<ServicePoint>
+	 * @return array<ServicePoint>
 	 */
 	public function get(): array
 	{

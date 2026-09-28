@@ -5,7 +5,7 @@ namespace Webatvantage\Bpost\Api\Geo\DataObjects;
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 
-final class Service implements XmlDeserializable
+class Service implements XmlDeserializable
 {
 	public function __construct(
 		public readonly string $name,

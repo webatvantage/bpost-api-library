@@ -21,15 +21,10 @@ use Webatvantage\Bpost\Api\Shm\Support\Xml;
  */
 class OpeningHours implements XmlDeserializable, XmlSerializable
 {
-	private const RANGE = '(?:[01]\d|2[0-3]):[0-5]\d-(?:[01]\d|2[0-3]):[0-5]\d';
+	private const string RANGE = '(?:[01]\d|2[0-3]):[0-5]\d-(?:[01]\d|2[0-3]):[0-5]\d';
 
 	/** @var array<string, string> */
 	private array $days = [];
-
-	public static function make(): static
-	{
-		return new static();
-	}
 
 	/**
 	 * @param string $hours One or two ranges, or "-" / "-/-" for closed

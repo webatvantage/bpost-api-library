@@ -22,15 +22,15 @@ readonly class GeoApiClient
 		?LoggerInterface $logger = null,
 	) {
 		$this->apiAdapter = new HttpApiAdapter(
-			$config->baseUri,
-			[
+			baseUri: $config->baseUri,
+			defaultHeaders: [
 				// Mandatory on the pudo.bpost.cloud domain since manual section B.4.1.0.
 				'x-api-key' => $config->apiKey,
 				// Without this bpost truncates a Get All Service Points response over 10 MB.
 				'Accept-Encoding' => 'gzip',
 			],
-			$httpClientOptions,
-			$logger,
+			httpClientOptions: $httpClientOptions,
+			logger: $logger,
 		);
 	}
 

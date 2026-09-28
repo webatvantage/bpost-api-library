@@ -15,7 +15,7 @@ use Webatvantage\Bpost\Api\Shm\Support\Xml;
  */
 abstract class Customer implements XmlDeserializable, XmlSerializable
 {
-	protected const TAG_NAME = 'customer';
+	protected const string TAG_NAME = 'customer';
 
 	public private(set) ?string $name = null;
 
@@ -26,11 +26,6 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 	public private(set) ?string $emailAddress = null;
 
 	public private(set) ?string $phoneNumber = null;
-
-	public static function make(): static
-	{
-		return new static();
-	}
 
 	/**
 	 * Only the first 40 characters are printed on the label, so bpost rejects anything longer.

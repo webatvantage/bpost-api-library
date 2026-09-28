@@ -30,11 +30,6 @@ class Order implements XmlDeserializable
 		Assert::maxLength('reference', $reference, 50);
 	}
 
-	public static function make(string $reference): static
-	{
-		return new static($reference);
-	}
-
 	/**
 	 * Groups barcodes on the invoice. bpost does not allow a unique value per barcode.
 	 */

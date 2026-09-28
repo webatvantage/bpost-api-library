@@ -13,7 +13,7 @@ class AddressTest extends ShmTestCase
 {
 	public function test_it_writes_the_element_bpost_documents()
 	{
-		$address = Address::make()
+		$address = new Address()
 			->streetName('Turnhoutsebaan')
 			->number(468)
 			->box('A')
@@ -40,7 +40,7 @@ class AddressTest extends ShmTestCase
 	 */
 	public function test_it_omits_elements_that_were_never_set()
 	{
-		$address = Address::make()->streetName('Muntcentrum')->number(1);
+		$address = new Address()->streetName('Muntcentrum')->number(1);
 
 		$xml = $this->serialise($address->toXml(...));
 
@@ -53,32 +53,32 @@ class AddressTest extends ShmTestCase
 	{
 		$this->assertStringContainsString(
 			'<pugoAddress>',
-			$this->serialise(PugoAddress::make()->streetName('Turnhoutsebaan')->toXml(...)),
+			$this->serialise(new PugoAddress()->streetName('Turnhoutsebaan')->toXml(...)),
 		);
 
 		$this->assertStringContainsString(
 			'<parcelsDepotAddress>',
-			$this->serialise(ParcelsDepotAddress::make()->streetName('Turnhoutsebaan')->toXml(...)),
+			$this->serialise(new ParcelsDepotAddress()->streetName('Turnhoutsebaan')->toXml(...)),
 		);
 	}
 
 	public function test_it_upper_cases_the_country_code()
 	{
-		$this->assertSame('BE', Address::make()->countryCode('be')->countryCode);
+		$this->assertSame('BE', new Address()->countryCode('be')->countryCode);
 	}
 
 	public function test_it_rejects_a_country_code_that_is_not_two_letters()
 	{
 		$this->expectException(InvalidValueException::class);
 
-		Address::make()->countryCode('BEL');
+		new Address()->countryCode('BEL');
 	}
 
 	public function test_it_rejects_oversized_values()
 	{
 		$this->expectException(InvalidLengthException::class);
 
-		Address::make()->streetName(str_repeat('a', 41));
+		new Address()->streetName(str_repeat('a', 41));
 	}
 
 	/**
@@ -86,11 +86,11 @@ class AddressTest extends ShmTestCase
 	 */
 	public function test_it_allows_a_nine_character_box()
 	{
-		$this->assertSame('123456789', Address::make()->box('123456789')->box);
+		$this->assertSame('123456789', new Address()->box('123456789')->box);
 
 		$this->expectException(InvalidLengthException::class);
 
-		Address::make()->box('1234567890');
+		new Address()->box('1234567890');
 	}
 
 	public function test_it_round_trips_through_xml()

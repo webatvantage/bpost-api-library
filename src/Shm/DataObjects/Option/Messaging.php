@@ -115,9 +115,9 @@ class Messaging implements Option, XmlDeserializable
 		}
 
 		throw new InvalidValueException(
-			$setting,
-			$this->emailAddress ?? $this->mobilePhone,
-			['one of emailAddress or mobilePhone, not both'],
+			name: $setting,
+			value: $this->emailAddress ?? $this->mobilePhone,
+			allowed: ['one of emailAddress or mobilePhone, not both'],
 		);
 	}
 }

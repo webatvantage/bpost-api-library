@@ -37,9 +37,9 @@ class AtBpost extends NationalBox implements XmlDeserializable
 
 	public private(set) ?string $requestedDeliveryDate = null;
 
-	public static function make(Product $product = Product::BpackAtBpost): static
+	public function __construct(Product $product = Product::BpackAtBpost)
 	{
-		return new static()->product($product);
+		$this->product($product);
 	}
 
 	public static function allowedProducts(): array
@@ -145,7 +145,7 @@ class AtBpost extends NationalBox implements XmlDeserializable
 
 	public static function fromXml(SimpleXMLElement $xml): static
 	{
-		$box = new static();
+		$box = new static(self::readProduct($xml));
 		$box->readCommon($xml);
 
 		if (isset($xml->openingHours))

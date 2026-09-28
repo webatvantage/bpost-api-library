@@ -57,9 +57,9 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 		if ($amount < 0 || $amount > 999.99)
 		{
 			throw new InvalidValueException(
-				'amtPostagePaidByAddresse',
-				$amount,
-				['0 to 999.99'],
+				name: 'amtPostagePaidByAddresse',
+				value: $amount,
+				allowed: ['0 to 999.99'],
 			);
 		}
 

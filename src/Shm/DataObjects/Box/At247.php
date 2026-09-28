@@ -33,9 +33,9 @@ class At247 extends NationalBox implements XmlDeserializable
 
 	public private(set) ?string $requestedDeliveryDate = null;
 
-	public static function make(Product $product = Product::Bpack247): static
+	public function __construct(Product $product = Product::Bpack247)
 	{
-		return new static()->product($product);
+		$this->product($product);
 	}
 
 	public static function allowedProducts(): array
@@ -127,7 +127,7 @@ class At247 extends NationalBox implements XmlDeserializable
 
 	public static function fromXml(SimpleXMLElement $xml): static
 	{
-		$box = new static();
+		$box = new static(self::readProduct($xml));
 		$box->readCommon($xml);
 
 		$box->parcelsDepotId = isset($xml->parcelsDepotId) ? (string)$xml->parcelsDepotId : null;

@@ -33,11 +33,6 @@ class Box implements XmlDeserializable, XmlSerializable
 
 	public private(set) ?BoxStatus $status = null;
 
-	public static function make(): static
-	{
-		return new static();
-	}
-
 	public function sender(Sender $sender): static
 	{
 		$this->sender = $sender;

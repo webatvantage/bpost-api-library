@@ -32,11 +32,6 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 
 	public private(set) bool $reducedMobilityZone = false;
 
-	public static function make(): static
-	{
-		return new static();
-	}
-
 	/**
 	 * The language the collection message is sent in. bpost accepts NL, FR and EN here.
 	 */

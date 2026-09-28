@@ -7,7 +7,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects;
  */
 class PugoAddress extends Address
 {
-	protected const TAG_NAME = 'pugoAddress';
+	protected const string TAG_NAME = 'pugoAddress';
 
-	protected const TAG_PREFIX = null;
+	protected const ?string TAG_PREFIX = null;
 }

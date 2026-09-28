@@ -17,14 +17,14 @@ use Webatvantage\Bpost\Api\Shm\Support\Xml;
 class International extends InternationalBox implements XmlDeserializable
 {
 	/** bpost accepts between one and ten contents. */
-	public const MAX_PARCEL_CONTENTS = 10;
+	public const int MAX_PARCEL_CONTENTS = 10;
 
 	/** @var array<int, ParcelContent> */
 	public private(set) array $parcelContents = [];
 
-	public static function make(Product $product): static
+	public function __construct(Product $product)
 	{
-		return new static()->product($product);
+		$this->product($product);
 	}
 
 	public static function allowedProducts(): array
@@ -47,9 +47,9 @@ class International extends InternationalBox implements XmlDeserializable
 		if (count($this->parcelContents) >= self::MAX_PARCEL_CONTENTS)
 		{
 			throw new InvalidValueException(
-				'parcelContents',
-				count($this->parcelContents) + 1,
-				[sprintf('1 to %d', self::MAX_PARCEL_CONTENTS)],
+				name: 'parcelContents',
+				value: count($this->parcelContents) + 1,
+				allowed: [sprintf('1 to %d', self::MAX_PARCEL_CONTENTS)],
 			);
 		}
 
@@ -99,7 +99,7 @@ class International extends InternationalBox implements XmlDeserializable
 
 	public static function fromXml(SimpleXMLElement $xml): static
 	{
-		$box = new static();
+		$box = new static(self::readProduct($xml));
 		$box->readShared($xml);
 
 		if (!isset($xml->parcelContents))

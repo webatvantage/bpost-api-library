@@ -103,9 +103,9 @@ class HttpApiAdapter
 		if ($xml === null)
 		{
 			throw new UnserializableResponseException(
-				'The response body was not well-formed XML.',
-				$statusCode,
-				$contents,
+				message: 'The response body was not well-formed XML.',
+				statusCode: $statusCode,
+				body: $contents,
 			);
 		}
 

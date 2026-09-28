@@ -23,28 +23,28 @@ class OrderTest extends ShmTestCase
 	 */
 	public function test_it_reproduces_bposts_own_create_order_example()
 	{
-		$order = Order::make('bpack 24h Pro - Signed')
+		$order = new Order('bpack 24h Pro - Signed')
 			->costCenter('Cost Center')
 			->addLine('Product 1', 1)
 			->addLine('Product 1', 5)
 			->addBox(
-				Box::make()
+				new Box()
 					->sender(
-						Sender::make()->name('SENDER NAME')->company('SENDER COMPANY')
+						new Sender()->name('SENDER NAME')->company('SENDER COMPANY')
 							->address(
-								Address::make()->streetName('MUNT')->number(1)->box(1)
+								new Address()->streetName('MUNT')->number(1)->box(1)
 									->postalCode(1000)->locality('Brussel')->countryCode('BE'),
 							)
 							->emailAddress('sender@mail.be')->phoneNumber('022011111'),
 					)
 					->deliverTo(
-						AtHome::make(Product::Bpack24hPro)
+						new AtHome(Product::Bpack24hPro)
 							->withOption(new Signed())
 							->weight(500)
 							->receiver(
-								Receiver::make()->name('RECEIVER NAME')->company('RECEIVER COMPANY')
+								new Receiver()->name('RECEIVER NAME')->company('RECEIVER COMPANY')
 									->address(
-										Address::make()->streetName('GROTE MARKT')->number(10)->box('A')
+										new Address()->streetName('GROTE MARKT')->number(10)->box('A')
 											->postalCode(2000)->locality('Antwerpen')->countryCode('BE'),
 									)
 									->emailAddress('receiver@mail.be')->phoneNumber('0032475123456'),
@@ -70,7 +70,7 @@ class OrderTest extends ShmTestCase
 	 */
 	public function test_it_omits_the_customer_reference_when_none_was_given()
 	{
-		$order = Order::make('ref')->addBox(Box::make()->deliverTo(AtHome::make(Product::Bpack24hPro)));
+		$order = new Order('ref')->addBox(new Box()->deliverTo(new AtHome(Product::Bpack24hPro)));
 
 		$document = Xml::document();
 		$document->appendChild($order->toXml($document, '123456'));
@@ -84,20 +84,20 @@ class OrderTest extends ShmTestCase
 	{
 		$this->expectException(InvalidLengthException::class);
 
-		Order::make(str_repeat('a', 51));
+		new Order(str_repeat('a', 51));
 	}
 
 	public function test_it_rejects_an_oversized_cost_center()
 	{
 		$this->expectException(InvalidLengthException::class);
 
-		Order::make('ref')->costCenter(str_repeat('a', 51));
+		new Order('ref')->costCenter(str_repeat('a', 51));
 	}
 
 	public function test_it_rejects_an_oversized_remark()
 	{
 		$this->expectException(InvalidLengthException::class);
 
-		Box::make()->remark(str_repeat('a', 51));
+		new Box()->remark(str_repeat('a', 51));
 	}
 }

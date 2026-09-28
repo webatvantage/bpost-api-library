@@ -22,7 +22,7 @@ use Webatvantage\Bpost\Api\Shm\Support\Xml;
 abstract class DeliveryBox implements XmlSerializable
 {
 	/** bpost rejects anything over 30 kg outright. */
-	public const MAX_WEIGHT = 30_000;
+	public const int MAX_WEIGHT = 30_000;
 
 	public private(set) ?Product $product = null;
 
@@ -57,9 +57,9 @@ abstract class DeliveryBox implements XmlSerializable
 		if (!in_array($product, static::allowedProducts(), true))
 		{
 			throw new InvalidValueException(
-				'product',
-				$product->value,
-				array_column(array_map(fn (Product $p) => ['v' => $p->value], static::allowedProducts()), 'v'),
+				name: 'product',
+				value: $product->value,
+				allowed: array_map(fn (Product $p) => $p->value, static::allowedProducts()),
 			);
 		}
 
@@ -126,15 +126,35 @@ abstract class DeliveryBox implements XmlSerializable
 	}
 
 	/**
-	 * Read product, options and weight, which every delivery method shares.
+	 * The product named in a response, for handing to the constructor.
+	 *
+	 * An unrecognised name throws rather than being dropped: a box whose product we do not know is
+	 * one we cannot send back, so failing here is more useful than failing later with less to go on.
+	 *
+	 * @throws InvalidValueException
+	 */
+	protected static function readProduct(SimpleXMLElement $xml): Product
+	{
+		$value = trim((string)($xml->product ?? ''));
+		$product = Product::tryFrom($value);
+
+		if ($product === null)
+		{
+			throw new InvalidValueException(
+				name: 'product',
+				value: $value,
+				allowed: array_map(fn (Product $p) => $p->value, static::allowedProducts()),
+			);
+		}
+
+		return $product;
+	}
+
+	/**
+	 * Read options and weight, which every delivery method shares.
 	 */
 	protected function readCommon(SimpleXMLElement $xml, string $weightElement = 'weight'): void
 	{
-		if (isset($xml->product))
-		{
-			$this->product = Product::tryFrom(trim((string)$xml->product));
-		}
-
 		if (isset($xml->{$weightElement}) && trim((string)$xml->{$weightElement}) !== '')
 		{
 			$this->weight((int)$xml->{$weightElement});

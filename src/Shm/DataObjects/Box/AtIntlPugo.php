@@ -30,9 +30,10 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 
 	public private(set) ?string $receiverCompany = null;
 
-	public static function make(): static
+	public function __construct()
 	{
-		return new static()->product(Product::BpackAtBpostInternational);
+		// The only product this delivery method offers.
+		$this->product(Product::BpackAtBpostInternational);
 	}
 
 	public static function allowedProducts(): array

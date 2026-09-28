@@ -7,7 +7,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects;
  */
 class ParcelsDepotAddress extends Address
 {
-	protected const TAG_NAME = 'parcelsDepotAddress';
+	protected const string TAG_NAME = 'parcelsDepotAddress';
 
-	protected const TAG_PREFIX = null;
+	protected const ?string TAG_PREFIX = null;
 }

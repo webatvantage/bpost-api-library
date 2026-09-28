@@ -18,9 +18,9 @@ use Webatvantage\Bpost\Api\Shm\Support\Xml;
  */
 class Address implements XmlDeserializable, XmlSerializable
 {
-	protected const TAG_NAME = 'address';
+	protected const string TAG_NAME = 'address';
 
-	protected const TAG_PREFIX = Xml::PREFIX_COMMON;
+	protected const ?string TAG_PREFIX = Xml::PREFIX_COMMON;
 
 	public private(set) ?string $streetName = null;
 
@@ -33,11 +33,6 @@ class Address implements XmlDeserializable, XmlSerializable
 	public private(set) ?string $locality = null;
 
 	public private(set) string $countryCode = 'BE';
-
-	public static function make(): static
-	{
-		return new static();
-	}
 
 	public function streetName(string $streetName): static
 	{

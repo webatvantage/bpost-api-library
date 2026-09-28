@@ -33,10 +33,10 @@ class BoxTest extends ShmTestCase
 	 */
 	public function test_a_locker_box_writes_the_reduced_mobility_flag_bpost_recognises()
 	{
-		$box = At247::make()->weight(2000)
-			->parcelsDepot('014472', 'WIJNEGEM', ParcelsDepotAddress::make()->streetName('Turnhoutsebaan'))
+		$box = new At247()->weight(2000)
+			->parcelsDepot('014472', 'WIJNEGEM', new ParcelsDepotAddress()->streetName('Turnhoutsebaan'))
 			->unregistered(
-				Unregistered::make()->language(Language::FR)->mobilePhone('0475123456')
+				new Unregistered()->language(Language::FR)->mobilePhone('0475123456')
 					->emailAddress('receiver@mail.com')->reducedMobilityZone(),
 			);
 
@@ -71,11 +71,11 @@ class BoxTest extends ShmTestCase
 	 */
 	public function test_an_international_pick_up_box_can_be_built()
 	{
-		$box = AtIntlPugo::make()
+		$box = new AtIntlPugo()
 			->weight(2000)
-			->receiver(Receiver::make()->name('name_of_final_receiver'))
+			->receiver(new Receiver()->name('name_of_final_receiver'))
 			->customsInfo(new CustomsInfo(1000, 'Test description', ShipmentType::Goods, ParcelReturnInstruction::ReturnToSender))
-			->pugo('163372', 'name_of_delivery_point', PugoAddress::make()->streetName('street_of_delivery_point'));
+			->pugo('163372', 'name_of_delivery_point', new PugoAddress()->streetName('street_of_delivery_point'));
 
 		$xml = $this->serialise($box->toXml(...));
 
@@ -99,7 +99,7 @@ class BoxTest extends ShmTestCase
 
 	public function test_an_international_box_carries_electronic_advance_data()
 	{
-		$box = International::make(Product::BpackWorldBusiness)
+		$box = new International(Product::BpackWorldBusiness)
 			->weight(1250)
 			->customsInfo(new CustomsInfo(625, 'Ipad 6', ShipmentType::Gift, ParcelReturnInstruction::ReturnToSender))
 			->withParcelContent(new ParcelContent(2, 200, 't-shirt ARMANI L WINTER 2020', 400, '61091000', 'US'));
@@ -113,7 +113,7 @@ class BoxTest extends ShmTestCase
 
 	public function test_it_refuses_more_than_ten_parcel_contents()
 	{
-		$box = International::make(Product::BpackWorldBusiness);
+		$box = new International(Product::BpackWorldBusiness);
 		$content = new ParcelContent(1, 100, 'thing', 10, '1234', 'BE');
 
 		for ($i = 0; $i < 10; $i++)
@@ -131,7 +131,7 @@ class BoxTest extends ShmTestCase
 	 */
 	public function test_bpack_xl_carries_dimensions_and_fragile()
 	{
-		$box = AtHome::make(Product::BpackXL)
+		$box = new AtHome(Product::BpackXL)
 			->withOption(new Fragile())
 			->weight(100000 > At247::MAX_WEIGHT ? At247::MAX_WEIGHT : 100000)
 			->dimensions(new Dimensions(100, 200, 500));
@@ -149,14 +149,14 @@ class BoxTest extends ShmTestCase
 	{
 		$this->expectException(InvalidValueException::class);
 
-		AtHome::make(Product::Bpack24hPro)->dimensions(new Dimensions(100, 200, 500));
+		new AtHome(Product::Bpack24hPro)->dimensions(new Dimensions(100, 200, 500));
 	}
 
 	public function test_a_box_refuses_a_product_its_delivery_method_does_not_offer()
 	{
 		$this->expectException(InvalidValueException::class);
 
-		AtHome::make(Product::BpackAtBpost);
+		new AtHome(Product::BpackAtBpost);
 	}
 
 	/**
@@ -166,19 +166,19 @@ class BoxTest extends ShmTestCase
 	{
 		$this->expectException(InvalidValueException::class);
 
-		AtHome::make(Product::Bpack24hPro)->weight(30001);
+		new AtHome(Product::Bpack24hPro)->weight(30001);
 	}
 
 	public function test_a_pick_up_box_writes_opening_hours_as_bpost_spells_them()
 	{
-		$box = AtBpost::make(Product::BpackClickAndCollect)
+		$box = new AtBpost(Product::BpackClickAndCollect)
 			->weight(2000)
 			->openingHours(
-				OpeningHours::make()
+				new OpeningHours()
 					->on(Weekday::Monday, '10:00-12:00/13:00-17:30')
 					->closed(Weekday::Wednesday),
 			)
-			->pugo('001', 'Mijn Winkel', PugoAddress::make()->streetName('Grote Markt'))
+			->pugo('001', 'Mijn Winkel', new PugoAddress()->streetName('Grote Markt'))
 			->shopHandlingInstruction('Leave at the counter');
 
 		$xml = $this->serialise($box->toXml(...));
@@ -192,12 +192,12 @@ class BoxTest extends ShmTestCase
 	{
 		$this->expectException(InvalidValueException::class);
 
-		OpeningHours::make()->on(Weekday::Monday, '9-5');
+		new OpeningHours()->on(Weekday::Monday, '9-5');
 	}
 
 	public function test_a_pick_up_box_carries_cash_on_delivery()
 	{
-		$box = AtBpost::make()->weight(2000)
+		$box = new AtBpost()->weight(2000)
 			->withOption(new CashOnDelivery(1251, 'BE19210023508812', 'GEBABEBB'));
 
 		$this->assertStringContainsString('<common:codAmount>1251</common:codAmount>', $this->serialise($box->toXml(...)));

@@ -16,11 +16,11 @@ class CustomerTest extends ShmTestCase
 	 */
 	public function test_it_writes_the_sender_block_bpost_documents()
 	{
-		$sender = Sender::make()
+		$sender = new Sender()
 			->name('SENDER NAME')
 			->company('SENDER COMPANY')
 			->address(
-				Address::make()->streetName('MUNT')->number(1)->box(1)
+				new Address()->streetName('MUNT')->number(1)->box(1)
 					->postalCode(1000)->locality('Brussel')->countryCode('BE'),
 			)
 			->emailAddress('sender@mail.be')
@@ -47,7 +47,7 @@ class CustomerTest extends ShmTestCase
 
 	public function test_a_receiver_is_the_same_block_under_another_name()
 	{
-		$xml = $this->serialise(Receiver::make()->name('RECEIVER NAME')->toXml(...));
+		$xml = $this->serialise(new Receiver()->name('RECEIVER NAME')->toXml(...));
 
 		$this->assertStringContainsString('<receiver>', $xml);
 		$this->assertStringContainsString('<common:name>RECEIVER NAME</common:name>', $xml);
@@ -61,14 +61,14 @@ class CustomerTest extends ShmTestCase
 	{
 		$this->expectException(InvalidLengthException::class);
 
-		Sender::make()->name(str_repeat('a', 41));
+		new Sender()->name(str_repeat('a', 41));
 	}
 
 	public function test_it_rejects_an_oversized_company()
 	{
 		$this->expectException(InvalidLengthException::class);
 
-		Sender::make()->company(str_repeat('a', 41));
+		new Sender()->company(str_repeat('a', 41));
 	}
 
 	public function test_it_allows_a_fifty_character_email()
@@ -76,7 +76,7 @@ class CustomerTest extends ShmTestCase
 		$email = str_repeat('a', 38) . '@example.com';
 
 		$this->assertSame(50, mb_strlen($email));
-		$this->assertSame($email, Sender::make()->emailAddress($email)->emailAddress);
+		$this->assertSame($email, new Sender()->emailAddress($email)->emailAddress);
 	}
 
 	public function test_it_round_trips_through_xml()

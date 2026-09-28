@@ -1,0 +1,92 @@
+<?php
+
+namespace Webatvantage\Bpost\Api\Support;
+
+use DOMDocument;
+use DOMElement;
+use SimpleXMLElement;
+
+/**
+ * DOM primitives shared by every domain.
+ *
+ * Namespace URIs and prefixed element names are deliberately *not* here — those differ per bpost
+ * service and belong to that service's own support class.
+ */
+final class Xml
+{
+	public static function document(): DOMDocument
+	{
+		$document = new DOMDocument('1.0', 'UTF-8');
+		$document->preserveWhiteSpace = false;
+		$document->formatOutput = true;
+
+		return $document;
+	}
+
+	/**
+	 * Qualify a tag name with a namespace prefix, when one applies.
+	 */
+	public static function prefixed(string $tagName, ?string $prefix = null): string
+	{
+		if ($prefix === null || $prefix === '')
+		{
+			return $tagName;
+		}
+
+		return $prefix . ':' . $tagName;
+	}
+
+	/**
+	 * Create an element holding a text value.
+	 *
+	 * The value goes in through a text node rather than the DOMElement constructor, so that `&`,
+	 * `<` and `>` are escaped. bpost rejects a document where they are not — a receiver named
+	 * "Dupont & Fils" is enough to break the request.
+	 */
+	public static function createTextElement(
+		DOMDocument $document,
+		string $tagName,
+		string|int|float|bool $value,
+	): DOMElement {
+		$element = $document->createElement($tagName);
+		$element->appendChild($document->createTextNode(self::stringify($value)));
+
+		return $element;
+	}
+
+	public static function toString(DOMDocument $document): string
+	{
+		return (string)$document->saveXML();
+	}
+
+	/**
+	 * Parse a response body, returning null when it is not well-formed XML.
+	 *
+	 * bpost occasionally answers with an HTML error page or a bare text/plain message, so callers
+	 * decide what an unparsable body means rather than getting a warning raised at them here.
+	 */
+	public static function tryParse(string $body): ?SimpleXMLElement
+	{
+		if (trim($body) === '')
+		{
+			return null;
+		}
+
+		$previous = libxml_use_internal_errors(true);
+		$xml = simplexml_load_string($body);
+		libxml_clear_errors();
+		libxml_use_internal_errors($previous);
+
+		return $xml === false ? null : $xml;
+	}
+
+	private static function stringify(string|int|float|bool $value): string
+	{
+		if (is_bool($value))
+		{
+			return $value ? 'true' : 'false';
+		}
+
+		return (string)$value;
+	}
+}

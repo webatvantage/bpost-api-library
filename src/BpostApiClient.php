@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api;
 use Psr\Log\LoggerInterface;
 use Webatvantage\Bpost\Api\Exceptions\MissingConfigurationException;
 use Webatvantage\Bpost\Api\Geo\GeoApiClient;
+use Webatvantage\Bpost\Api\Parcel\ParcelApiClient;
 use Webatvantage\Bpost\Api\Shm\ShmApiClient;
 
 /**
@@ -43,5 +44,15 @@ readonly class BpostApiClient
 		}
 
 		return new GeoApiClient($this->config->geo, $this->httpClientOptions, $this->logger);
+	}
+
+	public function parcel(): ParcelApiClient
+	{
+		if ($this->config->parcel === null)
+		{
+			throw MissingConfigurationException::forDomain('parcel');
+		}
+
+		return new ParcelApiClient($this->config->parcel, $this->httpClientOptions, $this->logger);
 	}
 }

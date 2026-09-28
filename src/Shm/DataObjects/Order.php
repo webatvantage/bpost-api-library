@@ -6,8 +6,8 @@ use DOMDocument;
 use DOMElement;
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
-use Webatvantage\Bpost\Api\Shm\Support\Assert;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\Assert;
 
 /**
  * A Shipping Manager order: one reference, and the parcels sent under it.

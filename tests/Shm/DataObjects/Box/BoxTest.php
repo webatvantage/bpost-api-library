@@ -2,6 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Tests\Shm\DataObjects\Box;
 
+use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Enums\Weekday;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
@@ -11,7 +12,6 @@ use Webatvantage\Bpost\Api\Shm\DataObjects\Box\AtHome;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\AtIntlPugo;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\Dimensions;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\International;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Box\OpeningHours;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\Unregistered;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Customs\CustomsInfo;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Customs\ParcelContent;

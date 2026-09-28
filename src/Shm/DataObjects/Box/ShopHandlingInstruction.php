@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
-use Webatvantage\Bpost\Api\Shm\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Assert;
 
 /**
  * A note for the shop staff at a Click & Collect point.

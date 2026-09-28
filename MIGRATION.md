@@ -57,7 +57,7 @@ Filled in per phase as classes move.
 | `Bpost::LABEL_FORMAT_*` | `…\Shm\Enums\LabelFormat` |
 | `Insured::INSURANCE_*` | `…\Shm\Enums\{InsuranceType,InsuranceAmount}` |
 | `BpostException` and the `Exception\*` tree | `…\Exceptions\*` |
-| _(Phase 3 — Parcel)_ | |
+| _(new in 4.0 — no 3.x equivalent)_ | `Webatvantage\Bpost\Api\Parcel\ParcelApiClient` |
 
 ## 3. Removed with no replacement
 
@@ -132,6 +132,32 @@ now get an `InvalidLengthException` at the point of the mistake.
 
 `bpack XL` exists, with `Dimensions` and the `Fragile` option. Labels can be asked for as ZPL,
 which bpost only produces in A6.
+
+### Parcel, new in 4.0
+
+Neither the Announcement nor the Tracking API existed in 3.x, so there is nothing to migrate —
+but both are documented in the manual and are what you want if you print your own labels.
+
+```php
+$parcel = new ParcelApiClient(new ParcelApiConfig(accountId: '123456', password: '...'));
+
+$feedback = $parcel->announcements()->create(
+    new Announcement($barcode, $sender, $receiver, weightInGrams: 250)
+        ->customerReference('order-123')
+        ->withOption(new Signature()),
+);
+
+$feedback->hasErrors();   // a 201 does not mean bpost accepted it cleanly
+
+$tracking = $parcel->tracking()->get($barcode);
+$tracking->latestState()?->stateDescription;
+$tracking->trackingUrl();
+```
+
+Its credentials are issued separately from the Shipping Manager passphrase — ask
+esolutions@bpost.be. Note this service spells addresses its own way: `houseNumber`, `boxNumber` and
+`city` where the Shipping Manager says `number`, `box` and `locality`, which is why
+`Parcel\DataObjects\Address` is a different class from `Shm\DataObjects\Address`.
 
 ### Geolocator, in detail
 

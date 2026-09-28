@@ -7,8 +7,8 @@ use DOMElement;
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
-use Webatvantage\Bpost\Api\Shm\Support\Assert;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\Assert;
 
 /**
  * A postal address.

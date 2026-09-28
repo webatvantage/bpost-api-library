@@ -11,8 +11,8 @@ use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\Currency;
 use Webatvantage\Bpost\Api\Shm\Enums\ParcelReturnInstruction;
 use Webatvantage\Bpost\Api\Shm\Enums\ShipmentType;
-use Webatvantage\Bpost\Api\Shm\Support\Assert;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\Assert;
 
 /**
  * The customs declaration for an international parcel.

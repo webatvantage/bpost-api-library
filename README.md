@@ -3,7 +3,7 @@
 ## About
 
 _bpost API library_ is a PHP client for the bpost APIs: the Shipping Manager, the Geolocator
-and, in time, parcel announcement and tracking.
+parcel announcement and tracking.
 
 Built against the *bpack integration manual* v3.3.35 and bpost's own SHM API v5 example set.
 Upgrading from 3.x? See [MIGRATION.md](MIGRATION.md).
@@ -24,10 +24,12 @@ use Webatvantage\Bpost\Api\BpostApiClient;
 use Webatvantage\Bpost\Api\BpostApiConfig;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
+use Webatvantage\Bpost\Api\Parcel\ParcelApiConfig;
 
 $bpost = new BpostApiClient(new BpostApiConfig(
     shm: new ShmApiConfig(accountId: '123456', passphrase: 'MyGreatApiPassword'),
     geo: new GeoApiConfig(partner: '123456', apiKey: 'xxxxxxxx'),
+    parcel: new ParcelApiConfig(accountId: '123456', password: '...'),
 ));
 
 $bpost->shm()->orders()->create($order);
@@ -140,6 +142,42 @@ $configuration = $shm->productConfiguration()->get();
 
 $configuration->offers(Product::Bpack24hPro);   // bool
 ```
+
+### Parcel: announcement and tracking
+
+The route for anyone printing their own labels. Announce the parcel before it reaches bpost, then
+follow it afterwards.
+
+```php
+use Webatvantage\Bpost\Api\Parcel\DataObjects\{Announcement, Sender, Receiver, Address};
+use Webatvantage\Bpost\Api\Parcel\DataObjects\Options\Signature;
+
+$parcel = $bpost->parcel();
+
+$feedback = $parcel->announcements()->create(
+    new Announcement('323212345689100101119030', $sender, $receiver, weightInGrams: 250)
+        ->customerReference('order-123')
+        ->costCenter('Webshop')
+        ->withOption(new Signature()),
+);
+
+if ($feedback->hasErrors()) {
+    // A 201 does not mean bpost accepted it cleanly
+    $feedback->errors;
+}
+```
+
+```php
+$tracking = $parcel->tracking()->get('323212345659900040669030');
+
+$tracking->isDelivered();
+$tracking->latestState()?->stateDescription;   // "DistributedNormally - regular"
+$tracking->trackingUrl();                      // the page to show a customer
+$tracking->pickupPoint?->name;                 // where it is waiting, if it is
+```
+
+This service spells addresses its own way — `houseNumber`, `boxNumber` and `city`, where the
+Shipping Manager says `number`, `box` and `locality` — so it has its own `Address` class.
 
 ### Geolocator (pick-up points, parcel points and parcel lockers)
 

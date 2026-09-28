@@ -1,6 +1,6 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Shm\Support;
+namespace Webatvantage\Bpost\Api\Support;
 
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;

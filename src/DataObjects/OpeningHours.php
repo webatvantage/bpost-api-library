@@ -1,6 +1,6 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
+namespace Webatvantage\Bpost\Api\DataObjects;
 
 use DOMDocument;
 use DOMElement;
@@ -9,15 +9,18 @@ use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Enums\Weekday;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\Xml;
 
 /**
- * When the receiving business is open, for products delivered to an address.
+ * When the receiving business is open.
  *
  * Each day is one string rather than a structure, because that is how bpost spells it:
  * "09:00-17:00" for one range, "09:00-12:00/13:00-17:30" for two, "-/-" or "-" for closed, and an
  * empty value for unknown. Unlike the Geolocator's opening hours, which are four separate
  * elements per day.
+ *
+ * Shared because the Shipping Manager and the announcement service use the identical format; they
+ * disagree only on the element name, which is why toXml takes one.
  */
 class OpeningHours implements XmlDeserializable, XmlSerializable
 {
@@ -63,9 +66,9 @@ class OpeningHours implements XmlDeserializable, XmlSerializable
 		return count($this->days) === 0;
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = null): DOMElement
+	public function toXml(DOMDocument $document, ?string $prefix = null, string $tagName = 'openingHours'): DOMElement
 	{
-		$element = $document->createElement(Xml::prefixed('openingHours', $prefix));
+		$element = $document->createElement(Xml::prefixed($tagName, $prefix));
 
 		foreach (Weekday::cases() as $weekday)
 		{

@@ -2,7 +2,6 @@
 
 namespace Webatvantage\Bpost\Api\Shm\Support;
 
-use DOMDocument;
 use DOMElement;
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Support\Xml as BaseXml;
@@ -54,27 +53,6 @@ class Xml extends BaseXml
 	}
 
 	/**
-	 * Append a text element under a prefix, skipping it when the value is null.
-	 *
-	 * Most bpost elements are optional and an empty one is not the same as an absent one, so this
-	 * guard is repeated often enough to be worth centralising.
-	 */
-	public static function appendText(
-		DOMDocument $document,
-		DOMElement $parent,
-		string $tagName,
-		string|int|float|bool|null $value,
-		?string $prefix = null,
-	): void {
-		if ($value === null || $value === '')
-		{
-			return;
-		}
-
-		$parent->appendChild(self::createTextElement($document, self::prefixed($tagName, $prefix), $value));
-	}
-
-	/**
 	 * An unprefixed attribute, read outside any namespace scope.
 	 *
 	 * Once an element has been reached through children($namespace), SimpleXML scopes attribute
@@ -91,19 +69,5 @@ class Xml extends BaseXml
 		}
 
 		return isset($xml[$name]) ? (string)$xml[$name] : null;
-	}
-
-	/**
-	 * The children of an element, preferring a response namespace but not insisting on it.
-	 *
-	 * bpost's Retrieve Order Information responses carry ns2: and ns3: prefixes without declaring
-	 * them, so they are not well-formed namespace-wise and a namespaced lookup finds nothing in
-	 * them. Falling back to the default children keeps those responses parseable.
-	 */
-	public static function readChildren(SimpleXMLElement $xml, string $namespace): SimpleXMLElement
-	{
-		$children = $xml->children($namespace);
-
-		return count($children) > 0 ? $children : $xml->children();
 	}
 }

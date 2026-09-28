@@ -54,6 +54,41 @@ class Xml
 		return $element;
 	}
 
+	/**
+	 * Append a text element under a prefix, skipping it when the value is null or empty.
+	 *
+	 * Most bpost elements are optional and an empty one is not the same as an absent one — its own
+	 * examples carry the note "When box is empty this tag has to be removed" — so this guard is
+	 * repeated often enough to be worth centralising.
+	 */
+	public static function appendText(
+		DOMDocument $document,
+		DOMElement $parent,
+		string $tagName,
+		string|int|float|bool|null $value,
+		?string $prefix = null,
+	): void {
+		if ($value === null || $value === '')
+		{
+			return;
+		}
+
+		$parent->appendChild(self::createTextElement($document, self::prefixed($tagName, $prefix), $value));
+	}
+
+	/**
+	 * The children of an element, preferring a namespace but not insisting on it.
+	 *
+	 * Several of bpost's own example responses use prefixes they never declare, so a namespaced
+	 * lookup finds nothing in them. Falling back to the default children keeps those parseable.
+	 */
+	public static function readChildren(SimpleXMLElement $xml, string $namespace): SimpleXMLElement
+	{
+		$children = $xml->children($namespace);
+
+		return count($children) > 0 ? $children : $xml->children();
+	}
+
 	public static function toString(DOMDocument $document): string
 	{
 		return (string)$document->saveXML();

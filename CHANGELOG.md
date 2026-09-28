@@ -16,6 +16,10 @@
 * Geolocator: `ServicePoint` now reads `Country`, `BoxNumber` and the locker `Attributes`
 * Shipping Manager: the `bpack XL` product, its mandatory `Dimensions`, and the `fragile` option
 * Shipping Manager: ZPL label output, alongside PDF and PNG
+* The Announcement API (`POST .../trackedmail/announcement`), which the library never implemented.
+  This is the route for anyone printing their own labels: the barcode already exists, and the
+  announcement supplies what would otherwise have come with an order
+* The Tracking API (`GET .../trackedmail/item/{barcode}/trackingInfo`), likewise never implemented
 * Shipping Manager: `RETURNED` as a customs shipment type
 * Shipping Manager: the field lengths the manual documents are checked when set, rather than by
   bpost on send — sender and receiver name and company, remark, order reference, cost centre, and

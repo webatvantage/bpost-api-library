@@ -10,8 +10,8 @@ use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBox;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBoxFactory;
 use Webatvantage\Bpost\Api\Shm\Enums\BoxStatus;
-use Webatvantage\Bpost\Api\Shm\Support\Assert;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\Assert;
 
 /**
  * One parcel in an order.

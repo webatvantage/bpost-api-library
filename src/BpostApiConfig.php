@@ -3,6 +3,7 @@
 namespace Webatvantage\Bpost\Api;
 
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
+use Webatvantage\Bpost\Api\Parcel\ParcelApiConfig;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
 
 /**
@@ -14,5 +15,9 @@ use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
  */
 readonly class BpostApiConfig
 {
-	public function __construct(public ?ShmApiConfig $shm = null, public ?GeoApiConfig $geo = null) {}
+	public function __construct(
+		public ?ShmApiConfig $shm = null,
+		public ?GeoApiConfig $geo = null,
+		public ?ParcelApiConfig $parcel = null,
+	) {}
 }

@@ -37,6 +37,8 @@
 * Setters drop their `set` prefix and return `$this`; values are read as properties rather than
   through getters
 * `getPossibleXValues()` arrays are replaced by enums throughout
+* `ext-curl` is a suggestion rather than a requirement: the library no longer calls cURL itself and
+  Guzzle works on the stream handler without it
 
 #### Removed
 

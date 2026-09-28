@@ -1,58 +1,60 @@
-# How to contribute to bpost API client library ?
+# Contributing
 
-## Report a bug
+## Reporting a bug
 
-You found a bug? Don't panic, here are some steps to report it easily:
+Search [the issue tracker](https://github.com/webatvantage/bpost-api-library/issues) first; if it
+is not there, [open a ticket](https://github.com/webatvantage/bpost-api-library/issues/new).
 
-1. Search for it on [the bug tracker](https://github.com/Antidot-be/bpost-api-php-client/issues) (don't forget to use the search bar).
-2. If you find a similar bug, don't hesitate to post a comment to add more importance to the related ticket.
-3. If you didn't find it, [open a new ticket](https://github.com/Antidot-be/bpost-api-php-client/issues/new).
+A useful report says what you called, what bpost answered, and what you expected. The response body
+matters — the library carries it on the exception message, so paste that rather than only the
+class name. Include your PHP version and the library version or commit.
 
-If you have to create a new ticket, try to apply the following advices:
+## Making a change
 
-- Give an explicit title to the ticket so it will be easier to find it later.
-- Be as exhaustive as possible in the description: what did you do? What is the bug? What are the steps to reproduce the bug?
-- We also need some information:
-    + Your library branch (and the commit hash to be more precise)
-    + Your server configuration: type of hosting, PHP, php-curl, php-mbstring versions
+1. Branch off `main`. Branch names are lowercase kebab-case describing the subject, with no prefix
+   and no ticket number.
+2. Make the change, with a test.
+3. Open a pull request against `main`.
 
-## Fix a bug
+### Requirements
 
-Did you want to fix a bug? To keep a great coordination between collaborators, you will have to follow these indications:
+PHP 8.4 or newer. If your `php` is older, the composer scripts fail the platform check.
 
-1. Be sure the bug is associated to a ticket and say you work on it.
-2. [Fork this project repository](https://help.github.com/articles/fork-a-repo/).
-3. [Create a new branch](https://help.github.com/articles/creating-and-deleting-branches-within-your-repository/). The name of the branch must be explicit and being prefixed by the related ticket id.
-4. Make your changes to your fork and [send a pull request](https://help.github.com/articles/using-pull-requests/) on the **master branch**.
+```bash
+composer install
+```
 
-If you have to write code, please:
-1. Follow the [PSR1/2](http://www.php-fig.org/psr/psr-2/).
-2. Test your new classes/methods/lines.
-3. For a bug, write the test which was absent (if your rollback the patch, this test will fail).
+### Before you push
 
-### How to test the library, and my changes ?
+```bash
+composer test       # phpunit
+composer analyse    # phpstan, level 5
+composer format     # php-cs-fixer, applies the house style
+```
 
-#### Build the library
+All three run in CI. The style comes from `webatvantage/php-cs-fixer-config` — tabs, PSR-12, braces
+on their own line — so run `composer format` rather than hand-formatting.
 
-In the workspace folder:
-<pre><code>curl -sS https://getcomposer.org/installer | php
-php composer.phar install --dev
-</code></pre>
+### Tests that call the real API
 
-#### Execute the unit-tests
+`tests/connection-tests/` is excluded from the default suite and skips unless credentials are in
+the environment:
 
-<pre><code>vendor/bin/phpunit
-</code></pre>
+```bash
+BPOST_GEO_PARTNER=… BPOST_GEO_API_KEY=… \
+BPOST_PARCEL_ACCOUNT=… BPOST_PARCEL_PASSWORD=… BPOST_PARCEL_BARCODE=… \
+    vendor/bin/phpunit tests/connection-tests
+```
 
-After the unit tests execution, some reporting are generated :
-- Unit test results: `tests/reports/phpunit.xml`
-- Code coverage (XML format, for CI tools): `tests/reports/coverage-clover.xml`
-- Code coverage (HTML format, for humans): `tests/reports/coverage-clover-html/index.html`
+They are the only way to confirm things no fixture can settle — that a Geolocator key is accepted,
+or that a URL the library builds actually resolves.
 
-#### Execute the (not-unit) tests which call the API
+### Working from the manual
 
-Copy the file `tests/phpunit-credentials.php.dist` to `tests/phpunit-credentials.php` by editing the constants with your test account values.
+The client is built against the *bpack integration manual* and bpost's own SHM API example files.
+Both live in `docs/`, which is not tracked. If you are changing what goes on the wire, check it
+against the example for that operation rather than against the manual's tables: the tables list the
+elements but not reliably their order, and bpost validates the sequence.
 
-Launch the specific tests:
-<pre><code>vendor/bin/phpunit tests/connection-tests
-</code></pre>
+Two of bpost's published examples are not well-formed XML. Repaired copies are in
+`tests/Fixtures/`, each with a comment saying what was changed.

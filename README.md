@@ -8,6 +8,10 @@ parcel announcement and tracking.
 Built against the *bpack integration manual* v3.3.35 and bpost's own SHM API v5 example set.
 Upgrading from 3.x? See [MIGRATION.md](MIGRATION.md).
 
+## Requirements
+
+PHP 8.4 or newer.
+
 ## Installation
 
 ```bash

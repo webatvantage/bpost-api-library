@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
 
 /**
  * One printable label.
@@ -40,9 +41,35 @@ class Label implements XmlDeserializable
 		return new static(
 			$barcodes,
 			isset($xml->mimeType) ? trim((string)$xml->mimeType) : null,
-			isset($xml->bytes) ? (string)base64_decode((string)$xml->bytes, true) : null,
+			self::decode($xml),
 			isset($xml->zplCode) ? (string)$xml->zplCode : null,
 		);
+	}
+
+	/**
+	 * The decoded <bytes>, or null when there are none.
+	 *
+	 * @throws UnserializableResponseException
+	 */
+	private static function decode(SimpleXMLElement $xml): ?string
+	{
+		if (!isset($xml->bytes) || trim((string)$xml->bytes) === '')
+		{
+			return null;
+		}
+
+		$decoded = base64_decode((string)$xml->bytes, true);
+
+		if ($decoded === false)
+		{
+			throw new UnserializableResponseException(
+				message: 'The label bytes bpost returned are not valid base64.',
+				statusCode: 200,
+				body: (string)$xml->bytes,
+			);
+		}
+
+		return $decoded;
 	}
 
 	/**

@@ -2,6 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Tests\Shm\Requests;
 
+use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\AtHome;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Order;
@@ -195,6 +196,15 @@ class ShmRequestTest extends ShmTestCase
 		$this->assertSame('Hello', $labels[0]->contents());
 		$this->assertFalse($labels[0]->barcodes[0]->isReturnLabel());
 		$this->assertTrue($labels[0]->barcodes[1]->isReturnLabel());
+	}
+
+	public function test_it_refuses_label_bytes_that_are_not_base64()
+	{
+		$this->mockResponse(200, '<labels><label><mimeType>application/pdf</mimeType><bytes>!!not base64!!</bytes></label></labels>');
+
+		$this->expectException(UnserializableResponseException::class);
+
+		$this->client()->labels()->forOrder('ref-123')->get();
 	}
 
 	public function test_the_product_configuration_accepts_its_own_media_type()

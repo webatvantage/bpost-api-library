@@ -1,4 +1,9 @@
+Copyright (c) 2026 Webatvantage. All rights reserved.
 Copyright (c) Tijs Verkoyen. All rights reserved.
+
+This library was originally written by Tijs Verkoyen and later maintained by Antidot. Version 2.0
+is a rewrite by Webatvantage; both copyrights apply.
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 

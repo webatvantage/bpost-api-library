@@ -1,5 +1,25 @@
 # Changelog
 
+### 4.0.0 (unreleased)
+
+#### Added
+
+* Guzzle-based `HttpApiAdapter` shared by every bpost service, replacing the two hand-rolled cURL
+  blocks and the `ApiCaller` wrapper
+* `MIGRATION.md`, a 3.x to 4.0 upgrade guide
+
+#### Changed
+
+* Root namespace is now `Webatvantage\Bpost\Api\`; the library is split into one namespace per
+  bpost service (`Shm`, `Geo`, `Parcel`)
+* Minimum PHP version is now 8.4
+* Code style is now `webatvantage/php-cs-fixer-config`; static analysis runs PHPStan level 5
+
+#### Fixed
+
+* API error responses now reach the caller. `ApiCaller` read the response content type from the
+  wrong `curl_getinfo()` key, so every failure surfaced with an empty message
+
 ### 3.7.0
 
 * Add info in the additional customer reference for bpost statistics

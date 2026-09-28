@@ -75,6 +75,25 @@ class Xml extends BaseXml
 	}
 
 	/**
+	 * An unprefixed attribute, read outside any namespace scope.
+	 *
+	 * Once an element has been reached through children($namespace), SimpleXML scopes attribute
+	 * access to that same namespace, so a plain attribute like the value on additionalInsurance
+	 * reads as null. Going through attributes() with no namespace gets it back.
+	 */
+	public static function attribute(SimpleXMLElement $xml, string $name): ?string
+	{
+		$attributes = $xml->attributes();
+
+		if ($attributes !== null && isset($attributes[$name]))
+		{
+			return (string)$attributes[$name];
+		}
+
+		return isset($xml[$name]) ? (string)$xml[$name] : null;
+	}
+
+	/**
 	 * The children of an element, preferring a response namespace but not insisting on it.
 	 *
 	 * bpost's Retrieve Order Information responses carry ns2: and ns3: prefixes without declaring

@@ -53,7 +53,7 @@ class Insured implements Option, XmlDeserializable
 
 		if (isset($children->additionalInsurance))
 		{
-			$value = (int)($children->additionalInsurance['value'] ?? 0);
+			$value = (int)Xml::attribute($children->additionalInsurance, 'value');
 			$amount = InsuranceAmount::tryFrom($value);
 
 			// bpost answers basic warranty as additionalInsurance value="1" on some orders.

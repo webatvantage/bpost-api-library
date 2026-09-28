@@ -7,17 +7,3 @@ parameters:
         # fromXml() returns `new static` so a subclass deserialises as itself. Classes here are not
         # final, so PHPStan cannot prove a subclass keeps the same constructor signature.
         - identifier: new.static
-    excludePaths:
-        analyseAndScan:
-            # Legacy tree, ported away phase by phase. Shrink this list as each
-            # phase lands; Phase 4 removes the key entirely.
-            - src/ApiCaller
-            - src/Bpack247
-            - src/Bpack247.php
-            - src/Bpost
-            - src/Bpost.php
-            - src/BpostException.php
-            - src/Common
-            - src/Exception
-            - src/FormHandler.php
-            - src/Logger.php

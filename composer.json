@@ -47,14 +47,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Webatvantage\\Bpost\\Api\\": "src/",
-      "Bpost\\BpostApiClient\\": "src/"
+      "Webatvantage\\Bpost\\Api\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Webatvantage\\Bpost\\Api\\Tests\\": "tests/",
-      "Bpost\\BpostApiClient\\Tests\\": "tests/"
+      "Webatvantage\\Bpost\\Api\\Tests\\": "tests/"
     }
   },
   "scripts": {

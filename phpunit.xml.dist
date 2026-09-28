@@ -11,10 +11,5 @@
     <include>
       <directory suffix=".php">src</directory>
     </include>
-    <exclude>
-      <file>src/Bpack247.php</file>
-      <file>src/Bpost.php</file>
-      <file>src/Geo6.php</file>
-    </exclude>
   </source>
 </phpunit>

@@ -86,7 +86,7 @@ class Messaging implements Option, XmlDeserializable
 	public static function fromXml(SimpleXMLElement $xml): static
 	{
 		$type = MessagingType::from($xml->getName());
-		$language = Language::tryFrom(strtoupper((string)($xml['language'] ?? ''))) ?? Language::EN;
+		$language = Language::tryFrom(strtoupper((string)Xml::attribute($xml, 'language'))) ?? Language::EN;
 
 		$messaging = new static($type, $language);
 		$children = Xml::readChildren($xml, Xml::READ_COMMON);

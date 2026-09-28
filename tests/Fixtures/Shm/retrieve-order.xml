@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!--
+  Taken from bpost's "Retrieve Order Information / Example response.xml", with the
+  namespace declarations added. The published file uses the ns2 and ns3 prefixes without
+  declaring either, so it is not well-formed and no parser accepts it as written. The
+  bindings below are the v3 namespaces the live API answers with (see CHANGELOG 3.5.1).
+-->
+<orderInfo
+	xmlns:ns2="http://schema.post.be/shm/deepintegration/v3/common"
+	xmlns:ns3="http://schema.post.be/shm/deepintegration/v3/national">
+	<accountId>{accountID}</accountId>
+	<reference>bpack 24h B2B - Ins(El)+iR+iND+iD</reference>
+	<costCenter>Cost Center</costCenter>
+	<orderLine>
+		<text>Product 1</text>
+		<nbOfItems>5</nbOfItems>
+	</orderLine>
+	<orderLine>
+		<text>Product 1</text>
+		<nbOfItems>1</nbOfItems>
+	</orderLine>
+	<box>
+		<sender>
+			<ns2:name>SENDER NAME</ns2:name>
+			<ns2:company>SENDER COMPANY</ns2:company>
+			<ns2:address>
+				<ns2:streetName>MUNT</ns2:streetName>
+				<ns2:number>1</ns2:number>
+				<ns2:box>1</ns2:box>
+				<ns2:postalCode>1000</ns2:postalCode>
+				<ns2:locality>Brussel</ns2:locality>
+				<ns2:countryCode>BE</ns2:countryCode>
+			</ns2:address>
+			<ns2:emailAddress>sender@mail.be</ns2:emailAddress>
+			<ns2:phoneNumber>022011111</ns2:phoneNumber>
+		</sender>
+		<nationalBox>
+			<ns3:atHome>
+				<ns3:product>bpack 24h business</ns3:product>
+				<ns3:options>
+					<ns2:infoDistributed language="EN">
+						<ns2:mobilePhone>0476123456</ns2:mobilePhone>
+					</ns2:infoDistributed>
+					<ns2:infoNextDay language="EN">
+						<ns2:emailAddress>receiver@mail.be</ns2:emailAddress>
+					</ns2:infoNextDay>
+					<ns2:infoReminder language="EN">
+						<ns2:mobilePhone>0032475123456</ns2:mobilePhone>
+					</ns2:infoReminder>
+					<ns2:automaticSecondPresentation />
+					<ns2:insured>
+						<ns2:additionalInsurance value="2" />
+					</ns2:insured>
+					<ns2:signed />
+				</ns3:options>
+				<ns3:weight>2000</ns3:weight>
+				<ns3:openingHours>
+					<ns3:Monday>10:00-12:00/13:00-17:30</ns3:Monday>
+					<ns3:Tuesday>10:00-12:00/13:00-17:30</ns3:Tuesday>
+					<ns3:Wednesday>-/-</ns3:Wednesday>
+					<ns3:Thursday>08:00-17:30</ns3:Thursday>
+					<ns3:Friday>08:00-17:30</ns3:Friday>
+					<ns3:Saturday>12:00-17:30</ns3:Saturday>
+				</ns3:openingHours>
+				<ns3:desiredDeliveryPlace>Place your delivery instructions here</ns3:desiredDeliveryPlace>
+				<ns3:receiver>
+					<ns2:name>RECEIVER NAME</ns2:name>
+					<ns2:company>RECEIVER COMPANY</ns2:company>
+					<ns2:address>
+						<ns2:streetName>GROTE MARKT</ns2:streetName>
+						<ns2:number>10</ns2:number>
+						<ns2:box>A</ns2:box>
+						<ns2:postalCode>2000</ns2:postalCode>
+						<ns2:locality>Antwerpen</ns2:locality>
+						<ns2:countryCode>BE</ns2:countryCode>
+					</ns2:address>
+					<ns2:emailAddress>receiver@mail.be</ns2:emailAddress>
+					<ns2:phoneNumber>0032475123456</ns2:phoneNumber>
+				</ns3:receiver>
+			</ns3:atHome>
+		</nationalBox>
+		<remark>bpack 24h B2B VAS 126 - Ins(El)+iR+iND+iD</remark>
+		<additionalCustomerReference>Reference that can be used for cross-referencing</additionalCustomerReference>
+		<status>PENDING</status>
+	</box>
+	<box>
+		<sender>
+			<ns2:name>SENDER NAME</ns2:name>
+			<ns2:company>SENDER COMPANY</ns2:company>
+			<ns2:address>
+				<ns2:streetName>MUNT</ns2:streetName>
+				<ns2:number>1</ns2:number>
+				<ns2:box>1</ns2:box>
+				<ns2:postalCode>1000</ns2:postalCode>
+				<ns2:locality>Brussel</ns2:locality>
+				<ns2:countryCode>BE</ns2:countryCode>
+			</ns2:address>
+			<ns2:emailAddress>sender@mail.be</ns2:emailAddress>
+			<ns2:phoneNumber>022011111</ns2:phoneNumber>
+		</sender>
+		<nationalBox>
+			<ns3:atHome>
+				<ns3:product>bpack 24h business</ns3:product>
+				<ns3:options>
+					<ns2:infoDistributed language="EN">
+						<ns2:mobilePhone>0476123456</ns2:mobilePhone>
+					</ns2:infoDistributed>
+					<ns2:infoNextDay language="EN">
+						<ns2:emailAddress>receiver@mail.be</ns2:emailAddress>
+					</ns2:infoNextDay>
+					<ns2:infoReminder language="EN">
+						<ns2:mobilePhone>0032475123456</ns2:mobilePhone>
+					</ns2:infoReminder>
+					<ns2:automaticSecondPresentation />
+					<ns2:insured>
+						<ns2:additionalInsurance value="2" />
+					</ns2:insured>
+					<ns2:signed />
+					<ns2:saturdayDelivery />
+				</ns3:options>
+				<ns3:weight>2000</ns3:weight>
+				<ns3:openingHours>
+					<ns3:Monday>10:00-12:00/13:00-17:30</ns3:Monday>
+					<ns3:Tuesday>10:00-12:00/13:00-17:30</ns3:Tuesday>
+					<ns3:Wednesday>-/-</ns3:Wednesday>
+					<ns3:Thursday>08:00-17:30</ns3:Thursday>
+					<ns3:Friday>08:00-17:30</ns3:Friday>
+					<ns3:Saturday>12:00-17:30</ns3:Saturday>
+				</ns3:openingHours>
+				<ns3:desiredDeliveryPlace>Place your delivery instructions here</ns3:desiredDeliveryPlace>
+				<ns3:receiver>
+					<ns2:name>RECEIVER NAME</ns2:name>
+					<ns2:company>RECEIVER COMPANY</ns2:company>
+					<ns2:address>
+						<ns2:streetName>GROTE MARKT</ns2:streetName>
+						<ns2:number>10</ns2:number>
+						<ns2:box>A</ns2:box>
+						<ns2:postalCode>2000</ns2:postalCode>
+						<ns2:locality>Antwerpen</ns2:locality>
+						<ns2:countryCode>BE</ns2:countryCode>
+					</ns2:address>
+					<ns2:emailAddress>receiver@mail.be</ns2:emailAddress>
+					<ns2:phoneNumber>0032475123456</ns2:phoneNumber>
+				</ns3:receiver>
+				<ns3:requestedDeliveryDate>2015-04-18+02:00</ns3:requestedDeliveryDate>
+			</ns3:atHome>
+		</nationalBox>
+		<remark>bpack 24h B2B VAS 126 - Ins(El)+iR+iND+iD</remark>
+		<additionalCustomerReference>Reference that can be used for cross-referencing</additionalCustomerReference>
+		<status>PENDING</status>
+	</box>
+</orderInfo>

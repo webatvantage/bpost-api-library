@@ -192,48 +192,58 @@ foreach ($labels as $label) {
 }
 ```
 
-### Geo6 services
+### Geolocator (pick-up points, parcel points and parcel lockers)
 
 ```php
-$geo6Partner = '999999';
-$geo6AppId = 'A001';
-$geo6 = new Geo6($geo6Partner, $geo6AppId);
+use Webatvantage\Bpost\Api\Geo\GeoApiClient;
+use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
+use Webatvantage\Bpost\Api\Geo\Enums\PointType;
+
+$geo = new GeoApiClient(new GeoApiConfig(
+    partner: '999999',      // your bpost account id, activated for the Geolocator
+    apiKey: 'xxxxxxxx',     // the x-api-key bpost issues per account, request it from esolutions@bpost.be
+    appId: 'A001',          // optional
+));
 ```
 
-#### Get nearest points
+#### Nearest points
+
 ```php
-$points = $geo6->getNearestServicePoint(
-    'Grand Place', // Street name
-    '3', // Street number
-    '1000', // Zip code
-    'fr', // Language: 'fr' or 'nl'
-    3, // Point types: Sum of some Geo6::POINT_TYPE_*
-    5 // Points number
-);
+$points = $geo->servicePoints()
+    ->nearest(zone: '1000', street: 'Grand Place', number: '3')
+    ->types(PointType::PostOffice, PointType::PostPoint)
+    ->language(Language::FR)
+    ->withDetails()   // ask for opening hours
+    ->limit(5)
+    ->get();
+
 foreach ($points as $point) {
-    $distance = $point['distance']; // float
-    /** @var Poi $poi */
-    $poi = $point['poi'];
+    $point->name;
+    $point->distance;               // metres
+    $point->openingHours->for(Weekday::Monday)?->amOpen;
 }
 ```
 
-#### Get point details
+#### One point's details
+
 ```php
-/** @var Poi $poi */
-$poi = $geo6->getServicePointDetails(
-    200000, // Point ID
-    'fr', // Language: 'fr' or 'nl'
-    3 // Point types: Sum of some Geo6::POINT_TYPE_*
-);
+$point = $geo->servicePoints()->details('220000', PointType::PostOffice)->get();
 ```
 
-#### Get point map URL
+#### Every point in a country
+
 ```php
-$url = $geo6->getServicePointPageUrl(
-    200000, // Point ID
-    'fr', // Language: 'fr' or 'nl'
-    3 // Point types: Sum of some Geo6::POINT_TYPE_*
-);
+$points = $geo->servicePoints()
+    ->all()
+    ->country('BE')
+    ->type(PointType::ParcelLocker)
+    ->get();
+```
+
+#### The URL of bpost's own details page
+
+```php
+$url = $geo->servicePoints()->pageUrl('220000', PointType::PostOffice);
 ```
 
 ## Sites using this class

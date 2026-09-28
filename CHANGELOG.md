@@ -7,6 +7,13 @@
 * Guzzle-based `HttpApiAdapter` shared by every bpost service, replacing the two hand-rolled cURL
   blocks and the `ApiCaller` wrapper
 * `MIGRATION.md`, a 3.x to 4.0 upgrade guide
+* `BpostApiClient`, one entry point handing out a client per bpost service
+* Geolocator: `x-api-key` and `Accept-Encoding: gzip` headers, both required by manual B.4.1.0
+* Geolocator: the mandatory `DD`, `CheckDate` and `CheckOpen` parameters on a nearest-points
+  search, and the optional `Info`, `CheckList`, `IncludeBoxNumber`, `IncludeAttributes` and
+  `AttributeFilter`
+* Geolocator: `PointType::ParcelPoint` (type 16), which was missing entirely
+* Geolocator: `ServicePoint` now reads `Country`, `BoxNumber` and the locker `Attributes`
 
 #### Changed
 
@@ -14,11 +21,28 @@
   bpost service (`Shm`, `Geo`, `Parcel`)
 * Minimum PHP version is now 8.4
 * Code style is now `webatvantage/php-cs-fixer-config`; static analysis runs PHPStan level 5
+* Geolocator host is now `pudo.bpost.cloud`, as documented, instead of `pudo.bpost.be`
+* A nearest-points search returns a flat list of `ServicePoint`; the distance is a property on the
+  point rather than a parallel array key
+
+#### Removed
+
+* `Geo6`, `Geo6Partner`, `Geo6Account`, `Poi`, `Geo6\Day` and `Geo6\Service`, replaced by the
+  `Geo` namespace
+* `Geo6::getServicePointPage()`, a deprecated alias, and `Geo6::getPointType()`, replaced by the
+  `PointType` enum
+* `BpostTaxipostLocatorException` and `BpostInvalidDayException`
 
 #### Fixed
 
 * API error responses now reach the caller. `ApiCaller` read the response content type from the
   wrong `curl_getinfo()` key, so every failure surfaced with an empty message
+* The service-point page URL carries `Function`, `Partner` and `AppId` again. A refactor in 3.x
+  dropped them, producing a URL bpost could not answer
+* `AppId` is sent when configured; 3.x stored it and never put it in a request
+* `ServicePoint` reads a `<Note>` as well as a `<NOTE>`; a nearest-points search uses the first
+  spelling and 3.x only handled the second
+* TLS certificate verification is no longer disabled on Geolocator requests
 
 ### 3.7.0
 

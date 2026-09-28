@@ -161,7 +161,7 @@ class NearestServicePointsRequestTest extends GeoTestCase
 		$this->assertSame(547.81, $point->distance);
 		$this->assertSame(LockerType::Classic, $point->attributes->lockerType);
 		$this->assertFalse($point->attributes->nightDelivery);
-		$this->assertSame('00:01', $point->openingHours->for(\Webatvantage\Bpost\Api\Geo\Enums\Weekday::Monday)->amOpen);
+		$this->assertSame('00:01', $point->openingHours->for(\Webatvantage\Bpost\Api\Enums\Weekday::Monday)->amOpen);
 	}
 
 	/**

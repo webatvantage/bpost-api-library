@@ -34,6 +34,18 @@ abstract class ShmTestCase extends TestCase
 	 * the common: and tns: prefixes without declaring them, so reloading it raises namespace
 	 * warnings for markup that is correct in the document it will be appended to.
 	 */
+	protected function fixture(string $name): string
+	{
+		$contents = file_get_contents(__DIR__ . '/../Fixtures/Shm/' . $name);
+
+		if ($contents === false)
+		{
+			throw new \RuntimeException("Fixture not found: {$name}");
+		}
+
+		return $contents;
+	}
+
 	protected function assertXmlFragment(string $expected, string $actual): void
 	{
 		$this->assertSame($this->normalise($expected), $this->normalise($actual));
@@ -42,6 +54,8 @@ abstract class ShmTestCase extends TestCase
 	private function normalise(string $xml): string
 	{
 		$xml = preg_replace('/<\?xml[^>]*\?>/', '', $xml) ?? $xml;
+		// bpost annotates its example files inline; the comments are guidance, not contract.
+		$xml = preg_replace('/<!--.*?-->/s', '', $xml) ?? $xml;
 		$xml = preg_replace('/>\s+</', '><', $xml) ?? $xml;
 
 		return trim($xml);

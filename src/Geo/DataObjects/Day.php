@@ -4,8 +4,8 @@ namespace Webatvantage\Bpost\Api\Geo\DataObjects;
 
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Enums\Weekday;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
-use Webatvantage\Bpost\Api\Geo\Enums\Weekday;
 
 /**
  * One day's opening hours, as two optional ranges.

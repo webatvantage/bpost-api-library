@@ -8,7 +8,7 @@ use IteratorAggregate;
 use SimpleXMLElement;
 use Traversable;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
-use Webatvantage\Bpost\Api\Geo\Enums\Weekday;
+use Webatvantage\Bpost\Api\Enums\Weekday;
 
 /**
  * A week of opening hours.

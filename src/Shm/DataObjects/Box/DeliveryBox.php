@@ -21,8 +21,8 @@ use Webatvantage\Bpost\Api\Support\Assert;
  */
 abstract class DeliveryBox implements XmlSerializable
 {
-	/** bpost rejects anything over 30 kg outright. */
-	public const int MAX_WEIGHT = 30_000;
+	/** The ceiling for an ordinary parcel. */
+	public const int MAX_WEIGHT = Product::MAX_WEIGHT;
 
 	public private(set) ?Product $product = null;
 
@@ -75,7 +75,11 @@ abstract class DeliveryBox implements XmlSerializable
 	 */
 	public function weight(int $weight): static
 	{
-		$this->weight = Assert::between('weight', $weight, 0, self::MAX_WEIGHT);
+		$max = $this->product === null ? self::MAX_WEIGHT : $this->product->maxWeight();
+
+		$this->weight = $max === null
+			? Assert::atLeast('weight', $weight, 0)
+			: Assert::between('weight', $weight, 0, $max);
 
 		return $this;
 	}

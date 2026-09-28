@@ -23,7 +23,9 @@
 * Shipping Manager: `RETURNED` as a customs shipment type
 * Shipping Manager: the field lengths the manual documents are checked when set, rather than by
   bpost on send — sender and receiver name and company, remark, order reference, cost centre, and
-  the 30 kg ceiling that `isValidWeight()` defined but no box ever called
+  the 30 kg ceiling that `isValidWeight()` defined but no box ever called. bpack XL and bpack
+  Pallet are exempt: they are the products that carry more, and the manual's own bpack XL example
+  sends 100 kg
 
 #### Changed
 

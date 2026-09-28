@@ -133,13 +133,14 @@ class BoxTest extends ShmTestCase
 	{
 		$box = new AtHome(Product::BpackXL)
 			->withOption(new Fragile())
-			->weight(100000 > At247::MAX_WEIGHT ? At247::MAX_WEIGHT : 100000)
+			->weight(100000)
 			->dimensions(new Dimensions(100, 200, 500));
 
 		$xml = $this->serialise($box->toXml(...));
 
 		$this->assertStringContainsString('<product>bpack XL</product>', $xml);
 		$this->assertStringContainsString('<common:fragile/>', $xml);
+		$this->assertStringContainsString('<weight>100000</weight>', $xml);
 		$this->assertStringContainsString('<height>100</height>', $xml);
 		$this->assertStringContainsString('<length>200</length>', $xml);
 		$this->assertStringContainsString('<width>500</width>', $xml);

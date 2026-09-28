@@ -25,12 +25,27 @@ enum Product: string
 	case BpackWorldEasyReturn = 'bpack World Easy Return';
 	case BpackAtBpostInternational = 'bpack@bpost international';
 
+	/** The weight ceiling for an ordinary parcel, in grams. */
+	public const int MAX_WEIGHT = 30_000;
+
 	/**
 	 * Only bpack XL takes dimensions and the fragile option, and it requires the dimensions.
 	 */
 	public function requiresDimensions(): bool
 	{
 		return $this === self::BpackXL;
+	}
+
+	/**
+	 * The heaviest box bpost accepts, in grams, or null where the manual documents no ceiling.
+	 */
+	public function maxWeight(): ?int
+	{
+		return match ($this)
+		{
+			self::BpackXL, self::BpackPallet => null,
+			default => self::MAX_WEIGHT,
+		};
 	}
 
 	public function allowsFragile(): bool

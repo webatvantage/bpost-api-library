@@ -126,9 +126,10 @@ Setters lost their `set` prefix and return `$this`, so an order reads as one exp
 read as properties — `$box->deliveryBox->weight` — rather than through getters.
 
 Lengths the manual documents are now checked when you set them rather than by bpost when you send:
-sender and receiver name and company at 40, remark, order reference and cost centre at 50, and a
-box over 30 kg. Code that previously sent an over-long value and got a schema violation back will
-now get an `InvalidLengthException` at the point of the mistake.
+sender and receiver name and company at 40, remark, order reference and cost centre at 50, and an
+ordinary parcel over 30 kg — bpack XL and bpack Pallet have no documented ceiling and are not
+capped. Code that previously sent an over-long value and got a schema violation back will now get
+an `InvalidLengthException` at the point of the mistake.
 
 `bpack XL` exists, with `Dimensions` and the `Fragile` option. Labels can be asked for as ZPL,
 which bpost only produces in A6.

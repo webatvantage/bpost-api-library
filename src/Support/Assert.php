@@ -42,6 +42,19 @@ class Assert
 	/**
 	 * @throws InvalidValueException
 	 */
+	public static function atLeast(string $name, int $value, int $min): int
+	{
+		if ($value < $min)
+		{
+			throw new InvalidValueException($name, $value, [sprintf('%d or more', $min)]);
+		}
+
+		return $value;
+	}
+
+	/**
+	 * @throws InvalidValueException
+	 */
 	public static function countryCode(string $name, string $value): string
 	{
 		$value = strtoupper($value);

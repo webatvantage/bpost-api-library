@@ -5,7 +5,7 @@ namespace Webatvantage\Bpost\Api\Geo\DataObjects;
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Enums\Weekday;
-use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 
 /**
  * One day's opening hours, as two optional ranges.
@@ -28,7 +28,7 @@ class Day implements XmlDeserializable
 
 		if ($weekday === null)
 		{
-			throw new InvalidValueException('weekday', $xml->getName(), array_column(Weekday::cases(), 'value'));
+			throw new UnexpectedValueException('weekday', $xml->getName(), array_column(Weekday::cases(), 'value'));
 		}
 
 		return new static(

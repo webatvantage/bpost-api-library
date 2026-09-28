@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api\Support;
 use BackedEnum;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 
 /**
  * The field constraints the bpack integration manual documents.
@@ -60,7 +61,7 @@ class Assert
 	 *
 	 * @return T
 	 *
-	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
 	 */
 	public static function enum(string $name, string $enum, string|int $value): BackedEnum
 	{
@@ -68,7 +69,7 @@ class Assert
 
 		if ($case === null)
 		{
-			throw new InvalidValueException($name, $value, array_map(
+			throw new UnexpectedValueException($name, $value, array_map(
 				static fn (BackedEnum $case): string|int => $case->value,
 				$enum::cases(),
 			));

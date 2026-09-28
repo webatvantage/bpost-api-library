@@ -8,6 +8,7 @@ use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\DataObjects\Options\Option;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\OptionFactory;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
@@ -144,10 +145,10 @@ abstract class DeliveryBox implements XmlSerializable
 
 		if ($product === null)
 		{
-			throw new InvalidValueException(
+			throw new UnexpectedValueException(
 				name: 'product',
 				value: $value,
-				allowed: array_map(fn (Product $p) => $p->value, static::allowedProducts()),
+				known: array_map(fn (Product $p) => $p->value, static::allowedProducts()),
 			);
 		}
 
@@ -161,7 +162,7 @@ abstract class DeliveryBox implements XmlSerializable
 	{
 		if (isset($xml->{$weightElement}) && trim((string)$xml->{$weightElement}) !== '')
 		{
-			$this->weight((int)$xml->{$weightElement});
+			$this->weight = (int)$xml->{$weightElement};
 		}
 
 		if (!isset($xml->options))

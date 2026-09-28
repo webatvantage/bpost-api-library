@@ -6,6 +6,7 @@ use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Enums\Weekday;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\At247;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\AtBpost;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\AtHome;
@@ -148,7 +149,7 @@ class BoxTest extends ShmTestCase
 
 	public function test_an_unknown_customs_value_raises_a_library_exception()
 	{
-		$this->expectException(InvalidValueException::class);
+		$this->expectException(UnexpectedValueException::class);
 
 		CustomsInfo::fromXml(simplexml_load_string(
 			'<customsInfo><parcelValue>1000</parcelValue><contentDescription>Books</contentDescription>'

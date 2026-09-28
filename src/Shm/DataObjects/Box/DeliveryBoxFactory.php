@@ -3,7 +3,7 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use SimpleXMLElement;
-use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 
 /**
  * Builds a delivery method from its element name.
@@ -14,7 +14,7 @@ use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 class DeliveryBoxFactory
 {
 	/**
-	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
 	 */
 	public static function fromXml(SimpleXMLElement $xml): DeliveryBox
 	{
@@ -25,7 +25,7 @@ class DeliveryBoxFactory
 			'at24-7' => At247::fromXml($xml),
 			'international' => International::fromXml($xml),
 			'atIntlPugo' => AtIntlPugo::fromXml($xml),
-			default => throw new InvalidValueException('deliveryMethod', $xml->getName(), [
+			default => throw new UnexpectedValueException('deliveryMethod', $xml->getName(), [
 				'atHome',
 				'atBpost',
 				'at24-7',

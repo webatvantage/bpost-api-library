@@ -4,7 +4,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\DataObjects\Options\Option;
-use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\AutomaticSecondPresentation;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\Fragile;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\SaturdayDelivery;
@@ -19,7 +19,7 @@ use Webatvantage\Bpost\Api\Shm\Enums\MessagingType;
 class OptionFactory
 {
 	/**
-	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
 	 */
 	public static function fromXml(SimpleXMLElement $xml): Option
 	{
@@ -38,7 +38,7 @@ class OptionFactory
 			'saturdayDelivery' => new SaturdayDelivery(),
 			'automaticSecondPresentation' => new AutomaticSecondPresentation(),
 			'fragile' => new Fragile(),
-			default => throw new InvalidValueException('option', $name, self::knownNames()),
+			default => throw new UnexpectedValueException('option', $name, self::knownNames()),
 		};
 	}
 

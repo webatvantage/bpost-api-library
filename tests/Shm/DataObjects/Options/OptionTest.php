@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Tests\Shm\DataObjects\Options;
 
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\CashOnDelivery;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\AutomaticSecondPresentation;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\Fragile;
@@ -119,7 +120,7 @@ class OptionTest extends ShmTestCase
 
 	public function test_the_factory_names_what_it_does_not_recognise()
 	{
-		$this->expectException(InvalidValueException::class);
+		$this->expectException(UnexpectedValueException::class);
 
 		OptionFactory::fromXml(simplexml_load_string('<somethingNew/>'));
 	}

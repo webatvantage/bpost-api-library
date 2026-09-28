@@ -68,7 +68,7 @@ class ServicePoint implements XmlDeserializable
 			name: self::value($xml, 'Name', 'OFFICE'),
 			street: self::value($xml, 'Street', 'STREET'),
 			number: self::value($xml, 'Number', 'NR'),
-			boxNumber: self::value($xml, 'BoxNumber'),
+			boxNumber: self::value($xml, 'BoxNumber', 'BOXNR'),
 			zip: self::value($xml, 'Zip', 'ZIP'),
 			city: self::value($xml, 'City', 'CITY'),
 			country: self::value($xml, 'Country', 'COUNTRY'),

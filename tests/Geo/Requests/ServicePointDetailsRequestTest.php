@@ -23,6 +23,7 @@ class ServicePointDetailsRequestTest extends GeoTestCase
 					<NR>137</NR>
 					<ZIP>59800</ZIP>
 					<CITY>LILLE</CITY>
+					<BOXNR>4B</BOXNR>
 					<Country>FR</Country>
 					<Note>Closed for refurbishment</Note>
 					<Services>
@@ -61,6 +62,18 @@ class ServicePointDetailsRequestTest extends GeoTestCase
 		$this->assertSame('59800', $point->zip);
 		$this->assertSame('LILLE', $point->city);
 		$this->assertSame('FR', $point->country);
+	}
+
+	/**
+	 * A search answers <BoxNumber>, a details lookup <BOXNR>.
+	 */
+	public function test_it_reads_the_box_number_in_either_spelling()
+	{
+		$this->mockResponse(200, self::RESPONSE);
+
+		$point = $this->client()->servicePoints()->details('643168', PointType::PostPoint)->withBoxNumber()->get();
+
+		$this->assertSame('4B', $point->boxNumber);
 	}
 
 	/**

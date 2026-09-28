@@ -14,9 +14,7 @@ use Webatvantage\Bpost\Api\Shm\Enums\MessagingType;
 /**
  * Builds an option from its element name.
  *
- * There is one of these rather than one per box type: 3.x carried two copies of this dispatch and
- * they had drifted, so the international copy was missing the `cod` case and any international box
- * carrying cash on delivery failed to parse.
+ * One factory for every box type, national and international alike, so the two cannot drift.
  */
 class OptionFactory
 {

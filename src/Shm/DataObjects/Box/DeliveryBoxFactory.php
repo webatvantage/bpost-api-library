@@ -8,9 +8,8 @@ use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 /**
  * Builds a delivery method from its element name.
  *
- * 3.x derived the class name from the element with ucfirst(), which is why at24-7 needed a special
- * case and why an unrecognised element produced a "class not found" style failure rather than a
- * message naming the element.
+ * Matched explicitly rather than derived from the element name, since at24-7 is not a class name
+ * and an unrecognised element should say which element it was.
  */
 class DeliveryBoxFactory
 {

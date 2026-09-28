@@ -35,7 +35,6 @@ class ParcelContent implements XmlDeserializable, XmlSerializable
 		public private(set) string $originOfGoods,
 	) {
 		Assert::between('numberOfItemType', $numberOfItemType, 1, 999999);
-		// 3.x silently truncated this with substr(), which can cut a multi-byte character in half.
 		Assert::maxLength('itemDescription', $itemDescription, 30);
 		Assert::between('nettoWeight', $nettoWeight, 1, 30000);
 		Assert::maxLength('hsTariffCode', $hsTariffCode, 9);

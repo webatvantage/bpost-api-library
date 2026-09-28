@@ -45,8 +45,8 @@ Filled in per phase as classes move.
 | `…\Bpost\Order\{Address,Sender,Receiver,PugoAddress,ParcelsDepotAddress}` | `…\Shm\DataObjects\…` |
 | `…\Bpost\Order\Box\{AtHome,AtBpost,At247,International,AtIntlPugo}` | `…\Shm\DataObjects\Box\…` |
 | `…\Bpost\Order\Box\National\Unregistered` | `…\Shm\DataObjects\Box\Unregistered` |
-| `…\Bpost\Order\Box\Option\{Messaging,CashOnDelivery,Insured}` | `…\Shm\DataObjects\Option\…` |
-| `…\Bpost\Order\Box\Option\{Signed,SaturdayDelivery,AutomaticSecondPresentation}` | `…\Shm\DataObjects\Option\Flags\…` |
+| `…\Bpost\Order\Box\Option\{Messaging,CashOnDelivery,Insured}` | `…\Shm\DataObjects\Options\…` |
+| `…\Bpost\Order\Box\Option\{Signed,SaturdayDelivery,AutomaticSecondPresentation}` | `…\Shm\DataObjects\Options\Flags\…` |
 | `…\Bpost\Order\Box\CustomsInfo\CustomsInfo` | `…\Shm\DataObjects\Customs\CustomsInfo` |
 | `…\Bpost\Order\Box\International\ParcelContent` | `…\Shm\DataObjects\Customs\ParcelContent` |
 | `…\Bpost\{Label,Labels}` | `…\Shm\DataObjects\Label` |

@@ -51,8 +51,6 @@ class Price implements XmlDeserializable
 			$weight <= 10_000 => $this->price5To10,
 			$weight <= 20_000 => $this->price10To20,
 			$weight <= DeliveryBox::MAX_WEIGHT => $this->price20To30,
-			// 3.x threw here with a message reading "Invalid weight (35000 kg), maximum is 30",
-			// having compared grams and then reported them as kilos.
 			default => throw new InvalidValueException('weight', $weight, [
 				sprintf('0 to %d grams', DeliveryBox::MAX_WEIGHT),
 			]),

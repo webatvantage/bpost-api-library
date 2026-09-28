@@ -12,8 +12,7 @@ use Webatvantage\Bpost\Api\Requests\Request;
  * `Function=page` — the HTML details page for one point.
  *
  * This one is never sent: bpost answers HTML meant for a browser or an iframe, so the library only
- * builds the URL. It still needs Function, Partner and AppId, which the 3.x implementation dropped
- * during a refactor and therefore produced a URL bpost could not answer.
+ * builds the URL. It still needs Function, Partner and AppId.
  */
 class ServicePointPageRequest extends Request
 {

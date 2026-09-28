@@ -87,8 +87,6 @@ class Box implements XmlDeserializable, XmlSerializable
 
 		Xml::appendText($document, $box, 'remark', $this->remark, $prefix);
 
-		// 3.x appended a "+PHP8.2" suffix and wrote the element even when there was no reference,
-		// so every box carried one whether the caller set it or not.
 		Xml::appendText($document, $box, 'additionalCustomerReference', $this->additionalCustomerReference, $prefix);
 		Xml::appendText($document, $box, 'barcode', $this->barcode, $prefix);
 

@@ -19,8 +19,7 @@ use Webatvantage\Bpost\Api\Support\Assert;
  *
  * In v3.3 these were flat siblings inside at24-7 — messageLanguage, mobilePhone, email and a
  * reducedMobilityZone carrying "Y" or "N". v5 wraps them in <unregistered>, renames two of them,
- * and turns reducedMobilityZone into an empty flag. 3.x wrote the wrapper but named the flag
- * parcelLockerReducedMobilityZone, which bpost does not recognise.
+ * and turns reducedMobilityZone into an empty flag.
  */
 class Unregistered implements XmlDeserializable, XmlSerializable
 {

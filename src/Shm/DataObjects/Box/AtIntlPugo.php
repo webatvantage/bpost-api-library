@@ -13,10 +13,6 @@ use Webatvantage\Bpost\Api\Support\Assert;
 
 /**
  * Delivery to a pick-up point or locker abroad.
- *
- * 3.x could parse one of these but never send one: its toXML() called two methods that do not
- * exist anywhere in the library, so building this box was an unconditional fatal error. No test
- * caught it because none of them called toXML.
  */
 class AtIntlPugo extends InternationalBox implements XmlDeserializable
 {
@@ -106,7 +102,6 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 			$box->pugoAddress = PugoAddress::fromXml(Xml::readChildren($xml->pugoAddress, Xml::READ_COMMON));
 		}
 
-		// 3.x declared both of these and never read them back.
 		if (isset($xml->receiverName) && trim((string)$xml->receiverName) !== '')
 		{
 			$box->receiverName((string)$xml->receiverName);

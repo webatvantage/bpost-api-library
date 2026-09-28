@@ -12,9 +12,8 @@ use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
 /**
  * Shared by the three ways of asking for labels.
  *
- * The Content-Type is labelRequest-v5. 3.x sent v3 here, which both the manual and every v5
- * example file contradict; the Accept type genuinely does stay at v3.4, because bpost did not bump
- * the two together.
+ * The Content-Type is labelRequest-v5 while the Accept type stays at v3.4: bpost versions the
+ * two separately.
  */
 abstract class CreateLabelRequest extends ShmRequest
 {

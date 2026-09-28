@@ -140,7 +140,6 @@ class At247 extends NationalBox implements XmlDeserializable
 			);
 		}
 
-		// 3.x wrote this element but never read it back, so a retrieved order silently lost it.
 		if (isset($xml->unregistered))
 		{
 			$box->unregistered = Unregistered::fromXml($xml->unregistered);

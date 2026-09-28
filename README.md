@@ -47,7 +47,7 @@ later at the HTTP layer.
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Shm\DataObjects\{Order, Box, Sender, Receiver, Address};
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\AtHome;
-use Webatvantage\Bpost\Api\Shm\DataObjects\Option\{Insured, Messaging};
+use Webatvantage\Bpost\Api\Shm\DataObjects\Options\{Insured, Messaging};
 use Webatvantage\Bpost\Api\Shm\Enums\{InsuranceAmount, Product};
 
 $sender = new Sender()
@@ -150,7 +150,7 @@ follow it afterwards.
 
 ```php
 use Webatvantage\Bpost\Api\Parcel\DataObjects\{Announcement, Sender, Receiver, Address};
-use Webatvantage\Bpost\Api\Parcel\DataObjects\Options\Signature;
+use Webatvantage\Bpost\Api\Parcel\DataObjects\Options\Flags\Signature;
 
 $parcel = $bpost->parcel();
 

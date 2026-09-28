@@ -32,7 +32,7 @@ class ShmRequestTest extends ShmTestCase
 
 		$request = $this->lastRequest();
 		$this->assertSame('POST', $request->getMethod());
-		$this->assertSame('/123456/orders', $request->getUri()->getPath());
+		$this->assertSame('https://shm-rest.bpost.cloud/services/shm/123456/orders', (string)$request->getUri());
 		$this->assertStringContainsString('<tns:order', (string)$request->getBody());
 	}
 
@@ -82,7 +82,10 @@ class ShmRequestTest extends ShmTestCase
 
 		$request = $this->lastRequest();
 		$this->assertSame('POST', $request->getMethod());
-		$this->assertSame('/123456/orders/ref-123', $request->getUri()->getPath());
+		$this->assertSame(
+			'https://shm-rest.bpost.cloud/services/shm/123456/orders/ref-123',
+			(string)$request->getUri(),
+		);
 		$this->assertSame(
 			'application/vnd.bpost.shm-orderUpdate-v3+XML',
 			$request->getHeaderLine('Content-Type'),
@@ -122,18 +125,24 @@ class ShmRequestTest extends ShmTestCase
 	{
 		$this->mockResponse(200, '<labels/>');
 		$this->client()->labels()->forOrder('ref-123', LabelFormat::A4)->get();
-		$this->assertSame('/123456/orders/ref-123/labels/A4', $this->lastRequest()->getUri()->getPath());
+		$this->assertSame(
+			'https://shm-rest.bpost.cloud/services/shm/123456/orders/ref-123/labels/A4',
+			(string)$this->lastRequest()->getUri(),
+		);
 
 		$this->mockResponse(200, '<labels/>');
 		$this->client()->labels()->forBox('323212345', LabelFormat::A6, withReturnLabels: true)->get();
 		$this->assertSame(
-			'/123456/boxes/323212345/labels/A6/withReturnLabels',
-			$this->lastRequest()->getUri()->getPath(),
+			'https://shm-rest.bpost.cloud/services/shm/123456/boxes/323212345/labels/A6/withReturnLabels',
+			(string)$this->lastRequest()->getUri(),
 		);
 
 		$this->mockResponse(200, '<labels/>');
 		$this->client()->labels()->inBulk(['a', 'b'])->get();
-		$this->assertSame('/123456/labels/A6', $this->lastRequest()->getUri()->getPath());
+		$this->assertSame(
+			'https://shm-rest.bpost.cloud/services/shm/123456/labels/A6',
+			(string)$this->lastRequest()->getUri(),
+		);
 		$this->assertStringContainsString('<order>a</order>', (string)$this->lastRequest()->getBody());
 	}
 
@@ -195,7 +204,10 @@ class ShmRequestTest extends ShmTestCase
 		$configuration = $this->client()->productConfiguration()->get();
 
 		$this->assertCount(1, $configuration->deliveryMethods);
-		$this->assertSame('/123456/productconfig', $this->lastRequest()->getUri()->getPath());
+		$this->assertSame(
+			'https://shm-rest.bpost.cloud/services/shm/123456/productconfig',
+			(string)$this->lastRequest()->getUri(),
+		);
 		$this->assertSame(
 			'application/vnd.bpost.shm-productConfiguration-v3.1+XML',
 			$this->lastRequest()->getHeaderLine('Accept'),

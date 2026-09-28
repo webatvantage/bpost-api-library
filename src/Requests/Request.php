@@ -78,11 +78,11 @@ class Request
 	/**
 	 * @param array<string, string> $headers
 	 */
-	public function toRequest(array $headers = []): RequestInterface
+	public function toRequest(array $headers = [], string $baseUri = ''): RequestInterface
 	{
 		return new PsrRequest(
 			$this->method->value,
-			$this->buildUri(),
+			rtrim($baseUri, '/') . $this->buildUri(),
 			$headers,
 			$this->body,
 		);

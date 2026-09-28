@@ -7,7 +7,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleLogMiddleware\LogMiddleware;
 use Psr\Http\Client\ClientExceptionInterface;
-use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\Exceptions\ApiException;
@@ -28,11 +27,14 @@ use Webatvantage\Bpost\Api\Support\Xml;
  */
 class HttpApiAdapter
 {
-	private readonly ClientInterface $client;
+	private readonly Client $client;
+
+	private readonly string $baseUri;
 
 	private ?Closure $debugCallback;
 
 	/**
+	 * @param string $baseUri
 	 * @param array<string, string> $defaultHeaders
 	 * @param array<string, mixed> $httpClientOptions
 	 */
@@ -44,6 +46,7 @@ class HttpApiAdapter
 		?Closure $debugCallback = null,
 	) {
 		$this->debugCallback = $debugCallback;
+		$this->baseUri = rtrim($baseUri, '/');
 
 		$handler = $httpClientOptions['handler'] ?? HandlerStack::create();
 
@@ -55,7 +58,6 @@ class HttpApiAdapter
 		$this->client = new Client([
 			...$httpClientOptions,
 			'handler' => $handler,
-			'base_uri' => $baseUri,
 			'http_errors' => false,
 		]);
 	}
@@ -72,7 +74,7 @@ class HttpApiAdapter
 
 		try
 		{
-			$psrRequest = $request->toRequest($headers);
+			$psrRequest = $request->toRequest($headers, $this->baseUri);
 			$response = $this->client->send($psrRequest);
 		}
 		catch (ClientExceptionInterface $clientException)

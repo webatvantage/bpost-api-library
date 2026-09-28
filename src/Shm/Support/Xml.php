@@ -75,10 +75,16 @@ class Xml extends BaseXml
 	}
 
 	/**
-	 * The children of an element in one of the response namespaces.
+	 * The children of an element, preferring a response namespace but not insisting on it.
+	 *
+	 * bpost's Retrieve Order Information responses carry ns2: and ns3: prefixes without declaring
+	 * them, so they are not well-formed namespace-wise and a namespaced lookup finds nothing in
+	 * them. Falling back to the default children keeps those responses parseable.
 	 */
 	public static function readChildren(SimpleXMLElement $xml, string $namespace): SimpleXMLElement
 	{
-		return $xml->children($namespace);
+		$children = $xml->children($namespace);
+
+		return count($children) > 0 ? $children : $xml->children();
 	}
 }

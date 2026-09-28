@@ -1,0 +1,57 @@
+<?php
+
+namespace Webatvantage\Bpost\Api\Shm\DataObjects\Option;
+
+use SimpleXMLElement;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Shm\Enums\MessagingType;
+
+/**
+ * Builds an option from its element name.
+ *
+ * There is one of these rather than one per box type: 3.x carried two copies of this dispatch and
+ * they had drifted, so the international copy was missing the `cod` case and any international box
+ * carrying cash on delivery failed to parse.
+ */
+class OptionFactory
+{
+	/**
+	 * @throws InvalidValueException
+	 */
+	public static function fromXml(SimpleXMLElement $xml): Option
+	{
+		$name = $xml->getName();
+
+		if (MessagingType::tryFrom($name) !== null)
+		{
+			return Messaging::fromXml($xml);
+		}
+
+		return match ($name)
+		{
+			'cod' => CashOnDelivery::fromXml($xml),
+			'insured' => Insured::fromXml($xml),
+			'signed' => new Signed(),
+			'saturdayDelivery' => new SaturdayDelivery(),
+			'automaticSecondPresentation' => new AutomaticSecondPresentation(),
+			'fragile' => new Fragile(),
+			default => throw new InvalidValueException('option', $name, self::knownNames()),
+		};
+	}
+
+	/**
+	 * @return array<int, string>
+	 */
+	private static function knownNames(): array
+	{
+		return [
+			...array_column(MessagingType::cases(), 'value'),
+			'cod',
+			'insured',
+			'signed',
+			'saturdayDelivery',
+			'automaticSecondPresentation',
+			'fragile',
+		];
+	}
+}

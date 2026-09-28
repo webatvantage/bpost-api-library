@@ -20,7 +20,9 @@ abstract class ShmTestCase extends TestCase
 	protected function serialise(callable $build, ?string $prefix = null): string
 	{
 		$document = Xml::document();
-		$document->appendChild($build($document, $prefix));
+
+		// Only pass a prefix when the test names one, so each class keeps its own default.
+		$document->appendChild($prefix === null ? $build($document) : $build($document, $prefix));
 
 		return trim(Xml::toString($document));
 	}

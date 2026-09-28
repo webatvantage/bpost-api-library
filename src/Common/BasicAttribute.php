@@ -85,6 +85,19 @@ abstract class BasicAttribute
     }
 
     /**
+     * Validate the value as an email address.
+     *
+     * @throws BpostInvalidPatternException
+     */
+    public function validateEmail()
+    {
+        if (filter_var($this->getValue(), FILTER_VALIDATE_EMAIL) === false)
+        {
+            throw new BpostInvalidPatternException($this->getKey(), $this->getValue(), 'FILTER_VALIDATE_EMAIL');
+        }
+    }
+
+    /**
      * @param string $regexPattern
      *
      * @throws BpostInvalidPatternException

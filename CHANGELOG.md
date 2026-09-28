@@ -1,12 +1,12 @@
 # Changelog
 
-### 4.0.0 - 2026-09-28
+### 2.0.0 - 2026-09-28
 
 #### Added
 
 * Guzzle-based `HttpApiAdapter` shared by every bpost service, replacing the two hand-rolled cURL
   blocks and the `ApiCaller` wrapper
-* `MIGRATION.md`, a 3.x to 4.0 upgrade guide
+* `MIGRATION.md`, a 1.x to 2.0 upgrade guide
 * `BpostApiClient`, one entry point handing out a client per bpost service
 * Geolocator: `x-api-key` and `Accept-Encoding: gzip` headers, both required by manual B.4.1.0
 * Geolocator: the mandatory `DD`, `CheckDate` and `CheckOpen` parameters on a nearest-points
@@ -51,7 +51,7 @@
   call; see `MIGRATION.md` for the four-line checksum that replaces it
 * `Bpack247` and its customer classes, an undocumented service on a dead host reached over plain
   HTTP
-* `Option\Insurance` and `Option\Signature`, deprecated aliases since 3.5
+* `Option\Insurance` and `Option\Signature`, aliases deprecated by the upstream project
 * `Box\AtIntlHome`, which inherited a parser that reads a different element and so never worked
 * `ProductConfiguration\Visibility`, unreferenced and contradicting the values on `DeliveryMethod`
 * `BpostOnAppointment`, which appears nowhere in the v3.3.35 manual
@@ -61,13 +61,13 @@
 
 * API error responses now reach the caller. `ApiCaller` read the response content type from the
   wrong `curl_getinfo()` key, so every failure surfaced with an empty message
-* The service-point page URL carries `Function`, `Partner` and `AppId` again. A refactor in 3.x
+* The service-point page URL carries `Function`, `Partner` and `AppId` again. A refactor in 1.x
   dropped them, producing a URL bpost could not answer
-* `AppId` is sent when configured; 3.x stored it and never put it in a request
+* `AppId` is sent when configured; 1.x stored it and never put it in a request
 * `ServicePoint` reads a `<Note>` as well as a `<NOTE>`; a nearest-points search uses the first
-  spelling and 3.x only handled the second
+  spelling and 1.x only handled the second
 * TLS certificate verification is no longer disabled on Geolocator requests
-* Label requests send `Content-Type: application/vnd.bpost.shm-labelRequest-v5+XML`. 3.x sent v3,
+* Label requests send `Content-Type: application/vnd.bpost.shm-labelRequest-v5+XML`. 1.x sent v3,
   which both the manual and every v5 example contradict
 * `<unregistered>` writes `<reducedMobilityZone/>`, the element bpost recognises, instead of
   `<parcelLockerReducedMobilityZone/>`, and is read back from a retrieved order
@@ -78,8 +78,31 @@
   copy lacked the case
 * A box no longer emits an `additionalCustomerReference` nobody set, previously carrying a
   generated `+PHP8.2` suffix
-* `Price::forWeight()` reports an overweight parcel in grams, the unit it was given; 3.x compared
+* `Price::forWeight()` reports an overweight parcel in grams, the unit it was given; 1.x compared
   grams and then reported them as kilograms
+
+### 1.1.1 - 2026-09-08
+
+* Escape text values in the generated XML
+* Raise the maximum length of an address box from 8 to 9
+
+### 1.1.0 - 2026-07-09
+
+* Split the Geolocator into a partner and an account client
+* Add the collection of all service points
+* Throw when the credentials a call needs are not set
+* Uppercase the language codes
+* Remove the version field from composer.json
+
+### 1.0.0 - 2026-02-24
+
+First release under `webatvantage/bpost-api-library`, forked from
+`antidot-be/bpost-api-library`.
+
+---
+
+The entries below are the upstream project's history, kept for reference. They were never released
+under this package name, which is why the numbering restarts at 1.0.0 above.
 
 ### 3.7.0
 

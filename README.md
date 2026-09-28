@@ -6,7 +6,7 @@ _bpost API library_ is a PHP client for the bpost APIs: the Shipping Manager, th
 parcel announcement and tracking.
 
 Built against the *bpack integration manual* v3.3.35 and bpost's own SHM API v5 example set.
-Upgrading from 3.x? See [MIGRATION.md](MIGRATION.md).
+Upgrading from 1.x? See [MIGRATION.md](MIGRATION.md).
 
 ## Requirements
 

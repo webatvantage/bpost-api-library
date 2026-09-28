@@ -1,6 +1,6 @@
-# Migrating from 3.x to 4.0
+# Migrating from 1.x to 2.0
 
-Version 4.0 splits the library into one namespace per bpost service and replaces the hand-rolled
+Version 2.0 splits the library into one namespace per bpost service and replaces the hand-rolled
 cURL transport with Guzzle. Every class moved, so this is a hard break — there are no aliases.
 
 Work through it in three steps: swap the entry point, update the `use` statements from the table,
@@ -27,7 +27,7 @@ Each service can also be constructed on its own if you only use one — `new Shm
 
 Filled in per phase as classes move.
 
-| 3.x | 4.0 |
+| 1.x | 2.0 |
 |---|---|
 | `Bpost\BpostApiClient\Geo6` | `Webatvantage\Bpost\Api\Geo\GeoApiClient` |
 | `Bpost\BpostApiClient\Geo6\Geo6Partner` | `Webatvantage\Bpost\Api\Geo\GeoApiClient` |
@@ -57,7 +57,7 @@ Filled in per phase as classes move.
 | `Bpost::LABEL_FORMAT_*` | `…\Shm\Enums\LabelFormat` |
 | `Insured::INSURANCE_*` | `…\Shm\Enums\{InsuranceType,InsuranceAmount}` |
 | `BpostException` and the `Exception\*` tree | `…\Exceptions\*` |
-| _(new in 4.0 — no 3.x equivalent)_ | `Webatvantage\Bpost\Api\Parcel\ParcelApiClient` |
+| _(new in 2.0 — no 1.x equivalent)_ | `Webatvantage\Bpost\Api\Parcel\ParcelApiClient` |
 
 ## 3. Removed with no replacement
 
@@ -94,7 +94,7 @@ appended after a final ampersand.
 ### Shipping Manager, in detail
 
 ```php
-// 3.x
+// 1.x
 $bpost = new Bpost('123456', 'passphrase', 'https://api-parcel.bpost.be/services/shm/');
 $order = new Order('ref-123');
 $box = new Box();
@@ -107,7 +107,7 @@ $order->addBox($box);
 $bpost->createOrReplaceOrder($order);
 $labels = $bpost->createLabelForOrder('ref-123', Bpost::LABEL_FORMAT_A6, false, true);
 
-// 4.0
+// 2.0
 $shm = new ShmApiClient(new ShmApiConfig(accountId: '123456', passphrase: 'passphrase'));
 $shm->orders()->create(
     new Order('ref-123')->addBox(
@@ -133,9 +133,9 @@ now get an `InvalidLengthException` at the point of the mistake.
 `bpack XL` exists, with `Dimensions` and the `Fragile` option. Labels can be asked for as ZPL,
 which bpost only produces in A6.
 
-### Parcel, new in 4.0
+### Parcel, new in 2.0
 
-Neither the Announcement nor the Tracking API existed in 3.x, so there is nothing to migrate —
+Neither the Announcement nor the Tracking API existed in 1.x, so there is nothing to migrate —
 but both are documented in the manual and are what you want if you print your own labels.
 
 ```php
@@ -166,14 +166,14 @@ search returns a flat list rather than `['poi' => ..., 'distance' => ...]` pairs
 a property on the point.
 
 ```php
-// 3.x
+// 1.x
 $geo6 = new Geo6\Geo6Partner('999999', 'A001');
 foreach ($geo6->getNearestServicePoint('Grand Place', '3', '1000') as $item) {
     $item['poi']->getOffice();
     $item['distance'];
 }
 
-// 4.0
+// 2.0
 $geo = new GeoApiClient(new GeoApiConfig(partner: '999999', apiKey: 'xxxx', appId: 'A001'));
 foreach ($geo->servicePoints()->nearest(zone: '1000', street: 'Grand Place', number: '3')->get() as $point) {
     $point->name;
@@ -185,4 +185,4 @@ An `apiKey` is now required: bpost made `x-api-key` mandatory on the Geolocator 
 from esolutions@bpost.be with your account id.
 
 Opening hours only arrive when you ask for them with `->withDetails()`, which sends `Info=1`. The
-3.x client never sent it, so `Poi::getHours()` was always empty.
+1.x client never sent it, so `Poi::getHours()` was always empty.

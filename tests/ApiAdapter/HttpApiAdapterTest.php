@@ -14,7 +14,7 @@ use Webatvantage\Bpost\Api\Exceptions\InvalidResponseException;
 use Webatvantage\Bpost\Api\Exceptions\SystemException;
 use Webatvantage\Bpost\Api\Exceptions\TransporterException;
 use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
-use Webatvantage\Bpost\Api\Requests\Request;
+use Webatvantage\Bpost\Api\Tests\Doubles\FakeRequest;
 use Webatvantage\Bpost\Api\Tests\TestCase;
 
 class HttpApiAdapterTest extends TestCase
@@ -23,7 +23,7 @@ class HttpApiAdapterTest extends TestCase
 	{
 		$this->mockResponse(200, '<labels><label><barcode>323212345</barcode></label></labels>');
 
-		$result = $this->adapter()->request(new Request(Method::GET, '/orders/ref'));
+		$result = $this->adapter()->request(new FakeRequest(Method::GET, '/orders/ref'));
 
 		$this->assertInstanceOf(SimpleXMLElement::class, $result);
 		$this->assertSame('323212345', (string)$result->label->barcode);
@@ -33,7 +33,7 @@ class HttpApiAdapterTest extends TestCase
 	{
 		$this->mockResponse(201, '');
 
-		$this->assertSame('', $this->adapter()->request(new Request(Method::POST, '/orders')));
+		$this->assertSame('', $this->adapter()->request(new FakeRequest(Method::POST, '/orders')));
 	}
 
 	public function test_the_debug_callback_receives_the_request_and_the_response()
@@ -47,7 +47,7 @@ class HttpApiAdapterTest extends TestCase
 
 		try
 		{
-			$adapter->request(new Request(Method::POST, '/orders', body: '<order/>'));
+			$adapter->request(new FakeRequest(Method::POST, '/orders', body: '<order/>'));
 		}
 		catch (BusinessException)
 		{
@@ -66,7 +66,7 @@ class HttpApiAdapterTest extends TestCase
 	{
 		$this->mockResponse(200, '<ok/>');
 
-		$request = new Request(Method::GET, '/orders/ref', headers: ['Accept' => 'application/vnd.bpost.shm-order-v3.5+XML']);
+		$request = new FakeRequest(Method::GET, '/orders/ref', headers: ['Accept' => 'application/vnd.bpost.shm-order-v3.5+XML']);
 		$this->adapter(['Authorization' => 'Basic abc'])->request($request);
 
 		$sent = $this->lastRequest();
@@ -86,7 +86,7 @@ class HttpApiAdapterTest extends TestCase
 
 		try
 		{
-			$this->adapter()->request(new Request(Method::POST, '/orders/ref'));
+			$this->adapter()->request(new FakeRequest(Method::POST, '/orders/ref'));
 			$this->fail('Expected a BusinessException.');
 		}
 		catch (BusinessException $exception)
@@ -109,7 +109,7 @@ class HttpApiAdapterTest extends TestCase
 		$this->expectException(SystemException::class);
 		$this->expectExceptionMessage('An unexpected error occurred, token f35c0f13');
 
-		$this->adapter()->request(new Request(Method::POST, '/orders'));
+		$this->adapter()->request(new FakeRequest(Method::POST, '/orders'));
 	}
 
 	/**
@@ -122,7 +122,7 @@ class HttpApiAdapterTest extends TestCase
 
 		try
 		{
-			$this->adapter()->request(new Request(Method::POST, '/orders'));
+			$this->adapter()->request(new FakeRequest(Method::POST, '/orders'));
 			$this->fail('Expected an InvalidResponseException.');
 		}
 		catch (InvalidResponseException $exception)
@@ -139,7 +139,7 @@ class HttpApiAdapterTest extends TestCase
 		$this->expectException(InvalidResponseException::class);
 		$this->expectExceptionMessage('bpost answered HTTP 404 with an empty body.');
 
-		$this->adapter()->request(new Request(Method::GET, '/orders/nope'));
+		$this->adapter()->request(new FakeRequest(Method::GET, '/orders/nope'));
 	}
 
 	public function test_it_rejects_a_successful_response_that_is_not_xml()
@@ -148,14 +148,14 @@ class HttpApiAdapterTest extends TestCase
 
 		$this->expectException(UnserializableResponseException::class);
 
-		$this->adapter()->request(new Request(Method::GET, '/orders/ref'));
+		$this->adapter()->request(new FakeRequest(Method::GET, '/orders/ref'));
 	}
 
 	public function test_it_returns_the_raw_body_when_xml_is_not_expected()
 	{
 		$this->mockResponse(200, 'not xml at all');
 
-		$request = new Request(Method::GET, '/page', expectsXml: false);
+		$request = new FakeRequest(Method::GET, '/page', expectsXml: false);
 
 		$this->assertSame('not xml at all', $this->adapter()->request($request));
 	}
@@ -174,6 +174,6 @@ class HttpApiAdapterTest extends TestCase
 		$this->expectException(TransporterException::class);
 		$this->expectExceptionMessage('Could not resolve host');
 
-		$adapter->request(new Request(Method::GET, '/orders'));
+		$adapter->request(new FakeRequest(Method::GET, '/orders'));
 	}
 }

@@ -14,7 +14,7 @@ use Webatvantage\Bpost\Api\Traits\Conditionable;
  * Accept and Content-Type live on the request rather than on the adapter: bpost versions each
  * operation's media type separately, so two calls to the same service routinely disagree.
  */
-class Request
+abstract class Request
 {
 	use Conditionable;
 

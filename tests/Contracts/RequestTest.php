@@ -1,10 +1,10 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Tests\Requests;
+namespace Webatvantage\Bpost\Api\Tests\Contracts;
 
+use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Enums\Method;
-use Webatvantage\Bpost\Api\Requests\Request;
 use Webatvantage\Bpost\Api\Tests\Doubles\FakeRequest;
 use Webatvantage\Bpost\Api\Tests\TestCase;
 

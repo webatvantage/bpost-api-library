@@ -1,8 +1,6 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\DataObjects\Options;
-
-use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+namespace Webatvantage\Bpost\Api\Contracts;
 
 /**
  * A value-added service on a parcel.

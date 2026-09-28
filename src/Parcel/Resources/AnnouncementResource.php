@@ -3,11 +3,11 @@
 namespace Webatvantage\Bpost\Api\Parcel\Resources;
 
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
+use Webatvantage\Bpost\Api\Contracts\Resource;
 use Webatvantage\Bpost\Api\Parcel\DataObjects\Announcement;
 use Webatvantage\Bpost\Api\Parcel\DataObjects\Feedback;
 use Webatvantage\Bpost\Api\Parcel\ParcelApiConfig;
 use Webatvantage\Bpost\Api\Parcel\Requests\CreateAnnouncementRequest;
-use Webatvantage\Bpost\Api\Resources\Resource;
 
 class AnnouncementResource extends Resource
 {

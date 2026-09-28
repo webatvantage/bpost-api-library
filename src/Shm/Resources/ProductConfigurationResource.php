@@ -3,7 +3,7 @@
 namespace Webatvantage\Bpost\Api\Shm\Resources;
 
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
-use Webatvantage\Bpost\Api\Resources\Resource;
+use Webatvantage\Bpost\Api\Contracts\Resource;
 use Webatvantage\Bpost\Api\Shm\DataObjects\ProductConfiguration\ProductConfiguration;
 use Webatvantage\Bpost\Api\Shm\Requests\FetchProductConfigurationRequest;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;

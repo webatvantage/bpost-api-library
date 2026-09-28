@@ -1,6 +1,6 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Resources;
+namespace Webatvantage\Bpost\Api\Contracts;
 
 use Closure;
 use Psr\Http\Message\RequestInterface;

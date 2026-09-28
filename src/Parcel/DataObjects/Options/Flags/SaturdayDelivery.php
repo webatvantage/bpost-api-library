@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options\Flags;
 
-use Webatvantage\Bpost\Api\DataObjects\Options\Flag;
+use Webatvantage\Bpost\Api\Contracts\Flag;
 
 /**
  * Deliver on Saturday.

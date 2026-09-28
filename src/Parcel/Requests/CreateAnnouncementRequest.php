@@ -4,12 +4,12 @@ namespace Webatvantage\Bpost\Api\Parcel\Requests;
 
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
+use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Parcel\DataObjects\Announcement;
 use Webatvantage\Bpost\Api\Parcel\DataObjects\Feedback;
 use Webatvantage\Bpost\Api\Parcel\ParcelApiConfig;
 use Webatvantage\Bpost\Api\Parcel\Support\Xml;
-use Webatvantage\Bpost\Api\Requests\Request;
 
 /**
  * POST /services/trackedmail/announcement — tell bpost a parcel is coming.

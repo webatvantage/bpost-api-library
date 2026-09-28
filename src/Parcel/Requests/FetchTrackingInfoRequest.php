@@ -4,10 +4,10 @@ namespace Webatvantage\Bpost\Api\Parcel\Requests;
 
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
+use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
 use Webatvantage\Bpost\Api\Parcel\DataObjects\ItemTracking;
-use Webatvantage\Bpost\Api\Requests\Request;
 
 /**
  * GET /services/trackedmail/item/{barcode}/trackingInfo — where a parcel has been.

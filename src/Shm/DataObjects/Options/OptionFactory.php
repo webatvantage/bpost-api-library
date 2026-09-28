@@ -3,7 +3,7 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 
 use SimpleXMLElement;
-use Webatvantage\Bpost\Api\DataObjects\Options\Option;
+use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\AutomaticSecondPresentation;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\Fragile;

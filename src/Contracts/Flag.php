@@ -1,6 +1,6 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\DataObjects\Options;
+namespace Webatvantage\Bpost\Api\Contracts;
 
 use DOMDocument;
 use DOMElement;

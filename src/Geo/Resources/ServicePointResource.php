@@ -3,13 +3,13 @@
 namespace Webatvantage\Bpost\Api\Geo\Resources;
 
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
+use Webatvantage\Bpost\Api\Contracts\Resource;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
 use Webatvantage\Bpost\Api\Geo\Requests\AllServicePointsRequest;
 use Webatvantage\Bpost\Api\Geo\Requests\NearestServicePointsRequest;
 use Webatvantage\Bpost\Api\Geo\Requests\ServicePointDetailsRequest;
 use Webatvantage\Bpost\Api\Geo\Requests\ServicePointPageRequest;
-use Webatvantage\Bpost\Api\Resources\Resource;
 
 /**
  * The four Geolocator operations.

@@ -2,11 +2,11 @@
 
 namespace Webatvantage\Bpost\Api\Geo\Requests;
 
+use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
-use Webatvantage\Bpost\Api\Requests\Request;
 
 /**
  * `Function=page` — the HTML details page for one point.

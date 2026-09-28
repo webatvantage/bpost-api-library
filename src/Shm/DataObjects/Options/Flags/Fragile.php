@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags;
 
-use Webatvantage\Bpost\Api\DataObjects\Options\Flag;
+use Webatvantage\Bpost\Api\Contracts\Flag;
 
 /**
  * Mark the parcel fragile, which prints a glass-and-exclamation-mark icon on the label.

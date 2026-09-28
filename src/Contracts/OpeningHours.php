@@ -1,12 +1,10 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\DataObjects;
+namespace Webatvantage\Bpost\Api\Contracts;
 
 use DOMDocument;
 use DOMElement;
 use SimpleXMLElement;
-use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
-use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Enums\Weekday;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Support\Xml;

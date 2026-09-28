@@ -4,9 +4,9 @@ namespace Webatvantage\Bpost\Api\Geo\Requests;
 
 use SimpleXMLElement;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
+use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Geo\Exceptions\LocatorException;
-use Webatvantage\Bpost\Api\Requests\Request;
 
 /**
  * Base for the four Geolocator operations.

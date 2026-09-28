@@ -1,6 +1,6 @@
 <?php
 
-namespace Webatvantage\Bpost\Api\Requests;
+namespace Webatvantage\Bpost\Api\Contracts;
 
 use BackedEnum;
 use GuzzleHttp\Psr7\Request as PsrRequest;

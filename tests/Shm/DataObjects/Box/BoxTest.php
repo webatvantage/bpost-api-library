@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Tests\Shm\DataObjects\Box;
 
-use Webatvantage\Bpost\Api\Contracts\OpeningHours;
+use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Enums\Weekday;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;

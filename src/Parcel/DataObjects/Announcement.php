@@ -4,8 +4,8 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
 use DOMDocument;
 use DOMElement;
-use Webatvantage\Bpost\Api\Contracts\OpeningHours;
 use Webatvantage\Bpost\Api\Contracts\Option;
+use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
 use Webatvantage\Bpost\Api\Parcel\Enums\DeliveryMethod;
 use Webatvantage\Bpost\Api\Parcel\Support\Xml;
 use Webatvantage\Bpost\Api\Support\Assert;

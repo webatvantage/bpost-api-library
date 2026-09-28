@@ -13,19 +13,20 @@ Every service is reached from one client.
 ```php
 use Webatvantage\Bpost\Api\BpostApiClient;
 use Webatvantage\Bpost\Api\BpostApiConfig;
+use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
+use Webatvantage\Bpost\Api\Parcel\ParcelApiConfig;
+use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
 
 $bpost = new BpostApiClient(new BpostApiConfig(
     shm:    new ShmApiConfig(accountId: '123456', passphrase: '...'),
     geo:    new GeoApiConfig(partner: '123456', apiKey: '...'),
-    parcel: new ParcelApiConfig(login: '123456', password: '...'),
+    parcel: new ParcelApiConfig(accountId: '123456', password: '...'),
 ));
 ```
 
 Each service can also be constructed on its own if you only use one — `new ShmApiClient($config)`.
 
 ## 2. Class map
-
-Filled in per phase as classes move.
 
 | 1.x | 2.0 |
 |---|---|
@@ -60,8 +61,6 @@ Filled in per phase as classes move.
 | _(new in 2.0 — no 1.x equivalent)_ | `Webatvantage\Bpost\Api\Parcel\ParcelApiClient` |
 
 ## 3. Removed with no replacement
-
-Filled in per phase.
 
 | Removed | Why | What to do |
 |---|---|---|

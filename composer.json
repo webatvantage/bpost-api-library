@@ -38,7 +38,7 @@
     "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-deprecation-rules": "^2.0.4",
     "phpstan/phpstan-phpunit": "^2.0.13",
-    "phpunit/phpunit": "^11.5.50",
+    "phpunit/phpunit": "^13.3",
     "webatvantage/php-cs-fixer-config": "^1.0"
   },
   "suggest": {

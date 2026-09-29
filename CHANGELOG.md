@@ -32,7 +32,8 @@
 * Root namespace is now `Webatvantage\Bpost\Api\`; the library is split into one namespace per
   bpost service (`Shm`, `Geo`, `Parcel`)
 * Minimum PHP version is now 8.5
-* Code style is now `webatvantage/php-cs-fixer-config`; static analysis runs PHPStan level 5
+* Code style is now `webatvantage/php-cs-fixer-config`; static analysis runs PHPStan level 5 and
+  the suite runs on PHPUnit 13
 * Geolocator host is now `pudo.bpost.cloud`, as documented, instead of `pudo.bpost.be`
 * A nearest-points search returns a flat list of `ServicePoint`; the distance is a property on the
   point rather than a parallel array key

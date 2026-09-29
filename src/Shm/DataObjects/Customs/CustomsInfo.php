@@ -26,11 +26,11 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 	public private(set) ?float $amtPostagePaidByAddresse = null;
 
 	/**
-	 * @param int $parcelValue In cents, so 10 EUR is 1000. Outside the EU this must equal the sum
-	 *                         of every parcel content's value
+	 * @param int $parcelValueInCents Outside the EU this must equal the sum of every parcel
+	 *                                content's value
 	 */
 	public function __construct(
-		public private(set) int $parcelValue,
+		public private(set) int $parcelValueInCents,
 		public private(set) ShipmentType $shipmentType,
 		public private(set) ParcelReturnInstruction $parcelReturnInstructions,
 		public private(set) bool $privateAddress = false,
@@ -49,7 +49,7 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 	}
 
 	/**
-	 * The currency parcelValue and every content value is expressed in.
+	 * The currency the parcel value and every content value is expressed in.
 	 */
 	public function currency(Currency $currency): static
 	{
@@ -72,7 +72,7 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 	{
 		$element = $parent->appendElement('customsInfo', $namespace);
 
-		$element->appendText('parcelValue', $this->parcelValue, $namespace);
+		$element->appendText('parcelValue', $this->parcelValueInCents, $namespace);
 		$element->appendText('contentDescription', $this->contentDescription, $namespace);
 		$element->appendText('shipmentType', $this->shipmentType->value, $namespace);
 		$element->appendText('parcelReturnInstructions', $this->parcelReturnInstructions->value, $namespace);

@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
@@ -26,9 +25,9 @@ class CashOnDelivery implements Option, XmlDeserializable
 		public private(set) string $bic,
 	) {}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_COMMON): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
 	{
-		$cod = $document->createElement(Xml::prefixed('cod', $prefix));
+		$cod = Xml::element($document, 'cod', $prefix);
 
 		Xml::appendText($document, $cod, 'codAmount', $this->amount, $prefix);
 		Xml::appendText($document, $cod, 'iban', $this->iban, $prefix);
@@ -37,14 +36,12 @@ class CashOnDelivery implements Option, XmlDeserializable
 		return $cod;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
-		$children = Xml::readChildren($xml, Xml::READ_COMMON);
-
 		return new static(
-			(int)$children->codAmount,
-			(string)$children->iban,
-			(string)$children->bic,
+			(int)Xml::text($xml, 'codAmount'),
+			Xml::text($xml, 'iban') ?? '',
+			Xml::text($xml, 'bic') ?? '',
 		);
 	}
 }

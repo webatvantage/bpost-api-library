@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Enums\Language;
@@ -73,9 +72,9 @@ class Messaging implements Option, XmlDeserializable
 		return $this;
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_COMMON): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
 	{
-		$element = $document->createElement(Xml::prefixed($this->type->value, $prefix));
+		$element = Xml::element($document, $this->type->value, $prefix);
 		$element->setAttribute('language', $this->language->value);
 
 		Xml::appendText($document, $element, 'emailAddress', $this->emailAddress, $prefix);
@@ -84,22 +83,24 @@ class Messaging implements Option, XmlDeserializable
 		return $element;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
-		$type = Assert::enum('type', MessagingType::class, $xml->getName());
+		$type = Assert::enum('type', MessagingType::class, $xml->localName);
 		$language = Language::tryFrom(strtoupper((string)Xml::attribute($xml, 'language'))) ?? Language::EN;
 
 		$messaging = new static($type, $language);
-		$children = Xml::readChildren($xml, Xml::READ_COMMON);
+		$emailAddress = Xml::text($xml, 'emailAddress');
 
-		if (isset($children->emailAddress) && trim((string)$children->emailAddress) !== '')
+		if ($emailAddress !== null)
 		{
-			$messaging->emailAddress = trim((string)$children->emailAddress);
+			$messaging->emailAddress = $emailAddress;
 		}
 
-		if (isset($children->mobilePhone) && trim((string)$children->mobilePhone) !== '')
+		$mobilePhone = Xml::text($xml, 'mobilePhone');
+
+		if ($mobilePhone !== null)
 		{
-			$messaging->mobilePhone = trim((string)$children->mobilePhone);
+			$messaging->mobilePhone = $mobilePhone;
 		}
 
 		return $messaging;

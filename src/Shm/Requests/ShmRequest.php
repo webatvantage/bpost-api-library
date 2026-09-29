@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Shm\Requests;
 
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Method;
@@ -38,11 +38,11 @@ abstract class ShmRequest extends Request
 		);
 	}
 
-	protected function sendExpectingXml(): SimpleXMLElement
+	protected function sendExpectingXml(): Element
 	{
 		$response = $this->apiAdapter->request($this);
 
-		if (!$response instanceof SimpleXMLElement)
+		if (!$response instanceof Element)
 		{
 			throw new UnserializableResponseException('The Shipping Manager did not answer with XML.', 200, (string)$response);
 		}

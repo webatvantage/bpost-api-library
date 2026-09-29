@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
 use Webatvantage\Bpost\Api\Support\Assert;
@@ -58,9 +57,9 @@ class Order implements XmlDeserializable
 	 * @param string $accountId Written into the document, and it must match the account the
 	 *                          request authenticates as
 	 */
-	public function toXml(DOMDocument $document, string $accountId): DOMElement
+	public function toXml(XMLDocument $document, string $accountId): Element
 	{
-		$order = $document->createElement(Xml::prefixed('order', Xml::PREFIX_GLOBAL));
+		$order = Xml::element($document, 'order', Xml::PREFIX_GLOBAL);
 		Xml::declareNamespaces($order);
 
 		Xml::appendText($document, $order, 'accountId', $accountId, Xml::PREFIX_GLOBAL);
@@ -69,32 +68,34 @@ class Order implements XmlDeserializable
 
 		foreach ($this->lines as $line)
 		{
-			$order->appendChild($line->toXml($document, Xml::PREFIX_GLOBAL));
+			$order->append($line->toXml($document, Xml::PREFIX_GLOBAL));
 		}
 
 		foreach ($this->boxes as $box)
 		{
-			$order->appendChild($box->toXml($document, Xml::PREFIX_GLOBAL));
+			$order->append($box->toXml($document, Xml::PREFIX_GLOBAL));
 		}
 
 		return $order;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
-		$order = new static((string)$xml->reference);
+		$order = new static(Xml::text($xml, 'reference') ?? '');
 
-		if (isset($xml->costCenter) && trim((string)$xml->costCenter) !== '')
+		$costCenter = Xml::text($xml, 'costCenter');
+
+		if ($costCenter !== null)
 		{
-			$order->costCenter((string)$xml->costCenter);
+			$order->costCenter($costCenter);
 		}
 
-		foreach ($xml->orderLine ?? [] as $line)
+		foreach (Xml::children($xml, 'orderLine') as $line)
 		{
 			$order->lines[] = OrderLine::fromXml($line);
 		}
 
-		foreach ($xml->box ?? [] as $box)
+		foreach (Xml::children($xml, 'box') as $box)
 		{
 			$order->addBox(Box::fromXml($box));
 		}

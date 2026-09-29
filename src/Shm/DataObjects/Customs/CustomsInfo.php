@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Customs;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
@@ -68,9 +67,9 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_INTERNATIONAL): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_INTERNATIONAL): Element
 	{
-		$element = $document->createElement(Xml::prefixed('customsInfo', $prefix));
+		$element = Xml::element($document, 'customsInfo', $prefix);
 
 		Xml::appendText($document, $element, 'parcelValue', $this->parcelValue, $prefix);
 		Xml::appendText($document, $element, 'contentDescription', $this->contentDescription, $prefix);
@@ -93,28 +92,32 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 		return $element;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$info = new static(
-			(int)$xml->parcelValue,
-			(string)$xml->contentDescription,
-			Assert::enum('shipmentType', ShipmentType::class, strtoupper(trim((string)$xml->shipmentType))),
+			(int)Xml::text($xml, 'parcelValue'),
+			Xml::text($xml, 'contentDescription') ?? '',
+			Assert::enum('shipmentType', ShipmentType::class, strtoupper(Xml::text($xml, 'shipmentType') ?? '')),
 			Assert::enum(
 				'parcelReturnInstructions',
 				ParcelReturnInstruction::class,
-				strtoupper(trim((string)$xml->parcelReturnInstructions)),
+				strtoupper(Xml::text($xml, 'parcelReturnInstructions') ?? ''),
 			),
-			trim((string)$xml->privateAddress) === 'true',
+			(Xml::text($xml, 'privateAddress') ?? '') === 'true',
 		);
 
-		if (isset($xml->currency) && trim((string)$xml->currency) !== '')
+		$currency = Xml::text($xml, 'currency');
+
+		if ($currency !== null)
 		{
-			$info->currency(Assert::enum('currency', Currency::class, strtoupper(trim((string)$xml->currency))));
+			$info->currency(Assert::enum('currency', Currency::class, strtoupper($currency)));
 		}
 
-		if (isset($xml->amtPostagePaidByAddresse) && trim((string)$xml->amtPostagePaidByAddresse) !== '')
+		$postagePaid = Xml::text($xml, 'amtPostagePaidByAddresse');
+
+		if ($postagePaid !== null)
 		{
-			$info->amtPostagePaidByAddresse((float)$xml->amtPostagePaidByAddresse);
+			$info->amtPostagePaidByAddresse((float)$postagePaid);
 		}
 
 		return $info;

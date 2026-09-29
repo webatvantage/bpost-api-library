@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\AutomaticSecondPresentation;
@@ -21,9 +21,9 @@ class OptionFactory
 	/**
 	 * @throws UnexpectedValueException
 	 */
-	public static function fromXml(SimpleXMLElement $xml): Option
+	public static function fromXml(Element $xml): Option
 	{
-		$name = $xml->getName();
+		$name = $xml->localName;
 
 		if (MessagingType::tryFrom($name) !== null)
 		{

@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\Requests;
 
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Method;
@@ -27,7 +27,7 @@ class CreateAnnouncementRequest extends Request
 		Announcement $announcement,
 	) {
 		$document = Xml::document();
-		$document->appendChild($announcement->toXml($document, $config->accountId));
+		$document->append($announcement->toXml($document, $config->accountId));
 
 		parent::__construct(
 			method: Method::POST,
@@ -41,7 +41,7 @@ class CreateAnnouncementRequest extends Request
 	{
 		$response = $this->apiAdapter->request($this);
 
-		if (!$response instanceof SimpleXMLElement)
+		if (!$response instanceof Element)
 		{
 			return new Feedback();
 		}

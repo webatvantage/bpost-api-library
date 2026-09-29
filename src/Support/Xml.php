@@ -2,25 +2,30 @@
 
 namespace Webatvantage\Bpost\Api\Support;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
+use DOMException;
+use ValueError;
 
 /**
  * DOM primitives shared by every domain.
  *
  * Namespace URIs and prefixed element names are deliberately *not* here — those differ per bpost
- * service and belong to that service's own support class.
+ * service and belong to that service's own support class, which overrides namespaceFor().
  */
 class Xml
 {
 	/** Addresses, parties and options are written under this prefix by every bpost service. */
 	public const string PREFIX_COMMON = 'common';
 
-	public static function document(): DOMDocument
+	public const string XSI = 'http://www.w3.org/2001/XMLSchema-instance';
+
+	/** Namespace declarations are attributes in this namespace, not plain ones. */
+	public const string XMLNS = 'http://www.w3.org/2000/xmlns/';
+
+	public static function document(): XMLDocument
 	{
-		$document = new DOMDocument('1.0', 'UTF-8');
-		$document->preserveWhiteSpace = false;
+		$document = XMLDocument::createEmpty(version: '1.0', encoding: 'UTF-8');
 		$document->formatOutput = true;
 
 		return $document;
@@ -40,19 +45,30 @@ class Xml
 	}
 
 	/**
+	 * Create an element in the namespace its prefix is declared under.
+	 *
+	 * A prefix the service does not map raises a namespace error here rather than producing a
+	 * document bpost rejects for reasons it will not explain.
+	 */
+	public static function element(XMLDocument $document, string $tagName, ?string $prefix = null): Element
+	{
+		return $document->createElementNS(static::namespaceFor($prefix), self::prefixed($tagName, $prefix));
+	}
+
+	/**
 	 * Create an element holding a text value.
 	 *
-	 * The value goes in through a text node rather than the DOMElement constructor, so that `&`,
-	 * `<` and `>` are escaped. bpost rejects a document where they are not — a receiver named
-	 * "Dupont & Fils" is enough to break the request.
+	 * textContent escapes `&`, `<` and `>`. bpost rejects a document where they are not — a
+	 * receiver named "Dupont & Fils" is enough to break the request.
 	 */
 	public static function createTextElement(
-		DOMDocument $document,
+		XMLDocument $document,
 		string $tagName,
 		string|int|float|bool $value,
-	): DOMElement {
-		$element = $document->createElement($tagName);
-		$element->appendChild($document->createTextNode(self::stringify($value)));
+		?string $prefix = null,
+	): Element {
+		$element = static::element($document, $tagName, $prefix);
+		$element->textContent = self::stringify($value);
 
 		return $element;
 	}
@@ -65,8 +81,8 @@ class Xml
 	 * repeated often enough to be worth centralising.
 	 */
 	public static function appendText(
-		DOMDocument $document,
-		DOMElement $parent,
+		XMLDocument $document,
+		Element $parent,
 		string $tagName,
 		string|int|float|bool|null $value,
 		?string $prefix = null,
@@ -76,46 +92,121 @@ class Xml
 			return;
 		}
 
-		$parent->appendChild(self::createTextElement($document, self::prefixed($tagName, $prefix), $value));
+		$parent->append(static::createTextElement($document, $tagName, $value, $prefix));
 	}
 
 	/**
-	 * The children of an element, preferring a namespace but not insisting on it.
+	 * The first child element with one of these local names, or null.
 	 *
-	 * Several of bpost's own example responses use prefixes they never declare, so a namespaced
-	 * lookup finds nothing in them. Falling back to the default children keeps those parseable.
+	 * Matching ignores the namespace: several of bpost's own example responses use prefixes they
+	 * never declare, and the Geolocator spells the same field differently per operation, so a
+	 * caller passes every spelling it knows.
 	 */
-	public static function readChildren(SimpleXMLElement $xml, string $namespace): SimpleXMLElement
+	public static function child(Element $element, string ...$localNames): ?Element
 	{
-		$children = $xml->children($namespace);
+		foreach ($localNames as $localName)
+		{
+			foreach ($element->children as $child)
+			{
+				if ($child->localName === $localName)
+				{
+					return $child;
+				}
+			}
+		}
 
-		return count($children) > 0 ? $children : $xml->children();
+		return null;
 	}
 
-	public static function toString(DOMDocument $document): string
+	/**
+	 * Every child element with this local name, in document order.
+	 *
+	 * @return array<Element>
+	 */
+	public static function children(Element $element, string $localName): array
 	{
-		return (string)$document->saveXML();
+		$found = [];
+
+		foreach ($element->children as $child)
+		{
+			if ($child->localName === $localName)
+			{
+				$found[] = $child;
+			}
+		}
+
+		return $found;
+	}
+
+	/**
+	 * The trimmed text of the first child element with one of these local names.
+	 *
+	 * An element that is present but blank reads as null, because bpost sends both to mean absent.
+	 */
+	public static function text(Element $element, string ...$localNames): ?string
+	{
+		$child = self::child($element, ...$localNames);
+
+		if ($child === null)
+		{
+			return null;
+		}
+
+		$value = trim($child->textContent);
+
+		return $value === '' ? null : $value;
+	}
+
+	public static function attribute(Element $element, string $name): ?string
+	{
+		$value = $element->getAttribute($name);
+
+		return $value === null || trim($value) === '' ? null : trim($value);
+	}
+
+	public static function integerAttribute(Element $element, string $name): ?int
+	{
+		$value = self::attribute($element, $name);
+
+		return $value === null ? null : (int)$value;
+	}
+
+	public static function toString(XMLDocument $document): string
+	{
+		return (string)$document->saveXml();
 	}
 
 	/**
 	 * Parse a response body, returning null when it is not well-formed XML.
 	 *
 	 * bpost occasionally answers with an HTML error page or a bare text/plain message, so callers
-	 * decide what an unparsable body means rather than getting a warning raised at them here.
+	 * decide what an unparsable body means rather than getting an exception raised at them here.
 	 */
-	public static function tryParse(string $body): ?SimpleXMLElement
+	public static function tryParse(string $body): ?Element
 	{
 		if (trim($body) === '')
 		{
 			return null;
 		}
 
-		$previous = libxml_use_internal_errors(true);
-		$xml = simplexml_load_string($body);
-		libxml_clear_errors();
-		libxml_use_internal_errors($previous);
+		try
+		{
+			$document = XMLDocument::createFromString($body, LIBXML_NOBLANKS | LIBXML_NOERROR);
+		}
+		catch (DOMException|ValueError)
+		{
+			return null;
+		}
 
-		return $xml === false ? null : $xml;
+		return $document->documentElement;
+	}
+
+	/**
+	 * The namespace a prefix is declared under. Services override this with their own map.
+	 */
+	protected static function namespaceFor(?string $prefix): ?string
+	{
+		return null;
 	}
 
 	private static function stringify(string|int|float|bool $value): string

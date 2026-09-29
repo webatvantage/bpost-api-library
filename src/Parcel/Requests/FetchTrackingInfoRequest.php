@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\Requests;
 
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Method;
@@ -26,7 +26,7 @@ class FetchTrackingInfoRequest extends Request
 	{
 		$response = $this->apiAdapter->request($this);
 
-		if (!$response instanceof SimpleXMLElement)
+		if (!$response instanceof Element)
 		{
 			throw new UnserializableResponseException('The tracking service did not answer with XML.', 200, (string)$response);
 		}

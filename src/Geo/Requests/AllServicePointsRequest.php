@@ -8,6 +8,7 @@ use Webatvantage\Bpost\Api\Geo\DataObjects\ServicePoint;
 use Webatvantage\Bpost\Api\Geo\Enums\LockerType;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
+use Webatvantage\Bpost\Api\Support\Xml;
 
 /**
  * `Function=getallservicepoints` — every point in a country, optionally narrowed by type and zip.
@@ -76,7 +77,9 @@ class AllServicePointsRequest extends GeoRequest
 		$xml = $this->send();
 		$points = [];
 
-		foreach ($xml->PickupPointList->Point ?? [] as $point)
+		$list = Xml::child($xml, 'PickupPointList');
+
+		foreach ($list === null ? [] : Xml::children($list, 'Point') as $point)
 		{
 			$points[] = ServicePoint::fromXml($point);
 		}

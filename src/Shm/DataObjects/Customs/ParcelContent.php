@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Customs;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
@@ -41,9 +40,9 @@ class ParcelContent implements XmlDeserializable, XmlSerializable
 		Assert::countryCode('originOfGoods', $originOfGoods);
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_INTERNATIONAL): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_INTERNATIONAL): Element
 	{
-		$element = $document->createElement(Xml::prefixed('parcelContent', $prefix));
+		$element = Xml::element($document, 'parcelContent', $prefix);
 
 		Xml::appendText($document, $element, 'numberOfItemType', $this->numberOfItemType, $prefix);
 		Xml::appendText($document, $element, 'valueOfItem', $this->valueOfItem, $prefix);
@@ -55,15 +54,15 @@ class ParcelContent implements XmlDeserializable, XmlSerializable
 		return $element;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		return new static(
-			(int)$xml->numberOfItemType,
-			(int)$xml->valueOfItem,
-			(string)$xml->itemDescription,
-			(int)$xml->nettoWeight,
-			(string)$xml->hsTariffCode,
-			(string)$xml->originOfGoods,
+			(int)Xml::text($xml, 'numberOfItemType'),
+			(int)Xml::text($xml, 'valueOfItem'),
+			Xml::text($xml, 'itemDescription') ?? '',
+			(int)Xml::text($xml, 'nettoWeight'),
+			Xml::text($xml, 'hsTariffCode') ?? '',
+			Xml::text($xml, 'originOfGoods') ?? '',
 		);
 	}
 }

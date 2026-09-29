@@ -2,8 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use DOMDocument;
-use DOMElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Parcel\Enums\ItemCategory;
 use Webatvantage\Bpost\Api\Parcel\Enums\NonDeliveryInstruction;
@@ -30,9 +30,9 @@ class InternationalInfo implements XmlSerializable
 		Assert::maxLength('currencySender', $currencySender, 3);
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_ANNOUNCEMENT): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_ANNOUNCEMENT): Element
 	{
-		$element = $document->createElement(Xml::prefixed('international', $prefix));
+		$element = Xml::element($document, 'international', $prefix);
 
 		Xml::appendText($document, $element, 'parcelContent', $this->parcelContent, Xml::PREFIX_COMMON);
 		Xml::appendText($document, $element, 'itemCategory', $this->itemCategory->value, Xml::PREFIX_COMMON);

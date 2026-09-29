@@ -2,12 +2,10 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options\Flags;
 
-use Webatvantage\Bpost\Api\Contracts\Flag;
-
 /**
  * Basic warranty, up to 500 EUR.
  */
-class Insurance extends Flag
+class Insurance extends ParcelFlag
 {
 	protected function tagName(): string
 	{

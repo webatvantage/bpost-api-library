@@ -41,9 +41,22 @@
 * `getPossibleXValues()` arrays are replaced by enums throughout
 * `ext-curl` is a suggestion rather than a requirement: the library no longer calls cURL itself and
   Guzzle works on the stream handler without it
+* XML is handled by PHP 8.4's `Dom\XMLDocument` throughout, on both sides. Requests were built with
+  `DOMDocument` and responses read with `SimpleXMLElement`; both are now `Dom\Element`, so there is
+  one object model rather than two. `XmlSerializable::toXml()` takes a `Dom\XMLDocument` and returns
+  a `Dom\Element`, `XmlDeserializable::fromXml()` takes a `Dom\Element`, and
+  `HttpApiAdapter::request()` returns `Dom\Element|string`
+* Request documents carry a real namespace tree. Elements were created with the prefix baked into
+  the tag name and the `xmlns` attributes set by hand, so nothing was actually namespaced; they are
+  now created with `createElementNS` against the namespace the prefix is declared under. The
+  serialised output is unchanged — a generated order is still canonically identical to bpost's own
+  example document
+* Response elements are matched on local name, which is what bpost's own examples need: several use
+  prefixes they never declare. `Xml::readChildren()` and the SimpleXML attribute workaround are gone
 
 #### Removed
 
+* `ext-SimpleXML` is no longer required
 * `Geo6`, `Geo6Partner`, `Geo6Account`, `Poi`, `Geo6\Day` and `Geo6\Service`, replaced by the
   `Geo` namespace
 * `Geo6::getServicePointPage()`, a deprecated alias, and `Geo6::getPointType()`, replaced by the

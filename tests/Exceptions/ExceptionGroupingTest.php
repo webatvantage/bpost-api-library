@@ -34,7 +34,7 @@ class ExceptionGroupingTest extends TestCase
 	{
 		try
 		{
-			OptionFactory::fromXml(simplexml_load_string('<somethingNew/>'));
+			OptionFactory::fromXml($this->parse('<somethingNew/>'));
 		}
 		catch (BpostException $exception)
 		{
@@ -52,7 +52,7 @@ class ExceptionGroupingTest extends TestCase
 	 */
 	public function test_a_retrieved_box_is_not_judged_by_the_sending_rules()
 	{
-		$box = At247::fromXml(simplexml_load_string(
+		$box = At247::fromXml($this->parse(
 			'<at24-7><product>bpack 24/7</product><weight>100000</weight></at24-7>',
 		));
 

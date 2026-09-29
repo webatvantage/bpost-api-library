@@ -4,8 +4,9 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Parcel\Support\Xml;
 
 /**
  * One scan in a parcel's history.
@@ -21,14 +22,14 @@ class StateInfo implements XmlDeserializable
 		public private(set) ?string $stateDescription = null,
 	) {}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
-		$time = trim((string)($xml->time ?? ''));
+		$time = Xml::text($xml, 'time') ?? '';
 
 		return new static(
 			$time === '' ? null : new DateTimeImmutable($time),
-			isset($xml->stateCode) ? trim((string)$xml->stateCode) : null,
-			isset($xml->stateDescription) ? trim((string)$xml->stateDescription) : null,
+			Xml::text($xml, 'stateCode'),
+			Xml::text($xml, 'stateDescription'),
 		);
 	}
 }

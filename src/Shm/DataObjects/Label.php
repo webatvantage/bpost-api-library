@@ -2,9 +2,10 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
+use Webatvantage\Bpost\Api\Shm\Support\Xml;
 
 /**
  * One printable label.
@@ -24,25 +25,25 @@ class Label implements XmlDeserializable
 		public private(set) ?string $zplCode = null,
 	) {}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$barcodes = [];
 
-		foreach ($xml->barcodeWithReference ?? [] as $barcode)
+		foreach (Xml::children($xml, 'barcodeWithReference') as $barcode)
 		{
 			$barcodes[] = Barcode::fromXml($barcode);
 		}
 
-		foreach ($xml->barcode ?? [] as $barcode)
+		foreach (Xml::children($xml, 'barcode') as $barcode)
 		{
 			$barcodes[] = Barcode::fromXml($barcode);
 		}
 
 		return new static(
 			$barcodes,
-			isset($xml->mimeType) ? trim((string)$xml->mimeType) : null,
+			Xml::text($xml, 'mimeType'),
 			self::decode($xml),
-			isset($xml->zplCode) ? (string)$xml->zplCode : null,
+			Xml::text($xml, 'zplCode'),
 		);
 	}
 
@@ -51,21 +52,23 @@ class Label implements XmlDeserializable
 	 *
 	 * @throws UnserializableResponseException
 	 */
-	private static function decode(SimpleXMLElement $xml): ?string
+	private static function decode(Element $xml): ?string
 	{
-		if (!isset($xml->bytes) || trim((string)$xml->bytes) === '')
+		$bytes = Xml::text($xml, 'bytes');
+
+		if ($bytes === null)
 		{
 			return null;
 		}
 
-		$decoded = base64_decode((string)$xml->bytes, true);
+		$decoded = base64_decode($bytes, true);
 
 		if ($decoded === false)
 		{
 			throw new UnserializableResponseException(
 				message: 'The label bytes bpost returned are not valid base64.',
 				statusCode: 200,
-				body: (string)$xml->bytes,
+				body: $bytes,
 			);
 		}
 

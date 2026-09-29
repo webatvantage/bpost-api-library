@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Parcel\Support\Xml;
@@ -25,9 +24,9 @@ class Dimensions implements XmlDeserializable, XmlSerializable
 		Assert::between('lengthInMm', $lengthInMm, 1, 9999);
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_ANNOUNCEMENT): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_ANNOUNCEMENT): Element
 	{
-		$element = $document->createElement(Xml::prefixed('dimensions', $prefix));
+		$element = Xml::element($document, 'dimensions', $prefix);
 
 		Xml::appendText($document, $element, 'widthInMm', $this->widthInMm, Xml::PREFIX_COMMON);
 		Xml::appendText($document, $element, 'heightInMm', $this->heightInMm, Xml::PREFIX_COMMON);
@@ -36,8 +35,8 @@ class Dimensions implements XmlDeserializable, XmlSerializable
 		return $element;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
-		return new static((int)$xml->widthInMm, (int)$xml->heightInMm, (int)$xml->lengthInMm);
+		return new static((int)Xml::text($xml, 'widthInMm'), (int)Xml::text($xml, 'heightInMm'), (int)Xml::text($xml, 'lengthInMm'));
 	}
 }

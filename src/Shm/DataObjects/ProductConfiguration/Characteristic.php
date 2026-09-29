@@ -2,8 +2,9 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\ProductConfiguration;
 
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Shm\Support\Xml;
 
 /**
  * One value an option can take, such as a warranty band.
@@ -16,12 +17,12 @@ class Characteristic implements XmlDeserializable
 		public private(set) ?int $value = null,
 	) {}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		return new static(
-			isset($xml['name']) ? (string)$xml['name'] : null,
-			isset($xml['displayValue']) ? (string)$xml['displayValue'] : null,
-			isset($xml['value']) ? (int)$xml['value'] : null,
+			Xml::attribute($xml, 'name'),
+			Xml::attribute($xml, 'displayValue'),
+			Xml::integerAttribute($xml, 'value'),
 		);
 	}
 }

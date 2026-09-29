@@ -36,13 +36,17 @@ class UpdateOrderStatusRequest extends ShmRequest
 			]);
 		}
 
+		// Still on the v3 namespace, and it is this document's default — unlike an order, which
+		// defaults to the national namespace.
 		$document = Xml::document();
-		$update = $document->createElement('orderUpdate');
-		$update->setAttribute('xmlns', Xml::READ_GLOBAL);
-		$update->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-		$update->setAttribute('xsi:schemaLocation', Xml::READ_GLOBAL);
-		$update->appendChild(Xml::createTextElement($document, 'status', $status->value));
-		$document->appendChild($update);
+		$update = $document->createElementNS(Xml::READ_GLOBAL, 'orderUpdate');
+		$update->setAttributeNS(Xml::XMLNS, 'xmlns:xsi', Xml::XSI);
+		$update->setAttributeNS(Xml::XSI, 'xsi:schemaLocation', Xml::READ_GLOBAL);
+
+		$state = $document->createElementNS(Xml::READ_GLOBAL, 'status');
+		$state->textContent = $status->value;
+		$update->append($state);
+		$document->append($update);
 
 		parent::__construct(
 			apiAdapter: $apiAdapter,

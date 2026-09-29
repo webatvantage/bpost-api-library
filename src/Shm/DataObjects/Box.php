@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBox;
@@ -71,18 +70,18 @@ class Box implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_GLOBAL): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_GLOBAL): Element
 	{
-		$box = $document->createElement(Xml::prefixed('box', $prefix));
+		$box = Xml::element($document, 'box', $prefix);
 
 		if ($this->sender !== null)
 		{
-			$box->appendChild($this->sender->toXml($document, $prefix));
+			$box->append($this->sender->toXml($document, $prefix));
 		}
 
 		if ($this->deliveryBox !== null)
 		{
-			$box->appendChild($this->deliveryBox->toXml($document, $prefix));
+			$box->append($this->deliveryBox->toXml($document, $prefix));
 		}
 
 		Xml::appendText($document, $box, 'remark', $this->remark, $prefix);
@@ -93,46 +92,59 @@ class Box implements XmlDeserializable, XmlSerializable
 		return $box;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$box = new static();
 
-		if (isset($xml->sender))
+		$sender = Xml::child($xml, 'sender');
+
+		if ($sender !== null)
 		{
-			$box->sender(Sender::fromXml(Xml::readChildren($xml->sender, Xml::READ_COMMON)));
+			$box->sender(Sender::fromXml($sender));
 		}
 
-		foreach (['nationalBox' => Xml::READ_NATIONAL, 'internationalBox' => Xml::READ_INTERNATIONAL] as $wrapper => $namespace)
+		// Either wrapper holds one delivery method; which namespace it claims does not matter.
+		foreach (['nationalBox', 'internationalBox'] as $wrapper)
 		{
-			if (!isset($xml->{$wrapper}))
+			$element = Xml::child($xml, $wrapper);
+
+			if ($element === null)
 			{
 				continue;
 			}
 
-			foreach (Xml::readChildren($xml->{$wrapper}, $namespace) as $method)
+			foreach ($element->children as $method)
 			{
 				$box->deliverTo(DeliveryBoxFactory::fromXml($method));
 			}
 		}
 
-		if (isset($xml->remark) && trim((string)$xml->remark) !== '')
+		$remark = Xml::text($xml, 'remark');
+
+		if ($remark !== null)
 		{
-			$box->remark((string)$xml->remark);
+			$box->remark($remark);
 		}
 
-		if (isset($xml->additionalCustomerReference) && trim((string)$xml->additionalCustomerReference) !== '')
+		$additionalCustomerReference = Xml::text($xml, 'additionalCustomerReference');
+
+		if ($additionalCustomerReference !== null)
 		{
-			$box->additionalCustomerReference((string)$xml->additionalCustomerReference);
+			$box->additionalCustomerReference($additionalCustomerReference);
 		}
 
-		if (isset($xml->barcode) && trim((string)$xml->barcode) !== '')
+		$barcode = Xml::text($xml, 'barcode');
+
+		if ($barcode !== null)
 		{
-			$box->barcode = strtoupper(trim((string)$xml->barcode));
+			$box->barcode = strtoupper($barcode);
 		}
 
-		if (isset($xml->status) && trim((string)$xml->status) !== '')
+		$status = Xml::text($xml, 'status');
+
+		if ($status !== null)
 		{
-			$box->status = BoxStatus::tryFrom(strtoupper(trim((string)$xml->status)));
+			$box->status = BoxStatus::tryFrom(strtoupper($status));
 		}
 
 		return $box;

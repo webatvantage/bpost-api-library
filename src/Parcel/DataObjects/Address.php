@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Parcel\Support\Xml;
@@ -75,9 +74,9 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_COMMON): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
 	{
-		$address = $document->createElement(Xml::prefixed('address', $prefix));
+		$address = Xml::element($document, 'address', $prefix);
 
 		Xml::appendText($document, $address, 'streetName', $this->streetName, $prefix);
 		Xml::appendText($document, $address, 'houseNumber', $this->houseNumber, $prefix);
@@ -89,15 +88,17 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $address;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$address = new static();
 
 		foreach (['streetName', 'houseNumber', 'boxNumber', 'postalCode', 'city', 'countryCode'] as $field)
 		{
-			if (isset($xml->{$field}) && trim((string)$xml->{$field}) !== '')
+			$value = Xml::text($xml, $field);
+
+			if ($value !== null)
 			{
-				$address->{$field}((string)$xml->{$field});
+				$address->{$field}($value);
 			}
 		}
 

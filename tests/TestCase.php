@@ -2,6 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Tests;
 
+use Dom\Element;
+use Dom\XMLDocument;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request as PsrRequest;
@@ -60,5 +62,15 @@ class TestCase extends BaseTestCase
 	protected function lastRequest(): PsrRequest
 	{
 		return $this->recorded[count($this->recorded) - 1];
+	}
+
+	/**
+	 * The root element of a snippet, for handing to a fromXml().
+	 */
+	protected function parse(string $xml): Element
+	{
+		$document = XMLDocument::createFromString($xml, LIBXML_NOBLANKS);
+
+		return $document->documentElement ?? throw new \RuntimeException('Snippet has no root element.');
 	}
 }

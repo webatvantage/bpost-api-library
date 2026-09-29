@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
@@ -80,9 +79,9 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = null): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = null): Element
 	{
-		$address = $document->createElement(Xml::prefixed(static::TAG_NAME, static::TAG_PREFIX));
+		$address = Xml::element($document, static::TAG_NAME, static::TAG_PREFIX);
 
 		Xml::appendText($document, $address, 'streetName', $this->streetName, Xml::PREFIX_COMMON);
 		Xml::appendText($document, $address, 'number', $this->number, Xml::PREFIX_COMMON);
@@ -94,38 +93,50 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $address;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$address = new static();
 
-		if (isset($xml->streetName))
+		$streetName = Xml::child($xml, 'streetName');
+
+		if ($streetName !== null)
 		{
-			$address->streetName((string)$xml->streetName);
+			$address->streetName(trim($streetName->textContent));
 		}
 
-		if (isset($xml->number))
+		$number = Xml::child($xml, 'number');
+
+		if ($number !== null)
 		{
-			$address->number((string)$xml->number);
+			$address->number(trim($number->textContent));
 		}
 
-		if (isset($xml->box) && trim((string)$xml->box) !== '')
+		$box = Xml::text($xml, 'box');
+
+		if ($box !== null)
 		{
-			$address->box((string)$xml->box);
+			$address->box($box);
 		}
 
-		if (isset($xml->postalCode))
+		$postalCode = Xml::child($xml, 'postalCode');
+
+		if ($postalCode !== null)
 		{
-			$address->postalCode((string)$xml->postalCode);
+			$address->postalCode(trim($postalCode->textContent));
 		}
 
-		if (isset($xml->locality))
+		$locality = Xml::child($xml, 'locality');
+
+		if ($locality !== null)
 		{
-			$address->locality((string)$xml->locality);
+			$address->locality(trim($locality->textContent));
 		}
 
-		if (isset($xml->countryCode))
+		$countryCode = Xml::child($xml, 'countryCode');
+
+		if ($countryCode !== null)
 		{
-			$address->countryCode((string)$xml->countryCode);
+			$address->countryCode(trim($countryCode->textContent));
 		}
 
 		return $address;

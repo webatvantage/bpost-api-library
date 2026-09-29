@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Customs\CustomsInfo;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Receiver;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
@@ -52,7 +51,7 @@ abstract class InternationalBox extends DeliveryBox
 	 * Write product, options, receiver and parcelWeight, which both international methods share
 	 * and in this order.
 	 */
-	protected function appendShared(DOMDocument $document, DOMElement $element): void
+	protected function appendShared(XMLDocument $document, Element $element): void
 	{
 		$prefix = $this->childPrefix();
 
@@ -62,34 +61,38 @@ abstract class InternationalBox extends DeliveryBox
 
 		if ($options !== null)
 		{
-			$element->appendChild($options);
+			$element->append($options);
 		}
 
 		if ($this->receiver !== null)
 		{
-			$element->appendChild($this->receiver->toXml($document, $prefix));
+			$element->append($this->receiver->toXml($document, $prefix));
 		}
 
 		Xml::appendText($document, $element, 'parcelWeight', $this->weight, $prefix);
 
 		if ($this->customsInfo !== null)
 		{
-			$element->appendChild($this->customsInfo->toXml($document));
+			$element->append($this->customsInfo->toXml($document));
 		}
 	}
 
-	protected function readShared(SimpleXMLElement $xml): void
+	protected function readShared(Element $xml): void
 	{
 		$this->readCommon($xml, 'parcelWeight');
 
-		if (isset($xml->receiver))
+		$receiver = Xml::child($xml, 'receiver');
+
+		if ($receiver !== null)
 		{
-			$this->receiver(Receiver::fromXml(Xml::readChildren($xml->receiver, Xml::READ_COMMON)));
+			$this->receiver(Receiver::fromXml($receiver));
 		}
 
-		if (isset($xml->customsInfo))
+		$customsInfo = Xml::child($xml, 'customsInfo');
+
+		if ($customsInfo !== null)
 		{
-			$this->customsInfo(CustomsInfo::fromXml($xml->customsInfo));
+			$this->customsInfo(CustomsInfo::fromXml($customsInfo));
 		}
 	}
 }

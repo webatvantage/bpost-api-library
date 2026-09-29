@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\DataObjects;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Enums\Weekday;
@@ -66,9 +65,19 @@ class OpeningHours implements XmlDeserializable, XmlSerializable
 		return count($this->days) === 0;
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = null, string $tagName = 'openingHours'): DOMElement
-	{
-		$element = $document->createElement(Xml::prefixed($tagName, $prefix));
+	/**
+	 * A week of hours is the one block both services write, so it is told which namespace it is
+	 * being written into rather than resolving a prefix against a map it cannot see from here.
+	 *
+	 * @param string|null $namespace The service's namespace for these elements
+	 */
+	public function toXml(
+		XMLDocument $document,
+		?string $prefix = null,
+		string $tagName = 'openingHours',
+		?string $namespace = null,
+	): Element {
+		$element = $document->createElementNS($namespace, Xml::prefixed($tagName, $prefix));
 
 		foreach (Weekday::cases() as $weekday)
 		{
@@ -77,24 +86,26 @@ class OpeningHours implements XmlDeserializable, XmlSerializable
 				continue;
 			}
 
-			Xml::appendText($document, $element, $weekday->value, $this->days[$weekday->value], $prefix);
+			$day = $document->createElementNS($namespace, Xml::prefixed($weekday->value, $prefix));
+			$day->textContent = $this->days[$weekday->value];
+			$element->append($day);
 		}
 
 		return $element;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$hours = new static();
 
 		foreach (Weekday::cases() as $weekday)
 		{
-			if (!isset($xml->{$weekday->value}))
+			$value = Xml::text($xml, $weekday->value);
+
+			if ($value === null)
 			{
 				continue;
 			}
-
-			$value = trim((string)$xml->{$weekday->value});
 
 			if ($value !== '')
 			{

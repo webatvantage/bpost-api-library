@@ -2,8 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
 
-use DOMDocument;
-use DOMElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Parcel\Support\Xml;
 use Webatvantage\Bpost\Api\Support\Assert;
@@ -31,9 +31,9 @@ class CashOnDelivery implements Option
 		Assert::between('amountTotalInEuroCents', $amountTotalInEuroCents, self::MIN_AMOUNT, self::MAX_AMOUNT);
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_COMMON): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
 	{
-		$element = $document->createElement(Xml::prefixed('cashOnDelivery', $prefix));
+		$element = Xml::element($document, 'cashOnDelivery', $prefix);
 
 		Xml::appendText($document, $element, 'amountTotalInEuroCents', $this->amountTotalInEuroCents, $prefix);
 		Xml::appendText($document, $element, 'bban', $this->bban, $prefix);

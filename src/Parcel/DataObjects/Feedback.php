@@ -2,7 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XPath;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 
 /**
@@ -19,14 +20,22 @@ class Feedback implements XmlDeserializable
 	 */
 	public function __construct(public private(set) array $warnings = [], public private(set) array $errors = []) {}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
-		$collect = static function (string $name) use ($xml): array {
+		$document = $xml->ownerDocument;
+
+		// Matched on local name: bpost binds these to a namespace it does not always declare.
+		$collect = static function (string $name) use ($xml, $document): array {
 			$values = [];
 
-			foreach ($xml->xpath(sprintf('//*[local-name()="%s"]', $name)) ?: [] as $node)
+			if ($document === null)
 			{
-				$value = trim((string)$node);
+				return $values;
+			}
+
+			foreach (new XPath($document)->query(sprintf('//*[local-name()="%s"]', $name), $xml) as $node)
+			{
+				$value = trim($node->textContent);
 
 				if ($value !== '')
 				{

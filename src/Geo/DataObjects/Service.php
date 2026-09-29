@@ -2,8 +2,9 @@
 
 namespace Webatvantage\Bpost\Api\Geo\DataObjects;
 
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Support\Xml;
 
 class Service implements XmlDeserializable
 {
@@ -13,12 +14,12 @@ class Service implements XmlDeserializable
 		public readonly ?string $flag = null,
 	) {}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		return new static(
-			trim((string)$xml),
-			isset($xml['category']) ? (string)$xml['category'] : null,
-			isset($xml['flag']) ? (string)$xml['flag'] : null,
+			trim($xml->textContent),
+			Xml::attribute($xml, 'category'),
+			Xml::attribute($xml, 'flag'),
 		);
 	}
 }

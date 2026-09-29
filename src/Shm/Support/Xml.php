@@ -2,16 +2,19 @@
 
 namespace Webatvantage\Bpost\Api\Shm\Support;
 
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\Support\Xml as BaseXml;
 
 /**
  * The Shipping Manager's XML namespaces, and the prefixes it expects each element under.
  *
  * bpost reads requests against the v5 schema but answers with the v3 namespaces — see CHANGELOG
- * 3.5.1, where this was observed against the live API rather than inferred. So documents are
- * written with WRITE_* and read with READ_*, and the two deliberately disagree.
+ * 3.5.1, where this was observed against the live API rather than inferred, and why the two sets
+ * deliberately disagree.
+ *
+ * Only WRITE_* and READ_GLOBAL are written; responses are matched on local name, because several
+ * of bpost's own examples use prefixes they never declare. The remaining READ_* are published so
+ * that a caller checking what came back against what went out can see the version gap.
  */
 class Xml extends BaseXml
 {
@@ -37,34 +40,34 @@ class Xml extends BaseXml
 	 * All four are declared even when a given order only uses two; the examples are consistent
 	 * about it and the XSD validates against the full set.
 	 */
-	public static function declareNamespaces(DOMElement $root): DOMElement
+	public static function declareNamespaces(Element $root): Element
 	{
-		$root->setAttribute('xmlns', self::WRITE_NATIONAL);
-		$root->setAttribute('xmlns:' . self::PREFIX_COMMON, self::WRITE_COMMON);
-		$root->setAttribute('xmlns:' . self::PREFIX_GLOBAL, self::WRITE_GLOBAL);
-		$root->setAttribute('xmlns:' . self::PREFIX_INTERNATIONAL, self::WRITE_INTERNATIONAL);
-		$root->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-		$root->setAttribute('xsi:schemaLocation', self::WRITE_GLOBAL);
+		$root->setAttributeNS(self::XMLNS, 'xmlns', self::WRITE_NATIONAL);
+		$root->setAttributeNS(self::XMLNS, 'xmlns:' . self::PREFIX_COMMON, self::WRITE_COMMON);
+		$root->setAttributeNS(self::XMLNS, 'xmlns:' . self::PREFIX_GLOBAL, self::WRITE_GLOBAL);
+		$root->setAttributeNS(self::XMLNS, 'xmlns:' . self::PREFIX_INTERNATIONAL, self::WRITE_INTERNATIONAL);
+		$root->setAttributeNS(self::XMLNS, 'xmlns:xsi', self::XSI);
+		$root->setAttributeNS(self::XSI, 'xsi:schemaLocation', self::WRITE_GLOBAL);
 
 		return $root;
 	}
 
 	/**
-	 * An unprefixed attribute, read outside any namespace scope.
+	 * The namespace each prefix is declared under inside an order document.
 	 *
-	 * Once an element has been reached through children($namespace), SimpleXML scopes attribute
-	 * access to that same namespace, so a plain attribute like the value on additionalInsurance
-	 * reads as null. Going through attributes() with no namespace gets it back.
+	 * The unprefixed default is the national namespace here. It is not in every Shipping Manager
+	 * document — batchLabels and orderUpdate each default to a global namespace of their own — so
+	 * those two build their elements with an explicit URI rather than through this map.
 	 */
-	public static function attribute(SimpleXMLElement $xml, string $name): ?string
+	protected static function namespaceFor(?string $prefix): ?string
 	{
-		$attributes = $xml->attributes();
-
-		if ($attributes !== null && isset($attributes[$name]))
+		return match ($prefix)
 		{
-			return (string)$attributes[$name];
-		}
-
-		return isset($xml[$name]) ? (string)$xml[$name] : null;
+			null, '' => self::WRITE_NATIONAL,
+			self::PREFIX_COMMON => self::WRITE_COMMON,
+			self::PREFIX_GLOBAL => self::WRITE_GLOBAL,
+			self::PREFIX_INTERNATIONAL => self::WRITE_INTERNATIONAL,
+			default => null,
+		};
 	}
 }

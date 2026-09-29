@@ -49,8 +49,8 @@ class CustomerTest extends ShmTestCase
 	{
 		$xml = $this->serialise(new Receiver()->name('RECEIVER NAME')->toXml(...));
 
-		$this->assertStringContainsString('<receiver>', $xml);
-		$this->assertStringContainsString('<common:name>RECEIVER NAME</common:name>', $xml);
+		$this->assertXmlContains('<receiver>', $xml);
+		$this->assertXmlContains('<common:name>RECEIVER NAME</common:name>', $xml);
 	}
 
 	/**
@@ -81,7 +81,7 @@ class CustomerTest extends ShmTestCase
 
 	public function test_it_round_trips_through_xml()
 	{
-		$xml = simplexml_load_string(
+		$xml = $this->parse(
 			'<sender><name>SENDER NAME</name><company>SENDER COMPANY</company>'
 			. '<address><streetName>MUNT</streetName><countryCode>BE</countryCode></address>'
 			. '<emailAddress>sender@mail.be</emailAddress><phoneNumber>022011111</phoneNumber></sender>',

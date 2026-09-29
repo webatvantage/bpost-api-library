@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
@@ -19,9 +18,9 @@ class OrderLine implements XmlDeserializable, XmlSerializable
 {
 	public function __construct(public private(set) string $text, public private(set) int $numberOfItems) {}
 
-	public function toXml(DOMDocument $document, ?string $prefix = null): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = null): Element
 	{
-		$line = $document->createElement(Xml::prefixed('orderLine', $prefix));
+		$line = Xml::element($document, 'orderLine', $prefix);
 
 		Xml::appendText($document, $line, 'text', $this->text, $prefix);
 		Xml::appendText($document, $line, 'nbOfItems', $this->numberOfItems, $prefix);
@@ -29,8 +28,8 @@ class OrderLine implements XmlDeserializable, XmlSerializable
 		return $line;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
-		return new static((string)$xml->text, (int)$xml->nbOfItems);
+		return new static(Xml::text($xml, 'text') ?? '', (int)Xml::text($xml, 'nbOfItems'));
 	}
 }

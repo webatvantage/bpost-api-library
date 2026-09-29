@@ -2,12 +2,10 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options\Flags;
 
-use Webatvantage\Bpost\Api\Contracts\Flag;
-
 /**
  * Require a signature on delivery.
  */
-class Signature extends Flag
+class Signature extends ParcelFlag
 {
 	protected function tagName(): string
 	{

@@ -2,12 +2,10 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options\Flags;
 
-use Webatvantage\Bpost\Api\Contracts\Flag;
-
 /**
  * Deliver on Saturday.
  */
-class SaturdayDelivery extends Flag
+class SaturdayDelivery extends ParcelFlag
 {
 	protected function tagName(): string
 	{

@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Shm\Enums\InsuranceAmount;
@@ -33,28 +32,28 @@ class Insured implements Option, XmlDeserializable
 		return new static(InsuranceType::Additional, $amount);
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_COMMON): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
 	{
-		$insured = $document->createElement(Xml::prefixed('insured', $prefix));
-		$band = $document->createElement(Xml::prefixed($this->type->value, $prefix));
+		$insured = Xml::element($document, 'insured', $prefix);
+		$band = Xml::element($document, $this->type->value, $prefix);
 
 		if ($this->amount !== null)
 		{
 			$band->setAttribute('value', (string)$this->amount->value);
 		}
 
-		$insured->appendChild($band);
+		$insured->append($band);
 
 		return $insured;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
-		$children = Xml::readChildren($xml, Xml::READ_COMMON);
+		$additional = Xml::child($xml, 'additionalInsurance');
 
-		if (isset($children->additionalInsurance))
+		if ($additional !== null)
 		{
-			$value = (int)Xml::attribute($children->additionalInsurance, 'value');
+			$value = (int)Xml::attribute($additional, 'value');
 			$amount = InsuranceAmount::tryFrom($value);
 
 			// bpost answers basic warranty as additionalInsurance value="1" on some orders.

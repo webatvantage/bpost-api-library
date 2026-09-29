@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Enums\Language;
@@ -65,9 +64,9 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = null): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = null): Element
 	{
-		$element = $document->createElement(Xml::prefixed('unregistered', $prefix));
+		$element = Xml::element($document, 'unregistered', $prefix);
 
 		Xml::appendText($document, $element, 'language', $this->language?->value, $prefix);
 		Xml::appendText($document, $element, 'mobilePhone', $this->mobilePhone, $prefix);
@@ -75,38 +74,46 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 
 		if ($this->reducedMobilityZone)
 		{
-			$element->appendChild($document->createElement(Xml::prefixed('reducedMobilityZone', $prefix)));
+			$element->append(Xml::element($document, 'reducedMobilityZone', $prefix));
 		}
 
 		return $element;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$unregistered = new static();
 
-		if (isset($xml->language) && trim((string)$xml->language) !== '')
+		$language = Xml::text($xml, 'language');
+
+		if ($language !== null)
 		{
 			$unregistered->language(
-				Assert::enum('language', Language::class, strtoupper(trim((string)$xml->language))),
+				Assert::enum('language', Language::class, strtoupper($language)),
 			);
 		}
 
-		if (isset($xml->mobilePhone) && trim((string)$xml->mobilePhone) !== '')
+		$mobilePhone = Xml::text($xml, 'mobilePhone');
+
+		if ($mobilePhone !== null)
 		{
-			$unregistered->mobilePhone((string)$xml->mobilePhone);
+			$unregistered->mobilePhone($mobilePhone);
 		}
 
-		if (isset($xml->emailAddress) && trim((string)$xml->emailAddress) !== '')
+		$emailAddress = Xml::text($xml, 'emailAddress');
+
+		if ($emailAddress !== null)
 		{
-			$unregistered->emailAddress((string)$xml->emailAddress);
+			$unregistered->emailAddress($emailAddress);
 		}
 
 		// Present at all means yes. v3.3 spelled it as a Y/N value, so a literal "N" is honoured
 		// too for anyone replaying an older response.
-		if (isset($xml->reducedMobilityZone))
+		$reducedMobilityZone = Xml::child($xml, 'reducedMobilityZone');
+
+		if ($reducedMobilityZone !== null)
 		{
-			$unregistered->reducedMobilityZone(strtoupper(trim((string)$xml->reducedMobilityZone)) !== 'N');
+			$unregistered->reducedMobilityZone(strtoupper(trim($reducedMobilityZone->textContent)) !== 'N');
 		}
 
 		return $unregistered;

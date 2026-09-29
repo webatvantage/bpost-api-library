@@ -9,6 +9,7 @@ use Webatvantage\Bpost\Api\Geo\DataObjects\ServicePoint;
 use Webatvantage\Bpost\Api\Geo\Enums\LockerType;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
+use Webatvantage\Bpost\Api\Support\Xml;
 
 /**
  * `Function=search` — the pick-up points nearest a given address.
@@ -111,9 +112,19 @@ class NearestServicePointsRequest extends GeoRequest
 		$xml = $this->send();
 		$points = [];
 
-		foreach ($xml->PoiList->Poi ?? [] as $poi)
+		$list = Xml::child($xml, 'PoiList');
+
+		foreach ($list === null ? [] : Xml::children($list, 'Poi') as $entry)
 		{
-			$point = ServicePoint::fromXml($poi->Record, isset($poi->Distance) ? (float)$poi->Distance : null);
+			$record = Xml::child($entry, 'Record');
+
+			if ($record === null)
+			{
+				continue;
+			}
+
+			$distance = Xml::text($entry, 'Distance');
+			$point = ServicePoint::fromXml($record, $distance === null ? null : (float)$distance);
 
 			$points[] = $point->withPageUrl($this->pageUrl($point));
 		}

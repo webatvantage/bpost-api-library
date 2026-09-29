@@ -2,8 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
 
-use DOMDocument;
-use DOMElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Parcel\Enums\InsuranceAmount;
 use Webatvantage\Bpost\Api\Parcel\Support\Xml;
@@ -18,9 +18,9 @@ class AdditionalInsurance implements Option
 {
 	public function __construct(public private(set) InsuranceAmount $maxAmount) {}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_COMMON): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
 	{
-		$element = $document->createElement(Xml::prefixed('additionalInsurance', $prefix));
+		$element = Xml::element($document, 'additionalInsurance', $prefix);
 
 		Xml::appendText($document, $element, 'maxAmount', $this->maxAmount->value, $prefix);
 

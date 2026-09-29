@@ -29,18 +29,21 @@ class CreateLabelInBulkRequest extends CreateLabelRequest
 		LabelOutput $output,
 		bool $withReturnLabels = false,
 	) {
+		// Not the order namespace map: batchLabels defaults to the global namespace, where an
+		// order document defaults to the national one.
 		$document = Xml::document();
-		$batch = $document->createElement('batchLabels');
-		$batch->setAttribute('xmlns', Xml::WRITE_GLOBAL);
-		$batch->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-		$batch->setAttribute('xsi:schemaLocation', Xml::WRITE_GLOBAL);
+		$batch = $document->createElementNS(Xml::WRITE_GLOBAL, 'batchLabels');
+		$batch->setAttributeNS(Xml::XMLNS, 'xmlns:xsi', Xml::XSI);
+		$batch->setAttributeNS(Xml::XSI, 'xsi:schemaLocation', Xml::WRITE_GLOBAL);
 
 		foreach ($references as $reference)
 		{
-			$batch->appendChild(Xml::createTextElement($document, 'order', $reference));
+			$order = $document->createElementNS(Xml::WRITE_GLOBAL, 'order');
+			$order->textContent = $reference;
+			$batch->append($order);
 		}
 
-		$document->appendChild($batch);
+		$document->append($batch);
 
 		parent::__construct(
 			apiAdapter: $apiAdapter,

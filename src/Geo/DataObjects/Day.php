@@ -2,10 +2,11 @@
 
 namespace Webatvantage\Bpost\Api\Geo\DataObjects;
 
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Enums\Weekday;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
+use Webatvantage\Bpost\Api\Support\Xml;
 
 /**
  * One day's opening hours, as two optional ranges.
@@ -22,38 +23,26 @@ class Day implements XmlDeserializable
 		public readonly ?string $pmClose = null,
 	) {}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
-		$weekday = Weekday::tryFrom(ucfirst(strtolower($xml->getName())));
+		$weekday = Weekday::tryFrom(ucfirst(strtolower($xml->localName)));
 
 		if ($weekday === null)
 		{
-			throw new UnexpectedValueException('weekday', $xml->getName(), array_column(Weekday::cases(), 'value'));
+			throw new UnexpectedValueException('weekday', $xml->localName, array_column(Weekday::cases(), 'value'));
 		}
 
 		return new static(
 			$weekday,
-			self::value($xml, 'AMOpen'),
-			self::value($xml, 'AMClose'),
-			self::value($xml, 'PMOpen'),
-			self::value($xml, 'PMClose'),
+			Xml::text($xml, 'AMOpen'),
+			Xml::text($xml, 'AMClose'),
+			Xml::text($xml, 'PMOpen'),
+			Xml::text($xml, 'PMClose'),
 		);
 	}
 
 	public function isClosed(): bool
 	{
 		return $this->amOpen === null && $this->pmOpen === null;
-	}
-
-	private static function value(SimpleXMLElement $xml, string $name): ?string
-	{
-		if (!isset($xml->{$name}))
-		{
-			return null;
-		}
-
-		$value = trim((string)$xml->{$name});
-
-		return $value === '' ? null : $value;
 	}
 }

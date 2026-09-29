@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Parcel\Support\Xml;
@@ -80,9 +79,9 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_ANNOUNCEMENT): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_ANNOUNCEMENT): Element
 	{
-		$party = $document->createElement(Xml::prefixed(static::TAG_NAME, $prefix));
+		$party = Xml::element($document, static::TAG_NAME, $prefix);
 
 		Xml::appendText($document, $party, 'name', $this->name, Xml::PREFIX_COMMON);
 		Xml::appendText($document, $party, 'addressDepartment', $this->addressDepartment, Xml::PREFIX_COMMON);
@@ -91,37 +90,43 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 
 		if ($this->address !== null)
 		{
-			$party->appendChild($this->address->toXml($document));
+			$party->append($this->address->toXml($document));
 		}
 
 		if ($this->contactDetail !== null)
 		{
-			$party->appendChild($this->contactDetail->toXml($document));
+			$party->append($this->contactDetail->toXml($document));
 		}
 
 		return $party;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$party = new static();
 
 		foreach (['name', 'addressDepartment', 'addressContactName', 'addressPlace'] as $field)
 		{
-			if (isset($xml->{$field}) && trim((string)$xml->{$field}) !== '')
+			$value = Xml::text($xml, $field);
+
+			if ($value !== null)
 			{
-				$party->{$field}((string)$xml->{$field});
+				$party->{$field}($value);
 			}
 		}
 
-		if (isset($xml->address))
+		$address = Xml::child($xml, 'address');
+
+		if ($address !== null)
 		{
-			$party->address(Address::fromXml(Xml::readChildren($xml->address, Xml::COMMON)));
+			$party->address(Address::fromXml($address));
 		}
 
-		if (isset($xml->contactDetail))
+		$contactDetail = Xml::child($xml, 'contactDetail');
+
+		if ($contactDetail !== null)
 		{
-			$party->contactDetail(ContactDetail::fromXml(Xml::readChildren($xml->contactDetail, Xml::COMMON)));
+			$party->contactDetail(ContactDetail::fromXml($contactDetail));
 		}
 
 		return $party;

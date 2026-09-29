@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Shm\DataObjects\PugoAddress;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
@@ -68,10 +67,10 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 		return 'atIntlPugo';
 	}
 
-	protected function buildElement(DOMDocument $document): DOMElement
+	protected function buildElement(XMLDocument $document): Element
 	{
 		$prefix = $this->childPrefix();
-		$element = $document->createElement(Xml::prefixed($this->elementName(), $prefix));
+		$element = Xml::element($document, $this->elementName(), $prefix);
 
 		$this->appendShared($document, $element);
 
@@ -80,7 +79,7 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 
 		if ($this->pugoAddress !== null)
 		{
-			$element->appendChild($this->pugoAddress->toXml($document));
+			$element->append($this->pugoAddress->toXml($document));
 		}
 
 		Xml::appendText($document, $element, 'receiverName', $this->receiverName, $prefix);
@@ -89,27 +88,33 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 		return $element;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$box = new static();
 		$box->readShared($xml);
 
-		$box->pugoId = isset($xml->pugoId) ? (string)$xml->pugoId : null;
-		$box->pugoName = isset($xml->pugoName) ? (string)$xml->pugoName : null;
+		$box->pugoId = Xml::text($xml, 'pugoId');
+		$box->pugoName = Xml::text($xml, 'pugoName');
 
-		if (isset($xml->pugoAddress))
+		$pugoAddress = Xml::child($xml, 'pugoAddress');
+
+		if ($pugoAddress !== null)
 		{
-			$box->pugoAddress = PugoAddress::fromXml(Xml::readChildren($xml->pugoAddress, Xml::READ_COMMON));
+			$box->pugoAddress = PugoAddress::fromXml($pugoAddress);
 		}
 
-		if (isset($xml->receiverName) && trim((string)$xml->receiverName) !== '')
+		$receiverName = Xml::text($xml, 'receiverName');
+
+		if ($receiverName !== null)
 		{
-			$box->receiverName((string)$xml->receiverName);
+			$box->receiverName($receiverName);
 		}
 
-		if (isset($xml->receiverCompany) && trim((string)$xml->receiverCompany) !== '')
+		$receiverCompany = Xml::text($xml, 'receiverCompany');
+
+		if ($receiverCompany !== null)
 		{
-			$box->receiverCompany((string)$xml->receiverCompany);
+			$box->receiverCompany($receiverCompany);
 		}
 
 		return $box;

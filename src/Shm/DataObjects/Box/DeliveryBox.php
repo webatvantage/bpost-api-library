@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
@@ -48,7 +47,7 @@ abstract class DeliveryBox implements XmlSerializable
 	/** The prefix this method's own elements take; null means the default namespace. */
 	abstract protected function childPrefix(): ?string;
 
-	abstract protected function buildElement(DOMDocument $document): DOMElement;
+	abstract protected function buildElement(XMLDocument $document): Element;
 
 	/**
 	 * @throws InvalidValueException
@@ -60,7 +59,7 @@ abstract class DeliveryBox implements XmlSerializable
 			throw new InvalidValueException(
 				name: 'product',
 				value: $product->value,
-				allowed: array_map(fn (Product $p) => $p->value, static::allowedProducts()),
+				allowed: array_map(fn (Product $product) => $product->value, static::allowedProducts()),
 			);
 		}
 
@@ -102,10 +101,10 @@ abstract class DeliveryBox implements XmlSerializable
 		return $this;
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_GLOBAL): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_GLOBAL): Element
 	{
-		$wrapper = $document->createElement(Xml::prefixed($this->wrapperName(), $prefix));
-		$wrapper->appendChild($this->buildElement($document));
+		$wrapper = Xml::element($document, $this->wrapperName(), $prefix);
+		$wrapper->append($this->buildElement($document));
 
 		return $wrapper;
 	}
@@ -113,18 +112,18 @@ abstract class DeliveryBox implements XmlSerializable
 	/**
 	 * The <options> element, or null when the box carries none.
 	 */
-	protected function buildOptions(DOMDocument $document): ?DOMElement
+	protected function buildOptions(XMLDocument $document): ?Element
 	{
 		if (count($this->options) === 0)
 		{
 			return null;
 		}
 
-		$element = $document->createElement(Xml::prefixed('options', $this->childPrefix()));
+		$element = Xml::element($document, 'options', $this->childPrefix());
 
 		foreach ($this->options as $option)
 		{
-			$element->appendChild($option->toXml($document));
+			$element->append($option->toXml($document));
 		}
 
 		return $element;
@@ -138,9 +137,9 @@ abstract class DeliveryBox implements XmlSerializable
 	 *
 	 * @throws InvalidValueException
 	 */
-	protected static function readProduct(SimpleXMLElement $xml): Product
+	protected static function readProduct(Element $xml): Product
 	{
-		$value = trim((string)($xml->product ?? ''));
+		$value = Xml::text($xml, 'product') ?? '';
 		$product = Product::tryFrom($value);
 
 		if ($product === null)
@@ -148,7 +147,7 @@ abstract class DeliveryBox implements XmlSerializable
 			throw new UnexpectedValueException(
 				name: 'product',
 				value: $value,
-				known: array_map(fn (Product $p) => $p->value, static::allowedProducts()),
+				known: array_map(fn (Product $product) => $product->value, static::allowedProducts()),
 			);
 		}
 
@@ -158,19 +157,23 @@ abstract class DeliveryBox implements XmlSerializable
 	/**
 	 * Read options and weight, which every delivery method shares.
 	 */
-	protected function readCommon(SimpleXMLElement $xml, string $weightElement = 'weight'): void
+	protected function readCommon(Element $xml, string $weightElement = 'weight'): void
 	{
-		if (isset($xml->{$weightElement}) && trim((string)$xml->{$weightElement}) !== '')
+		$weight = Xml::text($xml, $weightElement);
+
+		if ($weight !== null)
 		{
-			$this->weight = (int)$xml->{$weightElement};
+			$this->weight = (int)$weight;
 		}
 
-		if (!isset($xml->options))
+		$options = Xml::child($xml, 'options');
+
+		if ($options === null)
 		{
 			return;
 		}
 
-		foreach (Xml::readChildren($xml->options, Xml::READ_COMMON) as $option)
+		foreach ($options->children as $option)
 		{
 			$this->withOption(OptionFactory::fromXml($option));
 		}

@@ -109,7 +109,7 @@ class AddressTest extends ShmTestCase
 
 	public function test_it_round_trips_through_xml()
 	{
-		$xml = simplexml_load_string(
+		$xml = $this->parse(
 			'<address><streetName>MUNT</streetName><number>1</number><box>b</box>'
 			. '<postalCode>1000</postalCode><locality>Brussel</locality><countryCode>BE</countryCode></address>',
 		);

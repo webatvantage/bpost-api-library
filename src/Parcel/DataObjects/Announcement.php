@@ -2,8 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use DOMDocument;
-use DOMElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
 use Webatvantage\Bpost\Api\Parcel\Enums\DeliveryMethod;
@@ -159,10 +159,10 @@ class Announcement
 		return $this;
 	}
 
-	public function toXml(DOMDocument $document, string $accountId): DOMElement
+	public function toXml(XMLDocument $document, string $accountId): Element
 	{
 		$prefix = Xml::PREFIX_ANNOUNCEMENT;
-		$announcement = $document->createElement(Xml::prefixed('announcement', $prefix));
+		$announcement = Xml::element($document, 'announcement', $prefix);
 		Xml::declareNamespaces($announcement);
 
 		Xml::appendText($document, $announcement, 'accountId', $accountId, $prefix);
@@ -170,13 +170,13 @@ class Announcement
 		Xml::appendText($document, $announcement, 'itemCode', $this->itemCode, $prefix);
 		Xml::appendText($document, $announcement, 'productCode', $this->productCode, $prefix);
 
-		$announcement->appendChild($this->sender->toXml($document, $prefix));
-		$announcement->appendChild($this->receiver->toXml($document, $prefix));
+		$announcement->append($this->sender->toXml($document, $prefix));
+		$announcement->append($this->receiver->toXml($document, $prefix));
 
 		if ($this->receiverOpeningHours !== null && !$this->receiverOpeningHours->isEmpty())
 		{
-			$announcement->appendChild(
-				$this->receiverOpeningHours->toXml($document, $prefix, 'receiverOpeningHours'),
+			$announcement->append(
+				$this->receiverOpeningHours->toXml($document, $prefix, 'receiverOpeningHours', Xml::ANNOUNCEMENT),
 			);
 		}
 
@@ -207,30 +207,30 @@ class Announcement
 
 		if ($this->international !== null)
 		{
-			$announcement->appendChild($this->international->toXml($document, $prefix));
+			$announcement->append($this->international->toXml($document, $prefix));
 		}
 
-		$method = $document->createElement(Xml::prefixed('deliveryMethod', $prefix));
-		$method->appendChild(
-			$document->createElement(Xml::prefixed($this->deliveryMethod->value, Xml::PREFIX_COMMON)),
+		$method = Xml::element($document, 'deliveryMethod', $prefix);
+		$method->append(
+			Xml::element($document, $this->deliveryMethod->value, Xml::PREFIX_COMMON),
 		);
-		$announcement->appendChild($method);
+		$announcement->append($method);
 
 		if (count($this->options) > 0)
 		{
-			$options = $document->createElement(Xml::prefixed('options', $prefix));
+			$options = Xml::element($document, 'options', $prefix);
 
 			foreach ($this->options as $option)
 			{
-				$options->appendChild($option->toXml($document));
+				$options->append($option->toXml($document));
 			}
 
-			$announcement->appendChild($options);
+			$announcement->append($options);
 		}
 
 		if ($this->dimensions !== null)
 		{
-			$announcement->appendChild($this->dimensions->toXml($document, $prefix));
+			$announcement->append($this->dimensions->toXml($document, $prefix));
 		}
 
 		return $announcement;

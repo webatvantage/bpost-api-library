@@ -43,9 +43,9 @@ class BoxTest extends ShmTestCase
 
 		$xml = $this->serialise($box->toXml(...));
 
-		$this->assertStringContainsString('<reducedMobilityZone/>', $xml);
+		$this->assertXmlContains('<reducedMobilityZone/>', $xml);
 		$this->assertStringNotContainsString('parcelLockerReducedMobilityZone', $xml);
-		$this->assertStringContainsString('<at24-7>', $xml);
+		$this->assertXmlContains('<at24-7>', $xml);
 	}
 
 	/**
@@ -53,7 +53,7 @@ class BoxTest extends ShmTestCase
 	 */
 	public function test_a_locker_box_reads_back_its_unregistered_block()
 	{
-		$box = At247::fromXml(simplexml_load_string(
+		$box = At247::fromXml($this->parse(
 			'<at24-7><product>bpack 24/7</product><weight>2000</weight>'
 			. '<unregistered><language>FR</language><mobilePhone>0475123456</mobilePhone>'
 			. '<emailAddress>receiver@mail.com</emailAddress><reducedMobilityZone/></unregistered>'
@@ -80,16 +80,16 @@ class BoxTest extends ShmTestCase
 
 		$xml = $this->serialise($box->toXml(...));
 
-		$this->assertStringContainsString('<tns:internationalBox>', $xml);
-		$this->assertStringContainsString('<international:atIntlPugo>', $xml);
-		$this->assertStringContainsString('<international:product>bpack@bpost international</international:product>', $xml);
-		$this->assertStringContainsString('<international:pugoId>163372</international:pugoId>', $xml);
-		$this->assertStringContainsString('<pugoAddress>', $xml);
+		$this->assertXmlContains('<tns:internationalBox>', $xml);
+		$this->assertXmlContains('<international:atIntlPugo>', $xml);
+		$this->assertXmlContains('<international:product>bpack@bpost international</international:product>', $xml);
+		$this->assertXmlContains('<international:pugoId>163372</international:pugoId>', $xml);
+		$this->assertXmlContains('<pugoAddress>', $xml);
 	}
 
 	public function test_an_international_pick_up_box_reads_back_its_receiver_name()
 	{
-		$box = AtIntlPugo::fromXml(simplexml_load_string(
+		$box = AtIntlPugo::fromXml($this->parse(
 			'<atIntlPugo><product>bpack@bpost international</product><parcelWeight>2000</parcelWeight>'
 			. '<receiverName>John Doe</receiverName><receiverCompany>bpost</receiverCompany></atIntlPugo>',
 		));
@@ -139,19 +139,19 @@ class BoxTest extends ShmTestCase
 
 		$xml = $this->serialise($box->toXml(...));
 
-		$this->assertStringContainsString('<product>bpack XL</product>', $xml);
-		$this->assertStringContainsString('<common:fragile/>', $xml);
-		$this->assertStringContainsString('<weight>100000</weight>', $xml);
-		$this->assertStringContainsString('<height>100</height>', $xml);
-		$this->assertStringContainsString('<length>200</length>', $xml);
-		$this->assertStringContainsString('<width>500</width>', $xml);
+		$this->assertXmlContains('<product>bpack XL</product>', $xml);
+		$this->assertXmlContains('<common:fragile/>', $xml);
+		$this->assertXmlContains('<weight>100000</weight>', $xml);
+		$this->assertXmlContains('<height>100</height>', $xml);
+		$this->assertXmlContains('<length>200</length>', $xml);
+		$this->assertXmlContains('<width>500</width>', $xml);
 	}
 
 	public function test_an_unknown_customs_value_raises_a_library_exception()
 	{
 		$this->expectException(UnexpectedValueException::class);
 
-		CustomsInfo::fromXml(simplexml_load_string(
+		CustomsInfo::fromXml($this->parse(
 			'<customsInfo><parcelValue>1000</parcelValue><contentDescription>Books</contentDescription>'
 			. '<shipmentType>SOMETHING_NEW</shipmentType>'
 			. '<parcelReturnInstructions>RTS</parcelReturnInstructions>'

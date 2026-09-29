@@ -2,8 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Contracts;
 
-use DOMDocument;
-use DOMElement;
+use Dom\Element;
+use Dom\XMLDocument;
 
 /**
  * A data object that can write itself into a bpost request document.
@@ -15,10 +15,10 @@ use DOMElement;
 interface XmlSerializable
 {
 	/**
-	 * @param DOMDocument $document
+	 * @param XMLDocument $document
 	 * @param string|null $prefix Namespace prefix to write children under, or null for the default namespace
 	 *
-	 * @return DOMElement
+	 * @return Element
 	 */
-	public function toXml(DOMDocument $document, ?string $prefix = null): DOMElement;
+	public function toXml(XMLDocument $document, ?string $prefix = null): Element;
 }

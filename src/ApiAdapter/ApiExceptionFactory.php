@@ -2,7 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\ApiAdapter;
 
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XPath;
 use Webatvantage\Bpost\Api\Exceptions\ApiException;
 use Webatvantage\Bpost\Api\Exceptions\BusinessException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidResponseException;
@@ -31,7 +32,7 @@ class ApiExceptionFactory
 		$message = self::firstValue($xml, 'message') ?? self::fallbackMessage($statusCode, $body);
 		$code = self::firstValue($xml, 'code');
 
-		return match ($xml->getName())
+		return match ($xml->localName)
 		{
 			'businessException' => new BusinessException($message, (int)($code ?? $statusCode), $body),
 			'systemException' => new SystemException($message, $statusCode, $body),
@@ -44,16 +45,24 @@ class ApiExceptionFactory
 	 * root element, and which namespace varies between the business and system shapes, so they are
 	 * matched on local name.
 	 */
-	private static function firstValue(SimpleXMLElement $xml, string $localName): ?string
+	private static function firstValue(Element $xml, string $localName): ?string
 	{
-		$found = $xml->xpath(sprintf('//*[local-name()="%s"]', $localName));
+		$document = $xml->ownerDocument;
 
-		if (!is_array($found) || count($found) === 0)
+		if ($document === null)
 		{
 			return null;
 		}
 
-		$value = trim((string)$found[0]);
+		$found = new XPath($document)->query(sprintf('//*[local-name()="%s"]', $localName), $xml);
+		$first = $found->item(0);
+
+		if ($first === null)
+		{
+			return null;
+		}
+
+		$value = trim($first->textContent);
 
 		return $value === '' ? null : $value;
 	}

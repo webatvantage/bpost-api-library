@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Customs\ParcelContent;
@@ -73,10 +72,10 @@ class International extends InternationalBox implements XmlDeserializable
 		return 'international';
 	}
 
-	protected function buildElement(DOMDocument $document): DOMElement
+	protected function buildElement(XMLDocument $document): Element
 	{
 		$prefix = $this->childPrefix();
-		$element = $document->createElement(Xml::prefixed($this->elementName(), $prefix));
+		$element = Xml::element($document, $this->elementName(), $prefix);
 
 		$this->appendShared($document, $element);
 
@@ -85,29 +84,31 @@ class International extends InternationalBox implements XmlDeserializable
 			return $element;
 		}
 
-		$contents = $document->createElement(Xml::prefixed('parcelContents', $prefix));
+		$contents = Xml::element($document, 'parcelContents', $prefix);
 
 		foreach ($this->parcelContents as $content)
 		{
-			$contents->appendChild($content->toXml($document, $prefix));
+			$contents->append($content->toXml($document, $prefix));
 		}
 
-		$element->appendChild($contents);
+		$element->append($contents);
 
 		return $element;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$box = new static(self::readProduct($xml));
 		$box->readShared($xml);
 
-		if (!isset($xml->parcelContents))
+		$contents = Xml::child($xml, 'parcelContents');
+
+		if ($contents === null)
 		{
 			return $box;
 		}
 
-		foreach (Xml::readChildren($xml->parcelContents, Xml::READ_INTERNATIONAL) as $content)
+		foreach ($contents->children as $content)
 		{
 			$box->withParcelContent(ParcelContent::fromXml($content));
 		}

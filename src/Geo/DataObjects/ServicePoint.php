@@ -2,9 +2,10 @@
 
 namespace Webatvantage\Bpost\Api\Geo\DataObjects;
 
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
+use Webatvantage\Bpost\Api\Support\Xml;
 
 /**
  * A bpost pick-up point: post office, post point, parcel point, parcel locker or Click & Collect
@@ -51,80 +52,59 @@ class ServicePoint implements XmlDeserializable
 	}
 
 	/**
-	 * @param SimpleXMLElement $xml The record element, whose children are Id, Type, Name and so on
+	 * @param Element $xml The record element, whose children are Id, Type, Name and so on
 	 * @param float|null $distance Metres from the searched address; only a nearest-points search has one
 	 * @param string|null $pageUrl The HTML details page bpost links to, when the response carried one
 	 */
-	public static function fromXml(SimpleXMLElement $xml, ?float $distance = null, ?string $pageUrl = null): static
+	public static function fromXml(Element $xml, ?float $distance = null, ?string $pageUrl = null): static
 	{
 		$services = [];
+		$serviceList = Xml::child($xml, 'Services');
 
-		if (isset($xml->Services->Service))
+		if ($serviceList !== null)
 		{
-			foreach ($xml->Services->Service as $service)
+			foreach (Xml::children($serviceList, 'Service') as $service)
 			{
 				$services[] = Service::fromXml($service);
 			}
 		}
 
-		$typeCode = self::value($xml, 'Type');
+		$typeCode = Xml::text($xml, 'Type');
+		$hours = Xml::child($xml, 'Hours');
+		$attributes = Xml::child($xml, 'Attributes');
 
 		return new static(
-			id: (string)(self::value($xml, 'Id', 'ID') ?? ''),
+			id: Xml::text($xml, 'Id', 'ID') ?? '',
 			type: $typeCode === null ? null : PointType::tryFrom((int)$typeCode),
-			name: self::value($xml, 'Name', 'OFFICE'),
-			street: self::value($xml, 'Street', 'STREET'),
-			number: self::value($xml, 'Number', 'NR'),
-			boxNumber: self::value($xml, 'BoxNumber', 'BOXNR'),
-			zip: self::value($xml, 'Zip', 'ZIP'),
-			city: self::value($xml, 'City', 'CITY'),
-			country: self::value($xml, 'Country', 'COUNTRY'),
-			latitude: self::float($xml, 'Latitude'),
-			longitude: self::float($xml, 'Longitude'),
-			x: self::int($xml, 'X'),
-			y: self::int($xml, 'Y'),
-			closedFrom: self::value($xml, 'ClosedFrom'),
-			closedTo: self::value($xml, 'ClosedTo'),
-			note: self::value($xml, 'Note', 'NOTE'),
+			name: Xml::text($xml, 'Name', 'OFFICE'),
+			street: Xml::text($xml, 'Street', 'STREET'),
+			number: Xml::text($xml, 'Number', 'NR'),
+			boxNumber: Xml::text($xml, 'BoxNumber', 'BOXNR'),
+			zip: Xml::text($xml, 'Zip', 'ZIP'),
+			city: Xml::text($xml, 'City', 'CITY'),
+			country: Xml::text($xml, 'Country', 'COUNTRY'),
+			latitude: self::float(Xml::text($xml, 'Latitude')),
+			longitude: self::float(Xml::text($xml, 'Longitude')),
+			x: self::int(Xml::text($xml, 'X')),
+			y: self::int(Xml::text($xml, 'Y')),
+			closedFrom: Xml::text($xml, 'ClosedFrom'),
+			closedTo: Xml::text($xml, 'ClosedTo'),
+			note: Xml::text($xml, 'Note', 'NOTE'),
 			services: $services,
-			openingHours: isset($xml->Hours) ? OpeningHours::fromXml($xml->Hours) : new OpeningHours(),
-			attributes: isset($xml->Attributes) ? Attributes::fromXml($xml->Attributes) : new Attributes(),
+			openingHours: $hours === null ? new OpeningHours() : OpeningHours::fromXml($hours),
+			attributes: $attributes === null ? new Attributes() : Attributes::fromXml($attributes),
 			distance: $distance,
 			pageUrl: $pageUrl,
 		);
 	}
 
-	private static function value(SimpleXMLElement $xml, string ...$names): ?string
+	private static function float(?string $value): ?float
 	{
-		foreach ($names as $name)
-		{
-			if (!isset($xml->{$name}))
-			{
-				continue;
-			}
-
-			$value = trim((string)$xml->{$name});
-
-			if ($value !== '')
-			{
-				return $value;
-			}
-		}
-
-		return null;
-	}
-
-	private static function float(SimpleXMLElement $xml, string $name): ?float
-	{
-		$value = self::value($xml, $name);
-
 		return $value === null ? null : (float)$value;
 	}
 
-	private static function int(SimpleXMLElement $xml, string $name): ?int
+	private static function int(?string $value): ?int
 	{
-		$value = self::value($xml, $name);
-
 		return $value === null ? null : (int)$value;
 	}
 }

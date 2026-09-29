@@ -3,9 +3,8 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use DateTimeInterface;
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
@@ -99,9 +98,9 @@ class AtHome extends NationalBox implements XmlDeserializable
 		return 'atHome';
 	}
 
-	protected function buildElement(DOMDocument $document): DOMElement
+	protected function buildElement(XMLDocument $document): Element
 	{
-		$element = $document->createElement($this->elementName());
+		$element = Xml::element($document, $this->elementName());
 
 		Xml::appendText($document, $element, 'product', $this->product?->value);
 
@@ -109,7 +108,7 @@ class AtHome extends NationalBox implements XmlDeserializable
 
 		if ($options !== null)
 		{
-			$element->appendChild($options);
+			$element->append($options);
 		}
 
 		Xml::appendText($document, $element, 'weight', $this->weight);
@@ -118,14 +117,14 @@ class AtHome extends NationalBox implements XmlDeserializable
 
 		if ($this->openingHours !== null && !$this->openingHours->isEmpty())
 		{
-			$element->appendChild($this->openingHours->toXml($document));
+			$element->append($this->openingHours->toXml($document, namespace: Xml::WRITE_NATIONAL));
 		}
 
 		Xml::appendText($document, $element, 'desiredDeliveryPlace', $this->desiredDeliveryPlace);
 
 		if ($this->receiver !== null)
 		{
-			$element->appendChild($this->receiver->toXml($document));
+			$element->append($this->receiver->toXml($document));
 		}
 
 		Xml::appendText($document, $element, 'requestedDeliveryDate', $this->requestedDeliveryDate);
@@ -133,34 +132,46 @@ class AtHome extends NationalBox implements XmlDeserializable
 		return $element;
 	}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$box = new static(self::readProduct($xml));
 		$box->readCommon($xml);
 
-		if (isset($xml->height, $xml->length, $xml->width))
+		$height = Xml::text($xml, 'height');
+		$length = Xml::text($xml, 'length');
+		$width = Xml::text($xml, 'width');
+
+		if ($height !== null && $length !== null && $width !== null)
 		{
-			$box->dimensions = new Dimensions((int)$xml->height, (int)$xml->length, (int)$xml->width);
+			$box->dimensions = new Dimensions((int)$height, (int)$length, (int)$width);
 		}
 
-		if (isset($xml->openingHours))
+		$openingHours = Xml::child($xml, 'openingHours');
+
+		if ($openingHours !== null)
 		{
-			$box->openingHours = OpeningHours::fromXml($xml->openingHours);
+			$box->openingHours = OpeningHours::fromXml($openingHours);
 		}
 
-		if (isset($xml->desiredDeliveryPlace) && trim((string)$xml->desiredDeliveryPlace) !== '')
+		$desiredDeliveryPlace = Xml::text($xml, 'desiredDeliveryPlace');
+
+		if ($desiredDeliveryPlace !== null)
 		{
-			$box->desiredDeliveryPlace((string)$xml->desiredDeliveryPlace);
+			$box->desiredDeliveryPlace($desiredDeliveryPlace);
 		}
 
-		if (isset($xml->receiver))
+		$receiver = Xml::child($xml, 'receiver');
+
+		if ($receiver !== null)
 		{
-			$box->receiver(Receiver::fromXml(Xml::readChildren($xml->receiver, Xml::READ_COMMON)));
+			$box->receiver(Receiver::fromXml($receiver));
 		}
 
-		if (isset($xml->requestedDeliveryDate) && trim((string)$xml->requestedDeliveryDate) !== '')
+		$requestedDeliveryDate = Xml::text($xml, 'requestedDeliveryDate');
+
+		if ($requestedDeliveryDate !== null)
 		{
-			$box->requestedDeliveryDate = trim((string)$xml->requestedDeliveryDate);
+			$box->requestedDeliveryDate = $requestedDeliveryDate;
 		}
 
 		return $box;

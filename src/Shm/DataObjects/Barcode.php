@@ -2,8 +2,9 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Shm\Support\Xml;
 
 /**
  * A parcel barcode, and the order reference it belongs to.
@@ -15,18 +16,20 @@ class Barcode implements XmlDeserializable
 {
 	public function __construct(public private(set) string $barcode, public private(set) ?string $reference = null) {}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		// The v3.4 media types wrap the barcode with its reference; the older ones give it bare.
-		if (isset($xml->barcode))
+		$barcode = Xml::child($xml, 'barcode');
+
+		if ($barcode !== null)
 		{
 			return new static(
-				trim((string)$xml->barcode),
-				isset($xml->reference) ? trim((string)$xml->reference) : null,
+				trim($barcode->textContent),
+				Xml::text($xml, 'reference'),
 			);
 		}
 
-		return new static(trim((string)$xml));
+		return new static(trim($xml->textContent));
 	}
 
 	public function isReturnLabel(): bool

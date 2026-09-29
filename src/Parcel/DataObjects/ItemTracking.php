@@ -4,7 +4,7 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use SimpleXMLElement;
+use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Parcel\Support\Xml;
 
@@ -33,40 +33,35 @@ class ItemTracking implements XmlDeserializable
 		public private(set) ?PickupPoint $pickupPoint = null,
 	) {}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
-		$value = static fn (string $name): ?string => isset($xml->{$name}) && trim((string)$xml->{$name}) !== ''
-			? trim((string)$xml->{$name})
-			: null;
-
 		$states = [];
 
-		foreach ($xml->stateInfo ?? [] as $state)
+		foreach (Xml::children($xml, 'stateInfo') as $state)
 		{
 			$states[] = StateInfo::fromXml($state);
 		}
 
-		$deliveryTime = $value('deliveryTime');
+		$sender = Xml::child($xml, 'sender');
+		$addressee = Xml::child($xml, 'addressee');
+		$itemDetail = Xml::child($xml, 'itemDetail');
+		$pickupPoint = Xml::child($xml, 'pickupPoint');
+		$deliveryTime = Xml::text($xml, 'deliveryTime');
 
 		return new static(
-			itemCode: $value('itemCode'),
-			// The parties are in the announcement service's common namespace, not tracking's own.
-			sender: isset($xml->sender)
-				? Sender::fromXml(Xml::readChildren($xml->sender, Xml::COMMON))
-				: null,
-			addressee: isset($xml->addressee)
-				? Addressee::fromXml(Xml::readChildren($xml->addressee, Xml::COMMON))
-				: null,
+			itemCode: Xml::text($xml, 'itemCode'),
+			sender: $sender === null ? null : Sender::fromXml($sender),
+			addressee: $addressee === null ? null : Addressee::fromXml($addressee),
 			// bpost lower-cases the d in departure but not in destination.
-			cityOrCountryOfDeparture: $value('cityOrCountryOfdeparture'),
-			cityOrCountryOfDestination: $value('cityOrCountryOfDestination'),
-			nameOfDestination: $value('nameOfDestination'),
+			cityOrCountryOfDeparture: Xml::text($xml, 'cityOrCountryOfdeparture'),
+			cityOrCountryOfDestination: Xml::text($xml, 'cityOrCountryOfDestination'),
+			nameOfDestination: Xml::text($xml, 'nameOfDestination'),
 			deliveryTime: $deliveryTime === null ? null : new DateTimeImmutable($deliveryTime),
-			customerReference: $value('customerReference'),
-			itemDetail: isset($xml->itemDetail) ? ItemDetail::fromXml($xml->itemDetail) : null,
+			customerReference: Xml::text($xml, 'customerReference'),
+			itemDetail: $itemDetail === null ? null : ItemDetail::fromXml($itemDetail),
 			states: $states,
-			trackingId: $value('trackingId'),
-			pickupPoint: isset($xml->pickupPoint) ? PickupPoint::fromXml($xml->pickupPoint) : null,
+			trackingId: Xml::text($xml, 'trackingId'),
+			pickupPoint: $pickupPoint === null ? null : PickupPoint::fromXml($pickupPoint),
 		);
 	}
 

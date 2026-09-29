@@ -75,6 +75,45 @@ Each service can also be constructed on its own if you only use one — `new Shm
 | `BpostOnAppointment` | Appears nowhere in the v3.3.35 manual, and its parser dropped product, options, weight and opening hours | none — ask bpost if you need it |
 | `Insured::INSURANCE_AMOUNT_UP_TO_7500_EUROS` … `_25000_EUROS` | bpost capped additional warranty at 5 000 EUR in 3.3.24; the library's own validation had rejected these ever since | `InsuranceAmount::UpTo2500`, `UpTo5000` |
 
+### Custom data objects
+
+Only relevant if you implemented `XmlSerializable` or `XmlDeserializable` yourself, or subclassed a
+data object and overrode `toXml()` / `fromXml()`. Both contracts are on PHP 8.4's `Dom` API now, not
+`DOMDocument` and `SimpleXMLElement`:
+
+```php
+// 1.x
+public function toXml(DOMDocument $document, ?string $prefix = null): DOMElement
+public static function fromXml(SimpleXMLElement $xml): static
+
+// 2.0
+public function toXml(Dom\XMLDocument $document, ?string $prefix = null): Dom\Element
+public static function fromXml(Dom\Element $xml): static
+```
+
+Build elements with `Xml::element($document, 'tagName', $prefix)` rather than
+`$document->createElement(...)`, so the element lands in the namespace its prefix is declared under;
+`Xml::appendText()` is unchanged. On the way back, `Xml::child()`, `Xml::children()`, `Xml::text()`
+and `Xml::attribute()` replace SimpleXML's property access, and all of them match on local name:
+
+```php
+// 1.x
+if (isset($xml->reference)) { $order->reference((string)$xml->reference); }
+foreach ($xml->box ?? [] as $box) { ... }
+
+// 2.0
+$reference = Xml::text($xml, 'reference');
+if ($reference !== null) { $order->reference($reference); }
+foreach (Xml::children($xml, 'box') as $box) { ... }
+```
+
+`Xml::text()` returns null for an element that is absent *or* blank, since bpost sends both to mean
+the same thing; use `Xml::child()` where the mere presence of an empty element is the signal.
+
+A flag option now extends its service's `ShmFlag` or `ParcelFlag` rather than `Contracts\Flag`
+directly — the `common:` prefix maps to a different namespace per service, and the intermediate is
+what knows which.
+
 ### Replacing FormHandler
 
 ```php

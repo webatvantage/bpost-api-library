@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
-use DOMDocument;
-use DOMElement;
-use SimpleXMLElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Shm\Support\Xml;
@@ -65,16 +64,16 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = null): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = null): Element
 	{
-		$customer = $document->createElement(Xml::prefixed(static::TAG_NAME, $prefix));
+		$customer = Xml::element($document, static::TAG_NAME, $prefix);
 
 		Xml::appendText($document, $customer, 'name', $this->name, Xml::PREFIX_COMMON);
 		Xml::appendText($document, $customer, 'company', $this->company, Xml::PREFIX_COMMON);
 
 		if ($this->address !== null)
 		{
-			$customer->appendChild($this->address->toXml($document));
+			$customer->append($this->address->toXml($document));
 		}
 
 		Xml::appendText($document, $customer, 'emailAddress', $this->emailAddress, Xml::PREFIX_COMMON);
@@ -84,35 +83,45 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 	}
 
 	/**
-	 * @param SimpleXMLElement $xml The customer element's children, already in the common namespace
+	 * @param Element $xml The customer element's children, already in the common namespace
 	 */
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$customer = new static();
 
-		if (isset($xml->name))
+		$name = Xml::child($xml, 'name');
+
+		if ($name !== null)
 		{
-			$customer->name((string)$xml->name);
+			$customer->name(trim($name->textContent));
 		}
 
-		if (isset($xml->company))
+		$company = Xml::child($xml, 'company');
+
+		if ($company !== null)
 		{
-			$customer->company((string)$xml->company);
+			$customer->company(trim($company->textContent));
 		}
 
-		if (isset($xml->address))
+		$address = Xml::child($xml, 'address');
+
+		if ($address !== null)
 		{
-			$customer->address(Address::fromXml($xml->address));
+			$customer->address(Address::fromXml($address));
 		}
 
-		if (isset($xml->emailAddress))
+		$emailAddress = Xml::child($xml, 'emailAddress');
+
+		if ($emailAddress !== null)
 		{
-			$customer->emailAddress((string)$xml->emailAddress);
+			$customer->emailAddress(trim($emailAddress->textContent));
 		}
 
-		if (isset($xml->phoneNumber))
+		$phoneNumber = Xml::child($xml, 'phoneNumber');
+
+		if ($phoneNumber !== null)
 		{
-			$customer->phoneNumber((string)$xml->phoneNumber);
+			$customer->phoneNumber(trim($phoneNumber->textContent));
 		}
 
 		return $customer;

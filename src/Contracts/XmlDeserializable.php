@@ -2,7 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Contracts;
 
-use SimpleXMLElement;
+use Dom\Element;
 
 /**
  * A data object that can be built from a bpost response document.
@@ -10,9 +10,9 @@ use SimpleXMLElement;
 interface XmlDeserializable
 {
 	/**
-	 * @param SimpleXMLElement $xml
+	 * @param Element $xml
 	 *
 	 * @return static
 	 */
-	public static function fromXml(SimpleXMLElement $xml): static;
+	public static function fromXml(Element $xml): static;
 }

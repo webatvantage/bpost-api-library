@@ -2,8 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
 
-use DOMDocument;
-use DOMElement;
+use Dom\Element;
+use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
@@ -64,9 +64,9 @@ class Notification implements Option
 		return $this;
 	}
 
-	public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_COMMON): DOMElement
+	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
 	{
-		$element = $document->createElement(Xml::prefixed($this->tagName, $prefix));
+		$element = Xml::element($document, $this->tagName, $prefix);
 
 		Xml::appendText($document, $element, 'language', $this->language->value, $prefix);
 		Xml::appendText($document, $element, 'emailAddress', $this->emailAddress, $prefix);

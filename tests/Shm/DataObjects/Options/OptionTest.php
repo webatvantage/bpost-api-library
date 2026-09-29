@@ -54,7 +54,7 @@ class OptionTest extends ShmTestCase
 
 	public function test_a_retrieved_message_may_carry_both_channels()
 	{
-		$messaging = Messaging::fromXml(simplexml_load_string(
+		$messaging = Messaging::fromXml($this->parse(
 			'<infoDistributed language="NL"><emailAddress>a@b.com</emailAddress>'
 			. '<mobilePhone>0470000000</mobilePhone></infoDistributed>',
 		));
@@ -100,7 +100,7 @@ class OptionTest extends ShmTestCase
 
 		foreach ($options as $xml => $expected)
 		{
-			$this->assertInstanceOf($expected, OptionFactory::fromXml(simplexml_load_string($xml)));
+			$this->assertInstanceOf($expected, OptionFactory::fromXml($this->parse($xml)));
 		}
 	}
 
@@ -111,7 +111,7 @@ class OptionTest extends ShmTestCase
 	public function test_the_factory_handles_cash_on_delivery_for_every_box_type()
 	{
 		$cod = OptionFactory::fromXml(
-			simplexml_load_string('<cod><codAmount>500</codAmount><iban>BE19</iban><bic>GEBABEBB</bic></cod>'),
+			$this->parse('<cod><codAmount>500</codAmount><iban>BE19</iban><bic>GEBABEBB</bic></cod>'),
 		);
 
 		$this->assertInstanceOf(CashOnDelivery::class, $cod);
@@ -122,6 +122,6 @@ class OptionTest extends ShmTestCase
 	{
 		$this->expectException(UnexpectedValueException::class);
 
-		OptionFactory::fromXml(simplexml_load_string('<somethingNew/>'));
+		OptionFactory::fromXml($this->parse('<somethingNew/>'));
 	}
 }

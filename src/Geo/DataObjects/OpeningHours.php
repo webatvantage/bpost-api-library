@@ -4,11 +4,12 @@ namespace Webatvantage\Bpost\Api\Geo\DataObjects;
 
 use ArrayIterator;
 use Countable;
+use Dom\Element;
 use IteratorAggregate;
-use SimpleXMLElement;
 use Traversable;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Enums\Weekday;
+use Webatvantage\Bpost\Api\Support\Xml;
 
 /**
  * A week of opening hours.
@@ -24,15 +25,17 @@ class OpeningHours implements Countable, IteratorAggregate, XmlDeserializable
 	 */
 	public function __construct(private readonly array $days = []) {}
 
-	public static function fromXml(SimpleXMLElement $xml): static
+	public static function fromXml(Element $xml): static
 	{
 		$days = [];
 
 		foreach (Weekday::cases() as $weekday)
 		{
-			if (isset($xml->{$weekday->value}))
+			$day = Xml::child($xml, $weekday->value);
+
+			if ($day !== null)
 			{
-				$days[$weekday->value] = Day::fromXml($xml->{$weekday->value});
+				$days[$weekday->value] = Day::fromXml($day);
 			}
 		}
 

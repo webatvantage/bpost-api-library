@@ -20,7 +20,7 @@ class CreateOrderRequest extends ShmRequest
 	public function __construct(HttpApiAdapter $apiAdapter, ShmApiConfig $config, Order $order)
 	{
 		$document = Xml::document();
-		$document->appendChild($order->toXml($document, $config->accountId));
+		$document->append($order->toXml($document, $config->accountId));
 
 		parent::__construct(
 			apiAdapter: $apiAdapter,

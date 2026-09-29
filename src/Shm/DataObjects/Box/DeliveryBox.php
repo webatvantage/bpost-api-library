@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\OptionFactory;
@@ -101,6 +102,9 @@ abstract class DeliveryBox implements XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespace::Global): XmlElement
 	{
 		$wrapper = $parent->appendElement($this->wrapperName(), $namespace);

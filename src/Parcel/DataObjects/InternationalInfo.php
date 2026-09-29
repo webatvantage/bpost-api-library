@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Parcel\Enums\ItemCategory;
 use Webatvantage\Bpost\Api\Parcel\Enums\NonDeliveryInstruction;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
@@ -18,6 +19,8 @@ class InternationalInfo implements XmlSerializable
 	/**
 	 * @param float $valueCurrencySender The parcel's value in the currency named below
 	 * @param string $currencySender Three-letter currency code
+	 *
+	 * @throws InvalidLengthException
 	 */
 	public function __construct(
 		public private(set) string $parcelContent,

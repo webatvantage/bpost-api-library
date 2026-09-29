@@ -8,6 +8,7 @@ use IteratorAggregate;
 use Traversable;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Enums\Weekday;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -24,6 +25,9 @@ class OpeningHours implements Countable, IteratorAggregate, XmlDeserializable
 	 */
 	public function __construct(private readonly array $days = []) {}
 
+	/**
+	 * @throws UnexpectedValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$days = [];

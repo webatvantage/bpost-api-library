@@ -5,7 +5,10 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 use DateTimeInterface;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Receiver;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
 use Webatvantage\Bpost\Api\Support\Validate;
@@ -60,6 +63,9 @@ class AtHome extends NationalBox implements XmlDeserializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function desiredDeliveryPlace(string $desiredDeliveryPlace): static
 	{
 		$this->desiredDeliveryPlace = Validate::maxLength('desiredDeliveryPlace', $desiredDeliveryPlace, 50);
@@ -96,6 +102,9 @@ class AtHome extends NationalBox implements XmlDeserializable
 		return 'atHome';
 	}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	protected function buildElement(XmlElement $wrapper): XmlElement
 	{
 		$namespace = $this->childNamespace();
@@ -126,6 +135,11 @@ class AtHome extends NationalBox implements XmlDeserializable
 		return $element;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static(self::readProduct($xml));

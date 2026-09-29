@@ -5,6 +5,8 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -28,6 +30,8 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * Only the first 40 characters are printed on the label, so bpost rejects anything longer.
+	 *
+	 * @throws InvalidLengthException
 	 */
 	public function name(string $name): static
 	{
@@ -36,6 +40,9 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function company(string $company): static
 	{
 		$this->company = Validate::maxLength('company', $company, 40);
@@ -50,6 +57,9 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function emailAddress(string $emailAddress): static
 	{
 		$this->emailAddress = Validate::maxLength('emailAddress', $emailAddress, 50);
@@ -57,6 +67,9 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function phoneNumber(string $phoneNumber): static
 	{
 		$this->phoneNumber = Validate::maxLength('phoneNumber', $phoneNumber, 20);
@@ -84,6 +97,9 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * @param XmlElement $xml The customer element's children, already in the common namespace
+	 *
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{

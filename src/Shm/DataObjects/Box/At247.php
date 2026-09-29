@@ -4,6 +4,9 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use DateTimeInterface;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\ParcelsDepotAddress;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
 use Webatvantage\Bpost\Api\Support\Validate;
@@ -62,6 +65,9 @@ class At247 extends NationalBox implements XmlDeserializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function receiverName(string $receiverName): static
 	{
 		$this->receiverName = Validate::maxLength('receiverName', $receiverName, 40);
@@ -69,6 +75,9 @@ class At247 extends NationalBox implements XmlDeserializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function receiverCompany(string $receiverCompany): static
 	{
 		$this->receiverCompany = Validate::maxLength('receiverCompany', $receiverCompany, 40);
@@ -118,6 +127,11 @@ class At247 extends NationalBox implements XmlDeserializable
 		return $element;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static(self::readProduct($xml));

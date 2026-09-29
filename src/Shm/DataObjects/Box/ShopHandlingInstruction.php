@@ -2,6 +2,7 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Support\Validate;
 
 /**
@@ -9,6 +10,9 @@ use Webatvantage\Bpost\Api\Support\Validate;
  */
 class ShopHandlingInstruction
 {
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function __construct(public private(set) string $instruction)
 	{
 		Validate::maxLength('shopHandlingInstruction', $instruction, 50);

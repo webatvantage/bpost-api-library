@@ -3,6 +3,9 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\PugoAddress;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
 use Webatvantage\Bpost\Api\Support\Validate;
@@ -46,6 +49,9 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function receiverName(string $receiverName): static
 	{
 		$this->receiverName = Validate::maxLength('receiverName', $receiverName, 40);
@@ -53,6 +59,9 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function receiverCompany(string $receiverCompany): static
 	{
 		$this->receiverCompany = Validate::maxLength('receiverCompany', $receiverCompany, 40);
@@ -86,6 +95,11 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 		return $element;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static();

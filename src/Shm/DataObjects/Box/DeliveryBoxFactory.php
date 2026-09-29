@@ -2,6 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
@@ -14,6 +16,8 @@ use Webatvantage\Bpost\Api\Support\XmlElement;
 class DeliveryBoxFactory
 {
 	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
 	 * @throws UnexpectedValueException
 	 */
 	public static function fromXml(XmlElement $xml): DeliveryBox

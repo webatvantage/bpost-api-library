@@ -5,6 +5,8 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -32,6 +34,10 @@ class ItemTracking implements XmlDeserializable
 		public private(set) ?PickupPoint $pickupPoint = null,
 	) {}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$states = [];

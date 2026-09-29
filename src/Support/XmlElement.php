@@ -13,6 +13,8 @@ class XmlElement extends Element
 {
 	/**
 	 * Create a child element in a namespace and append it.
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function appendElement(string $tagName, ?XmlNamespace $namespace = null): static
 	{

@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -23,6 +24,9 @@ class ContactDetail implements XmlDeserializable, XmlSerializable
 
 	public private(set) ?string $mobilePhone = null;
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function emailAddress(string $emailAddress): static
 	{
 		$this->emailAddress = Validate::maxLength('emailAddress', $emailAddress, 40);
@@ -30,6 +34,9 @@ class ContactDetail implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function telephoneNumber(string $telephoneNumber): static
 	{
 		$this->telephoneNumber = Validate::maxLength('telephoneNumber', $telephoneNumber, 20);
@@ -37,6 +44,9 @@ class ContactDetail implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function mobilePhone(string $mobilePhone): static
 	{
 		$this->mobilePhone = Validate::maxLength('mobilePhone', $mobilePhone, 20);
@@ -60,6 +70,9 @@ class ContactDetail implements XmlDeserializable, XmlSerializable
 		return $detail;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$detail = new static();

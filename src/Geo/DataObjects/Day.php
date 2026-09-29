@@ -22,6 +22,9 @@ class Day implements XmlDeserializable
 		public readonly ?string $pmClose = null,
 	) {}
 
+	/**
+	 * @throws UnexpectedValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$weekday = Weekday::tryFrom(ucfirst(strtolower($xml->localName)));

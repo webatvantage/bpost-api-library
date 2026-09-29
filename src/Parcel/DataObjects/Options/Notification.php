@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Enums\Language;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
@@ -43,6 +44,7 @@ class Notification implements Option
 	}
 
 	/**
+	 * @throws InvalidLengthException
 	 * @throws InvalidValueException
 	 */
 	public function email(string $emailAddress): static
@@ -54,6 +56,7 @@ class Notification implements Option
 	}
 
 	/**
+	 * @throws InvalidLengthException
 	 * @throws InvalidValueException
 	 */
 	public function sms(string $smsNumber): static

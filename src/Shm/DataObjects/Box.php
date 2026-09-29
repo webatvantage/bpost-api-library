@@ -5,6 +5,9 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBox;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBoxFactory;
 use Webatvantage\Bpost\Api\Shm\Enums\BoxStatus;
@@ -52,6 +55,8 @@ class Box implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * Free text, printed on the label below the delivery address.
+	 *
+	 * @throws InvalidLengthException
 	 */
 	public function remark(string $remark): static
 	{
@@ -62,6 +67,8 @@ class Box implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * Free text for cross-referencing, not printed.
+	 *
+	 * @throws InvalidLengthException
 	 */
 	public function additionalCustomerReference(string $reference): static
 	{
@@ -92,6 +99,11 @@ class Box implements XmlDeserializable, XmlSerializable
 		return $box;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static();

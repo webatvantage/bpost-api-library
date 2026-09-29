@@ -3,7 +3,9 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Customs\ParcelContent;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -92,6 +94,11 @@ class International extends InternationalBox implements XmlDeserializable
 		return $element;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static(self::readProduct($xml));

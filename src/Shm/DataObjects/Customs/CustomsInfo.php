@@ -5,6 +5,9 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Customs;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\Currency;
 use Webatvantage\Bpost\Api\Shm\Enums\ParcelReturnInstruction;
 use Webatvantage\Bpost\Api\Shm\Enums\ShipmentType;
@@ -38,6 +41,8 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * Optional: a European shipment is accepted without a description
+	 *
+	 * @throws InvalidLengthException
 	 */
 	public function contentDescription(string $contentDescription): static
 	{
@@ -60,6 +65,8 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * What the sender paid to ship this parcel. Always in euro, whatever the currency says.
+	 *
+	 * @throws InvalidValueException
 	 */
 	public function amtPostagePaidByAddresse(float $amount): static
 	{
@@ -91,6 +98,11 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 		return $element;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$info = new static(

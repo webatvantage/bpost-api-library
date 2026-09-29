@@ -6,7 +6,9 @@ use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Enums\Language;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\MessagingType;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
@@ -51,6 +53,7 @@ class Messaging implements Option, XmlDeserializable
 	}
 
 	/**
+	 * @throws InvalidLengthException
 	 * @throws InvalidValueException
 	 */
 	public function email(string $emailAddress): static
@@ -62,6 +65,7 @@ class Messaging implements Option, XmlDeserializable
 	}
 
 	/**
+	 * @throws InvalidLengthException
 	 * @throws InvalidValueException
 	 */
 	public function sms(string $mobilePhone): static
@@ -83,6 +87,9 @@ class Messaging implements Option, XmlDeserializable
 		return $element;
 	}
 
+	/**
+	 * @throws UnexpectedValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$type = Validate::enum('type', MessagingType::class, $xml->localName);

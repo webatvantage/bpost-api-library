@@ -3,6 +3,9 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlDocument;
@@ -24,6 +27,9 @@ class Order implements XmlDeserializable
 	/** @var array<int, Box> */
 	public private(set) array $boxes = [];
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function __construct(public private(set) string $reference)
 	{
 		Validate::maxLength('reference', $reference, 50);
@@ -31,6 +37,8 @@ class Order implements XmlDeserializable
 
 	/**
 	 * Groups barcodes on the invoice. bpost does not allow a unique value per barcode.
+	 *
+	 * @throws InvalidLengthException
 	 */
 	public function costCenter(string $costCenter): static
 	{
@@ -79,6 +87,11 @@ class Order implements XmlDeserializable
 		return $order;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$order = new static($xml->text('reference') ?? '');

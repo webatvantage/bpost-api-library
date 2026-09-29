@@ -5,15 +5,14 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
- * A postal address as the announcement and tracking services spell it.
- *
- * Deliberately not the Shipping Manager's Address: this service calls the same fields
- * houseNumber, boxNumber and city where the Shipping Manager calls them number, box and locality.
+ * A postal address as the announcement and tracking services spell it
  */
 class Address implements XmlDeserializable, XmlSerializable
 {
@@ -31,6 +30,8 @@ class Address implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * bpost prefers the house number given separately rather than folded into the street name.
+	 *
+	 * @throws InvalidLengthException
 	 */
 	public function streetName(string $streetName): static
 	{
@@ -39,6 +40,9 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function houseNumber(string|int $houseNumber): static
 	{
 		$this->houseNumber = Validate::maxLength('houseNumber', (string)$houseNumber, 8);
@@ -46,6 +50,9 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function boxNumber(string|int $boxNumber): static
 	{
 		$this->boxNumber = Validate::maxLength('boxNumber', (string)$boxNumber, 8);
@@ -60,6 +67,9 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function city(string $city): static
 	{
 		$this->city = Validate::maxLength('city', $city, 40);
@@ -67,6 +77,9 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidValueException
+	 */
 	public function countryCode(string $countryCode): static
 	{
 		$this->countryCode = Validate::countryCode('countryCode', $countryCode);
@@ -88,6 +101,10 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $address;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$address = new static();

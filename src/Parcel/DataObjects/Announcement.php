@@ -2,8 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
+use DOMException;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Parcel\Enums\DeliveryMethod;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
@@ -51,6 +55,9 @@ class Announcement
 	/**
 	 * @param string $itemCode The barcode already printed on the parcel
 	 * @param int $weightInGrams 100 to 30000
+	 *
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
 	 */
 	public function __construct(
 		public private(set) string $itemCode,
@@ -65,6 +72,8 @@ class Announcement
 
 	/**
 	 * The VAS code describing the services on the parcel. National shipments only.
+	 *
+	 * @throws InvalidLengthException
 	 */
 	public function productCode(string $productCode): static
 	{
@@ -73,6 +82,9 @@ class Announcement
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function type(string $type): static
 	{
 		$this->type = Validate::maxLength('type', $type, 2);
@@ -80,6 +92,9 @@ class Announcement
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function customerReference(string $customerReference): static
 	{
 		$this->customerReference = Validate::maxLength('customerReference', $customerReference, 50);
@@ -87,6 +102,9 @@ class Announcement
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function costCenter(string $costCenter): static
 	{
 		$this->costCenter = Validate::maxLength('costCenter', $costCenter, 50);
@@ -94,6 +112,9 @@ class Announcement
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function freeTextCustomerReference1(string $reference): static
 	{
 		$this->freeTextCustomerReference1 = Validate::maxLength('freeTextCustomerReference1', $reference, 50);
@@ -101,6 +122,9 @@ class Announcement
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function freeTextCustomerReference2(string $reference): static
 	{
 		$this->freeTextCustomerReference2 = Validate::maxLength('freeTextCustomerReference2', $reference, 50);
@@ -115,6 +139,9 @@ class Announcement
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function receiverDesiredDeliveryPlace(string $place): static
 	{
 		$this->receiverDesiredDeliveryPlace = Validate::maxLength('receiverDesiredDeliveryPlace', $place, 50);
@@ -159,6 +186,10 @@ class Announcement
 		return $this;
 	}
 
+	/**
+	 * @throws DOMException
+	 * @throws InvalidArgumentException
+	 */
 	public function toXml(XmlDocument $document, string $accountId): XmlElement
 	{
 		$namespace = ParcelNamespace::Announcement;

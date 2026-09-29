@@ -6,6 +6,8 @@ use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Enums\Language;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
@@ -39,6 +41,9 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function mobilePhone(string $mobilePhone): static
 	{
 		$this->mobilePhone = Validate::maxLength('mobilePhone', $mobilePhone, 20);
@@ -46,6 +51,9 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function emailAddress(string $emailAddress): static
 	{
 		$this->emailAddress = Validate::maxLength('emailAddress', $emailAddress, 50);
@@ -79,6 +87,10 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 		return $element;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws UnexpectedValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$unregistered = new static();

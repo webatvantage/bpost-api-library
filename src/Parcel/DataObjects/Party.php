@@ -5,6 +5,8 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -33,6 +35,8 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * The company name, or a private person's name.
+	 *
+	 * @throws InvalidLengthException
 	 */
 	public function name(string $name): static
 	{
@@ -41,6 +45,9 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function addressDepartment(string $addressDepartment): static
 	{
 		$this->addressDepartment = Validate::maxLength('addressDepartment', $addressDepartment, 40);
@@ -48,6 +55,9 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 */
 	public function addressContactName(string $addressContactName): static
 	{
 		$this->addressContactName = Validate::maxLength('addressContactName', $addressContactName, 40);
@@ -57,6 +67,8 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * Extra information, such as a building or floor.
+	 *
+	 * @throws InvalidLengthException
 	 */
 	public function addressPlace(string $addressPlace): static
 	{
@@ -101,6 +113,10 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 		return $party;
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$party = new static();

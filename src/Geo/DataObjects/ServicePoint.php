@@ -3,6 +3,7 @@
 namespace Webatvantage\Bpost\Api\Geo\DataObjects;
 
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
@@ -54,6 +55,8 @@ class ServicePoint implements XmlDeserializable
 	 * @param XmlElement $xml The record element, whose children are Id, Type, Name and so on
 	 * @param float|null $distance Metres from the searched address; only a nearest-points search has one
 	 * @param string|null $pageUrl The HTML details page bpost links to, when the response carried one
+	 *
+	 * @throws UnexpectedValueException
 	 */
 	public static function fromXml(XmlElement $xml, ?float $distance = null, ?string $pageUrl = null): static
 	{

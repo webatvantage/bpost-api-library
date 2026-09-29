@@ -5,6 +5,8 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Customs;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -24,6 +26,9 @@ class ParcelContent implements XmlDeserializable, XmlSerializable
 	 * @param int $nettoWeight Weight of all of them in grams, 1 to 30000
 	 * @param string $hsTariffCode Harmonised System code, at most 9 digits
 	 * @param string $originOfGoods Two-letter country code where they were made
+	 *
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
 	 */
 	public function __construct(
 		public private(set) int $numberOfItemType,

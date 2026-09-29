@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
 
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -21,6 +22,8 @@ class CashOnDelivery implements Option
 
 	/**
 	 * @param int $amountTotalInEuroCents Euro cents, so 12.51 EUR is 1251
+	 *
+	 * @throws InvalidValueException
 	 */
 	public function __construct(
 		public private(set) int $amountTotalInEuroCents,

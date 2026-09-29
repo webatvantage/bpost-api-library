@@ -55,7 +55,7 @@ class HttpApiAdapter
 
 		if ($logger !== null && $handler instanceof HandlerStack)
 		{
-			$handler->push(self::conditionalLogging(new LogMiddleware($logger)));
+			$handler->push(self::conditionalLogging(new LogMiddleware(logger: $logger, logStatistics: true)));
 		}
 
 		$this->client = new Client([

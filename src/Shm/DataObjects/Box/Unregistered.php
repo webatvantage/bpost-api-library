@@ -6,7 +6,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Enums\Language;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -41,14 +41,14 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 
 	public function mobilePhone(string $mobilePhone): static
 	{
-		$this->mobilePhone = Assert::maxLength('mobilePhone', $mobilePhone, 20);
+		$this->mobilePhone = Validate::maxLength('mobilePhone', $mobilePhone, 20);
 
 		return $this;
 	}
 
 	public function emailAddress(string $emailAddress): static
 	{
-		$this->emailAddress = Assert::maxLength('emailAddress', $emailAddress, 50);
+		$this->emailAddress = Validate::maxLength('emailAddress', $emailAddress, 50);
 
 		return $this;
 	}
@@ -88,7 +88,7 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 		if ($language !== null)
 		{
 			$unregistered->language(
-				Assert::enum('language', Language::class, strtoupper($language)),
+				Validate::enum('language', Language::class, strtoupper($language)),
 			);
 		}
 

@@ -6,7 +6,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -35,14 +35,14 @@ class Address implements XmlDeserializable, XmlSerializable
 
 	public function streetName(string $streetName): static
 	{
-		$this->streetName = Assert::maxLength('streetName', $streetName, 40);
+		$this->streetName = Validate::maxLength('streetName', $streetName, 40);
 
 		return $this;
 	}
 
 	public function number(string|int $number): static
 	{
-		$this->number = Assert::maxLength('number', (string)$number, 8);
+		$this->number = Validate::maxLength('number', (string)$number, 8);
 
 		return $this;
 	}
@@ -53,28 +53,28 @@ class Address implements XmlDeserializable, XmlSerializable
 	 */
 	public function box(string|int $box): static
 	{
-		$this->box = Assert::maxLength('box', (string)$box, 9);
+		$this->box = Validate::maxLength('box', (string)$box, 9);
 
 		return $this;
 	}
 
 	public function postalCode(string|int $postalCode): static
 	{
-		$this->postalCode = Assert::maxLength('postalCode', (string)$postalCode, 40);
+		$this->postalCode = Validate::maxLength('postalCode', (string)$postalCode, 40);
 
 		return $this;
 	}
 
 	public function locality(string $locality): static
 	{
-		$this->locality = Assert::maxLength('locality', $locality, 40);
+		$this->locality = Validate::maxLength('locality', $locality, 40);
 
 		return $this;
 	}
 
 	public function countryCode(string $countryCode): static
 	{
-		$this->countryCode = Assert::countryCode('countryCode', $countryCode);
+		$this->countryCode = Validate::countryCode('countryCode', $countryCode);
 
 		return $this;
 	}

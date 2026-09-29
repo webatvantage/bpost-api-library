@@ -4,7 +4,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlDocument;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
@@ -26,7 +26,7 @@ class Order implements XmlDeserializable
 
 	public function __construct(public private(set) string $reference)
 	{
-		Assert::maxLength('reference', $reference, 50);
+		Validate::maxLength('reference', $reference, 50);
 	}
 
 	/**
@@ -34,7 +34,7 @@ class Order implements XmlDeserializable
 	 */
 	public function costCenter(string $costCenter): static
 	{
-		$this->costCenter = Assert::maxLength('costCenter', $costCenter, 50);
+		$this->costCenter = Validate::maxLength('costCenter', $costCenter, 50);
 
 		return $this;
 	}

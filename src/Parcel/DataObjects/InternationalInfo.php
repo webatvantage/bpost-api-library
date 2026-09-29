@@ -7,7 +7,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Parcel\Enums\ItemCategory;
 use Webatvantage\Bpost\Api\Parcel\Enums\NonDeliveryInstruction;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -26,8 +26,8 @@ class InternationalInfo implements XmlSerializable
 		public private(set) float $valueCurrencySender,
 		public private(set) string $currencySender = 'EUR',
 	) {
-		Assert::maxLength('parcelContent', $parcelContent, 50);
-		Assert::maxLength('currencySender', $currencySender, 3);
+		Validate::maxLength('parcelContent', $parcelContent, 50);
+		Validate::maxLength('currencySender', $currencySender, 3);
 	}
 
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Announcement): XmlElement

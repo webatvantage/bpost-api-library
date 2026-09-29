@@ -6,7 +6,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -36,21 +36,21 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 	 */
 	public function name(string $name): static
 	{
-		$this->name = Assert::maxLength('name', $name, 40);
+		$this->name = Validate::maxLength('name', $name, 40);
 
 		return $this;
 	}
 
 	public function addressDepartment(string $addressDepartment): static
 	{
-		$this->addressDepartment = Assert::maxLength('addressDepartment', $addressDepartment, 40);
+		$this->addressDepartment = Validate::maxLength('addressDepartment', $addressDepartment, 40);
 
 		return $this;
 	}
 
 	public function addressContactName(string $addressContactName): static
 	{
-		$this->addressContactName = Assert::maxLength('addressContactName', $addressContactName, 40);
+		$this->addressContactName = Validate::maxLength('addressContactName', $addressContactName, 40);
 
 		return $this;
 	}
@@ -60,7 +60,7 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 	 */
 	public function addressPlace(string $addressPlace): static
 	{
-		$this->addressPlace = Assert::maxLength('addressPlace', $addressPlace, 40);
+		$this->addressPlace = Validate::maxLength('addressPlace', $addressPlace, 40);
 
 		return $this;
 	}

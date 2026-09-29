@@ -9,7 +9,7 @@ use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\MessagingType;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -56,7 +56,7 @@ class Messaging implements Option, XmlDeserializable
 	public function email(string $emailAddress): static
 	{
 		$this->assertNoChannelYet('emailAddress');
-		$this->emailAddress = Assert::maxLength('emailAddress', $emailAddress, 50);
+		$this->emailAddress = Validate::maxLength('emailAddress', $emailAddress, 50);
 
 		return $this;
 	}
@@ -67,7 +67,7 @@ class Messaging implements Option, XmlDeserializable
 	public function sms(string $mobilePhone): static
 	{
 		$this->assertNoChannelYet('mobilePhone');
-		$this->mobilePhone = Assert::maxLength('mobilePhone', $mobilePhone, 20);
+		$this->mobilePhone = Validate::maxLength('mobilePhone', $mobilePhone, 20);
 
 		return $this;
 	}
@@ -85,7 +85,7 @@ class Messaging implements Option, XmlDeserializable
 
 	public static function fromXml(XmlElement $xml): static
 	{
-		$type = Assert::enum('type', MessagingType::class, $xml->localName);
+		$type = Validate::enum('type', MessagingType::class, $xml->localName);
 		$language = Language::tryFrom(strtoupper((string)$xml->attribute('language'))) ?? Language::EN;
 
 		$messaging = new static($type, $language);

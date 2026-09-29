@@ -6,7 +6,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -25,21 +25,21 @@ class ContactDetail implements XmlDeserializable, XmlSerializable
 
 	public function emailAddress(string $emailAddress): static
 	{
-		$this->emailAddress = Assert::maxLength('emailAddress', $emailAddress, 40);
+		$this->emailAddress = Validate::maxLength('emailAddress', $emailAddress, 40);
 
 		return $this;
 	}
 
 	public function telephoneNumber(string $telephoneNumber): static
 	{
-		$this->telephoneNumber = Assert::maxLength('telephoneNumber', $telephoneNumber, 20);
+		$this->telephoneNumber = Validate::maxLength('telephoneNumber', $telephoneNumber, 20);
 
 		return $this;
 	}
 
 	public function mobilePhone(string $mobilePhone): static
 	{
-		$this->mobilePhone = Assert::maxLength('mobilePhone', $mobilePhone, 20);
+		$this->mobilePhone = Validate::maxLength('mobilePhone', $mobilePhone, 20);
 
 		return $this;
 	}

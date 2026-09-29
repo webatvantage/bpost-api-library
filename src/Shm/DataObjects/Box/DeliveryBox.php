@@ -10,7 +10,7 @@ use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\OptionFactory;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -78,8 +78,8 @@ abstract class DeliveryBox implements XmlSerializable
 		$max = $this->product === null ? self::MAX_WEIGHT : $this->product->maxWeight();
 
 		$this->weight = $max === null
-			? Assert::atLeast('weight', $weight, 0)
-			: Assert::between('weight', $weight, 0, $max);
+			? Validate::atLeast('weight', $weight, 0)
+			: Validate::between('weight', $weight, 0, $max);
 
 		return $this;
 	}

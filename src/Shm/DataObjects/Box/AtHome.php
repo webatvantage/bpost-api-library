@@ -8,7 +8,7 @@ use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Receiver;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -62,7 +62,7 @@ class AtHome extends NationalBox implements XmlDeserializable
 
 	public function desiredDeliveryPlace(string $desiredDeliveryPlace): static
 	{
-		$this->desiredDeliveryPlace = Assert::maxLength('desiredDeliveryPlace', $desiredDeliveryPlace, 50);
+		$this->desiredDeliveryPlace = Validate::maxLength('desiredDeliveryPlace', $desiredDeliveryPlace, 50);
 
 		return $this;
 	}

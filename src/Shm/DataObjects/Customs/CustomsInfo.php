@@ -10,7 +10,7 @@ use Webatvantage\Bpost\Api\Shm\Enums\Currency;
 use Webatvantage\Bpost\Api\Shm\Enums\ParcelReturnInstruction;
 use Webatvantage\Bpost\Api\Shm\Enums\ShipmentType;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -35,7 +35,7 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 		public private(set) ParcelReturnInstruction $parcelReturnInstructions,
 		public private(set) bool $privateAddress = false,
 	) {
-		Assert::maxLength('contentDescription', $contentDescription, 50);
+		Validate::maxLength('contentDescription', $contentDescription, 50);
 	}
 
 	/**
@@ -95,8 +95,8 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 		$info = new static(
 			(int)$xml->text('parcelValue'),
 			$xml->text('contentDescription') ?? '',
-			Assert::enum('shipmentType', ShipmentType::class, strtoupper($xml->text('shipmentType') ?? '')),
-			Assert::enum(
+			Validate::enum('shipmentType', ShipmentType::class, strtoupper($xml->text('shipmentType') ?? '')),
+			Validate::enum(
 				'parcelReturnInstructions',
 				ParcelReturnInstruction::class,
 				strtoupper($xml->text('parcelReturnInstructions') ?? ''),
@@ -108,7 +108,7 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 
 		if ($currency !== null)
 		{
-			$info->currency(Assert::enum('currency', Currency::class, strtoupper($currency)));
+			$info->currency(Validate::enum('currency', Currency::class, strtoupper($currency)));
 		}
 
 		$postagePaid = $xml->text('amtPostagePaidByAddresse');

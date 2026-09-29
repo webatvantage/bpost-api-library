@@ -9,7 +9,7 @@ use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBox;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBoxFactory;
 use Webatvantage\Bpost\Api\Shm\Enums\BoxStatus;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -55,7 +55,7 @@ class Box implements XmlDeserializable, XmlSerializable
 	 */
 	public function remark(string $remark): static
 	{
-		$this->remark = Assert::maxLength('remark', $remark, 50);
+		$this->remark = Validate::maxLength('remark', $remark, 50);
 
 		return $this;
 	}
@@ -65,7 +65,7 @@ class Box implements XmlDeserializable, XmlSerializable
 	 */
 	public function additionalCustomerReference(string $reference): static
 	{
-		$this->additionalCustomerReference = Assert::maxLength('additionalCustomerReference', $reference, 50);
+		$this->additionalCustomerReference = Validate::maxLength('additionalCustomerReference', $reference, 50);
 
 		return $this;
 	}

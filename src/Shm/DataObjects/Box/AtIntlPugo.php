@@ -5,7 +5,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Shm\DataObjects\PugoAddress;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -48,14 +48,14 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 
 	public function receiverName(string $receiverName): static
 	{
-		$this->receiverName = Assert::maxLength('receiverName', $receiverName, 40);
+		$this->receiverName = Validate::maxLength('receiverName', $receiverName, 40);
 
 		return $this;
 	}
 
 	public function receiverCompany(string $receiverCompany): static
 	{
-		$this->receiverCompany = Assert::maxLength('receiverCompany', $receiverCompany, 40);
+		$this->receiverCompany = Validate::maxLength('receiverCompany', $receiverCompany, 40);
 
 		return $this;
 	}

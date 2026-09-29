@@ -6,7 +6,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -33,11 +33,11 @@ class ParcelContent implements XmlDeserializable, XmlSerializable
 		public private(set) string $hsTariffCode,
 		public private(set) string $originOfGoods,
 	) {
-		Assert::between('numberOfItemType', $numberOfItemType, 1, 999999);
-		Assert::maxLength('itemDescription', $itemDescription, 30);
-		Assert::between('nettoWeight', $nettoWeight, 1, 30000);
-		Assert::maxLength('hsTariffCode', $hsTariffCode, 9);
-		Assert::countryCode('originOfGoods', $originOfGoods);
+		Validate::between('numberOfItemType', $numberOfItemType, 1, 999999);
+		Validate::maxLength('itemDescription', $itemDescription, 30);
+		Validate::between('nettoWeight', $nettoWeight, 1, 30000);
+		Validate::maxLength('hsTariffCode', $hsTariffCode, 9);
+		Validate::countryCode('originOfGoods', $originOfGoods);
 	}
 
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespace::International): XmlElement

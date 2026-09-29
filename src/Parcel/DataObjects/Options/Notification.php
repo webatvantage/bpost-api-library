@@ -7,7 +7,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -48,7 +48,7 @@ class Notification implements Option
 	public function email(string $emailAddress): static
 	{
 		$this->assertNoChannelYet();
-		$this->emailAddress = Assert::maxLength('emailAddress', $emailAddress, 50);
+		$this->emailAddress = Validate::maxLength('emailAddress', $emailAddress, 50);
 
 		return $this;
 	}
@@ -59,7 +59,7 @@ class Notification implements Option
 	public function sms(string $smsNumber): static
 	{
 		$this->assertNoChannelYet();
-		$this->smsNumber = Assert::maxLength('smsNumber', $smsNumber, 20);
+		$this->smsNumber = Validate::maxLength('smsNumber', $smsNumber, 20);
 
 		return $this;
 	}

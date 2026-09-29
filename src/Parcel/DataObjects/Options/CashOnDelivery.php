@@ -5,7 +5,7 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -28,7 +28,7 @@ class CashOnDelivery implements Option
 		public private(set) ?string $bic = null,
 		public private(set) ?string $bban = null,
 	) {
-		Assert::between('amountTotalInEuroCents', $amountTotalInEuroCents, self::MIN_AMOUNT, self::MAX_AMOUNT);
+		Validate::between('amountTotalInEuroCents', $amountTotalInEuroCents, self::MIN_AMOUNT, self::MAX_AMOUNT);
 	}
 
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Common): XmlElement

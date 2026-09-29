@@ -6,7 +6,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -31,14 +31,14 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 	 */
 	public function name(string $name): static
 	{
-		$this->name = Assert::maxLength('name', $name, 40);
+		$this->name = Validate::maxLength('name', $name, 40);
 
 		return $this;
 	}
 
 	public function company(string $company): static
 	{
-		$this->company = Assert::maxLength('company', $company, 40);
+		$this->company = Validate::maxLength('company', $company, 40);
 
 		return $this;
 	}
@@ -52,14 +52,14 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 
 	public function emailAddress(string $emailAddress): static
 	{
-		$this->emailAddress = Assert::maxLength('emailAddress', $emailAddress, 50);
+		$this->emailAddress = Validate::maxLength('emailAddress', $emailAddress, 50);
 
 		return $this;
 	}
 
 	public function phoneNumber(string $phoneNumber): static
 	{
-		$this->phoneNumber = Assert::maxLength('phoneNumber', $phoneNumber, 20);
+		$this->phoneNumber = Validate::maxLength('phoneNumber', $phoneNumber, 20);
 
 		return $this;
 	}

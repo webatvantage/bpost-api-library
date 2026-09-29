@@ -6,7 +6,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -19,9 +19,9 @@ class Dimensions implements XmlDeserializable, XmlSerializable
 		public private(set) int $heightInMm,
 		public private(set) int $lengthInMm,
 	) {
-		Assert::between('widthInMm', $widthInMm, 1, 9999);
-		Assert::between('heightInMm', $heightInMm, 1, 9999);
-		Assert::between('lengthInMm', $lengthInMm, 1, 9999);
+		Validate::between('widthInMm', $widthInMm, 1, 9999);
+		Validate::between('heightInMm', $heightInMm, 1, 9999);
+		Validate::between('lengthInMm', $lengthInMm, 1, 9999);
 	}
 
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Announcement): XmlElement

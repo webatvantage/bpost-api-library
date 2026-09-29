@@ -13,7 +13,7 @@ use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
  * Checked here rather than left to bpost because the API answers a rejected field with a schema
  * violation that does not say which value was at fault.
  */
-class Assert
+class Validate
 {
 	/**
 	 * @throws InvalidLengthException

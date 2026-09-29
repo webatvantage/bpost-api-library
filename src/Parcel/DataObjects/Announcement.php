@@ -6,7 +6,7 @@ use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
 use Webatvantage\Bpost\Api\Parcel\Enums\DeliveryMethod;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
-use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlDocument;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
@@ -59,8 +59,8 @@ class Announcement
 		public private(set) int $weightInGrams,
 		public private(set) DeliveryMethod $deliveryMethod = DeliveryMethod::AtHome,
 	) {
-		Assert::maxLength('itemCode', $itemCode, 30);
-		Assert::between('weightInGrams', $weightInGrams, self::MIN_WEIGHT, self::MAX_WEIGHT);
+		Validate::maxLength('itemCode', $itemCode, 30);
+		Validate::between('weightInGrams', $weightInGrams, self::MIN_WEIGHT, self::MAX_WEIGHT);
 	}
 
 	/**
@@ -68,42 +68,42 @@ class Announcement
 	 */
 	public function productCode(string $productCode): static
 	{
-		$this->productCode = Assert::maxLength('productCode', $productCode, 3);
+		$this->productCode = Validate::maxLength('productCode', $productCode, 3);
 
 		return $this;
 	}
 
 	public function type(string $type): static
 	{
-		$this->type = Assert::maxLength('type', $type, 2);
+		$this->type = Validate::maxLength('type', $type, 2);
 
 		return $this;
 	}
 
 	public function customerReference(string $customerReference): static
 	{
-		$this->customerReference = Assert::maxLength('customerReference', $customerReference, 50);
+		$this->customerReference = Validate::maxLength('customerReference', $customerReference, 50);
 
 		return $this;
 	}
 
 	public function costCenter(string $costCenter): static
 	{
-		$this->costCenter = Assert::maxLength('costCenter', $costCenter, 50);
+		$this->costCenter = Validate::maxLength('costCenter', $costCenter, 50);
 
 		return $this;
 	}
 
 	public function freeTextCustomerReference1(string $reference): static
 	{
-		$this->freeTextCustomerReference1 = Assert::maxLength('freeTextCustomerReference1', $reference, 50);
+		$this->freeTextCustomerReference1 = Validate::maxLength('freeTextCustomerReference1', $reference, 50);
 
 		return $this;
 	}
 
 	public function freeTextCustomerReference2(string $reference): static
 	{
-		$this->freeTextCustomerReference2 = Assert::maxLength('freeTextCustomerReference2', $reference, 50);
+		$this->freeTextCustomerReference2 = Validate::maxLength('freeTextCustomerReference2', $reference, 50);
 
 		return $this;
 	}
@@ -117,7 +117,7 @@ class Announcement
 
 	public function receiverDesiredDeliveryPlace(string $place): static
 	{
-		$this->receiverDesiredDeliveryPlace = Assert::maxLength('receiverDesiredDeliveryPlace', $place, 50);
+		$this->receiverDesiredDeliveryPlace = Validate::maxLength('receiverDesiredDeliveryPlace', $place, 50);
 
 		return $this;
 	}

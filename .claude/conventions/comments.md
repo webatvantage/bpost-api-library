@@ -28,6 +28,35 @@ cityOrCountryOfDeparture: $value('cityOrCountryOfdeparture'),
 - A class-level docblock saying what the class is for, when that is not obvious from its name.
   Two or three lines, not a design note.
 
+## The test
+
+Is the fact about **bpost**, or about **this code**? A fact about bpost cannot be recovered by
+reading the file, so it stays — and may run to a paragraph if bpost is genuinely that strange.
+A fact about the code's own shape can be recovered by reading it, so it goes in the commit body.
+
+The design note is the usual offender, because it reads like it is helping:
+
+```php
+// Deleted: why the method is called this and not that.
+/**
+ * Create a child element in a namespace and append it.
+ *
+ * Named appendElement() because Dom\Element already has append() and appendChild(), and
+ * redeclaring either with a different signature is fatal.
+ */
+
+// Kept: bpost's own asymmetry, which nothing in the file reveals.
+/**
+ * Declare every namespace on the root element, as bpost's own examples do.
+ *
+ * All four are declared even when a given order only uses two; the examples are consistent
+ * about it and the XSD validates against the full set.
+ */
+```
+
+Both are four lines. The first is the author explaining themselves, the second is the reader being
+told something they could not have known. Length is not what separates them.
+
 ## Length
 
 One line by preference. Three is a lot. If the explanation genuinely needs a paragraph, the code

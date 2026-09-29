@@ -3,15 +3,13 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use DateTimeInterface;
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Receiver;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Delivery to an address.
@@ -98,76 +96,72 @@ class AtHome extends NationalBox implements XmlDeserializable
 		return 'atHome';
 	}
 
-	protected function buildElement(XMLDocument $document): Element
+	protected function buildElement(XmlElement $wrapper): XmlElement
 	{
-		$element = Xml::element($document, $this->elementName());
+		$namespace = $this->childNamespace();
+		$element = $wrapper->appendElement($this->elementName(), $namespace);
 
-		Xml::appendText($document, $element, 'product', $this->product?->value);
+		$element->appendText('product', $this->product?->value, $namespace);
 
-		$options = $this->buildOptions($document);
+		$this->appendOptions($element);
 
-		if ($options !== null)
-		{
-			$element->append($options);
-		}
+		$element->appendText('weight', $this->weight, $namespace);
 
-		Xml::appendText($document, $element, 'weight', $this->weight);
-
-		$this->dimensions?->appendTo($document, $element);
+		$this->dimensions?->appendTo($element, $namespace);
 
 		if ($this->openingHours !== null && !$this->openingHours->isEmpty())
 		{
-			$element->append($this->openingHours->toXml($document, namespace: Xml::WRITE_NATIONAL));
+			$this->openingHours->toXml($element, $namespace);
 		}
 
-		Xml::appendText($document, $element, 'desiredDeliveryPlace', $this->desiredDeliveryPlace);
+		$element->appendText('desiredDeliveryPlace', $this->desiredDeliveryPlace, $namespace);
 
 		if ($this->receiver !== null)
 		{
-			$element->append($this->receiver->toXml($document));
+			$this->receiver->toXml($element, $namespace);
 		}
 
-		Xml::appendText($document, $element, 'requestedDeliveryDate', $this->requestedDeliveryDate);
+		$element->appendText('requestedDeliveryDate', $this->requestedDeliveryDate, $namespace);
 
 		return $element;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static(self::readProduct($xml));
 		$box->readCommon($xml);
 
-		$height = Xml::text($xml, 'height');
-		$length = Xml::text($xml, 'length');
-		$width = Xml::text($xml, 'width');
+		$height = $xml->text('height');
+		$length = $xml->text('length');
+		$width = $xml->text('width');
 
 		if ($height !== null && $length !== null && $width !== null)
 		{
 			$box->dimensions = new Dimensions((int)$height, (int)$length, (int)$width);
 		}
 
-		$openingHours = Xml::child($xml, 'openingHours');
+		$openingHours = $xml->child('openingHours');
 
 		if ($openingHours !== null)
 		{
 			$box->openingHours = OpeningHours::fromXml($openingHours);
 		}
 
-		$desiredDeliveryPlace = Xml::text($xml, 'desiredDeliveryPlace');
+		$desiredDeliveryPlace = $xml->text('desiredDeliveryPlace');
 
 		if ($desiredDeliveryPlace !== null)
 		{
 			$box->desiredDeliveryPlace($desiredDeliveryPlace);
 		}
 
-		$receiver = Xml::child($xml, 'receiver');
+		$receiver = $xml->child('receiver');
 
 		if ($receiver !== null)
 		{
 			$box->receiver(Receiver::fromXml($receiver));
 		}
 
-		$requestedDeliveryDate = Xml::text($xml, 'requestedDeliveryDate');
+		$requestedDeliveryDate = $xml->text('requestedDeliveryDate');
 
 		if ($requestedDeliveryDate !== null)
 		{

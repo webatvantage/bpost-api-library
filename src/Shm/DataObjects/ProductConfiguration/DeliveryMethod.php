@@ -2,11 +2,10 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\ProductConfiguration;
 
-use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Shm\Enums\DeliveryMethod as DeliveryMethodName;
 use Webatvantage\Bpost\Api\Shm\Enums\Visibility;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * One delivery method, and the products offered under it.
@@ -25,19 +24,19 @@ class DeliveryMethod implements XmlDeserializable
 		public private(set) array $products = [],
 	) {}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$products = [];
 
-		foreach (Xml::children($xml, 'product') as $product)
+		foreach ($xml->children('product') as $product)
 		{
 			$products[] = Product::fromXml($product);
 		}
 
 		return new static(
-			DeliveryMethodName::tryFrom(Xml::attribute($xml, 'name') ?? ''),
+			DeliveryMethodName::tryFrom($xml->attribute('name') ?? ''),
 			// bpost's own spelling of "visibility".
-			Visibility::tryFrom(Xml::attribute($xml, 'visiblity') ?? ''),
+			Visibility::tryFrom($xml->attribute('visiblity') ?? ''),
 			$products,
 		);
 	}

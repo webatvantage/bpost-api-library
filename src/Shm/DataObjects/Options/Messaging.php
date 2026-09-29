@@ -2,15 +2,15 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\MessagingType;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * A notification to the sender or the receiver.
@@ -72,31 +72,31 @@ class Messaging implements Option, XmlDeserializable
 		return $this;
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespace::Common): XmlElement
 	{
-		$element = Xml::element($document, $this->type->value, $prefix);
+		$element = $parent->appendElement($this->type->value, $namespace);
 		$element->setAttribute('language', $this->language->value);
 
-		Xml::appendText($document, $element, 'emailAddress', $this->emailAddress, $prefix);
-		Xml::appendText($document, $element, 'mobilePhone', $this->mobilePhone, $prefix);
+		$element->appendText('emailAddress', $this->emailAddress, $namespace);
+		$element->appendText('mobilePhone', $this->mobilePhone, $namespace);
 
 		return $element;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$type = Assert::enum('type', MessagingType::class, $xml->localName);
-		$language = Language::tryFrom(strtoupper((string)Xml::attribute($xml, 'language'))) ?? Language::EN;
+		$language = Language::tryFrom(strtoupper((string)$xml->attribute('language'))) ?? Language::EN;
 
 		$messaging = new static($type, $language);
-		$emailAddress = Xml::text($xml, 'emailAddress');
+		$emailAddress = $xml->text('emailAddress');
 
 		if ($emailAddress !== null)
 		{
 			$messaging->emailAddress = $emailAddress;
 		}
 
-		$mobilePhone = Xml::text($xml, 'mobilePhone');
+		$mobilePhone = $xml->text('mobilePhone');
 
 		if ($mobilePhone !== null)
 		{

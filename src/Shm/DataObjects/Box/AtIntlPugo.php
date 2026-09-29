@@ -2,13 +2,11 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Shm\DataObjects\PugoAddress;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Delivery to a pick-up point or locker abroad.
@@ -67,50 +65,50 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 		return 'atIntlPugo';
 	}
 
-	protected function buildElement(XMLDocument $document): Element
+	protected function buildElement(XmlElement $wrapper): XmlElement
 	{
-		$prefix = $this->childPrefix();
-		$element = Xml::element($document, $this->elementName(), $prefix);
+		$namespace = $this->childNamespace();
+		$element = $wrapper->appendElement($this->elementName(), $namespace);
 
-		$this->appendShared($document, $element);
+		$this->appendShared($element);
 
-		Xml::appendText($document, $element, 'pugoId', $this->pugoId, $prefix);
-		Xml::appendText($document, $element, 'pugoName', $this->pugoName, $prefix);
+		$element->appendText('pugoId', $this->pugoId, $namespace);
+		$element->appendText('pugoName', $this->pugoName, $namespace);
 
 		if ($this->pugoAddress !== null)
 		{
-			$element->append($this->pugoAddress->toXml($document));
+			$this->pugoAddress->toXml($element);
 		}
 
-		Xml::appendText($document, $element, 'receiverName', $this->receiverName, $prefix);
-		Xml::appendText($document, $element, 'receiverCompany', $this->receiverCompany, $prefix);
+		$element->appendText('receiverName', $this->receiverName, $namespace);
+		$element->appendText('receiverCompany', $this->receiverCompany, $namespace);
 
 		return $element;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static();
 		$box->readShared($xml);
 
-		$box->pugoId = Xml::text($xml, 'pugoId');
-		$box->pugoName = Xml::text($xml, 'pugoName');
+		$box->pugoId = $xml->text('pugoId');
+		$box->pugoName = $xml->text('pugoName');
 
-		$pugoAddress = Xml::child($xml, 'pugoAddress');
+		$pugoAddress = $xml->child('pugoAddress');
 
 		if ($pugoAddress !== null)
 		{
 			$box->pugoAddress = PugoAddress::fromXml($pugoAddress);
 		}
 
-		$receiverName = Xml::text($xml, 'receiverName');
+		$receiverName = $xml->text('receiverName');
 
 		if ($receiverName !== null)
 		{
 			$box->receiverName($receiverName);
 		}
 
-		$receiverCompany = Xml::text($xml, 'receiverCompany');
+		$receiverCompany = $xml->text('receiverCompany');
 
 		if ($receiverCompany !== null)
 		{

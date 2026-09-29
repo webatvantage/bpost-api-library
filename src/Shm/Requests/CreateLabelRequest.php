@@ -8,7 +8,6 @@ use Webatvantage\Bpost\Api\Shm\DataObjects\Label;
 use Webatvantage\Bpost\Api\Shm\Enums\LabelFormat;
 use Webatvantage\Bpost\Api\Shm\Enums\LabelOutput;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
 
 /**
  * Shared by the three ways of asking for labels.
@@ -53,7 +52,7 @@ abstract class CreateLabelRequest extends ShmRequest
 		$xml = $this->sendExpectingXml();
 		$labels = [];
 
-		foreach (Xml::children($xml, 'label') as $label)
+		foreach ($xml->children('label') as $label)
 		{
 			$labels[] = Label::fromXml($label);
 		}

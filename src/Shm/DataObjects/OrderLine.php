@@ -2,11 +2,10 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * One line of what is in the parcel.
@@ -18,18 +17,18 @@ class OrderLine implements XmlDeserializable, XmlSerializable
 {
 	public function __construct(public private(set) string $text, public private(set) int $numberOfItems) {}
 
-	public function toXml(XMLDocument $document, ?string $prefix = null): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = null): XmlElement
 	{
-		$line = Xml::element($document, 'orderLine', $prefix);
+		$line = $parent->appendElement('orderLine', $namespace);
 
-		Xml::appendText($document, $line, 'text', $this->text, $prefix);
-		Xml::appendText($document, $line, 'nbOfItems', $this->numberOfItems, $prefix);
+		$line->appendText('text', $this->text, $namespace);
+		$line->appendText('nbOfItems', $this->numberOfItems, $namespace);
 
 		return $line;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
-		return new static(Xml::text($xml, 'text') ?? '', (int)Xml::text($xml, 'nbOfItems'));
+		return new static($xml->text('text') ?? '', (int)$xml->text('nbOfItems'));
 	}
 }

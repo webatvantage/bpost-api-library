@@ -2,13 +2,13 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Shm\Enums\InsuranceAmount;
 use Webatvantage\Bpost\Api\Shm\Enums\InsuranceType;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Warranty, which bpost still spells "insurance" in the XML.
@@ -32,28 +32,26 @@ class Insured implements Option, XmlDeserializable
 		return new static(InsuranceType::Additional, $amount);
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespace::Common): XmlElement
 	{
-		$insured = Xml::element($document, 'insured', $prefix);
-		$band = Xml::element($document, $this->type->value, $prefix);
+		$insured = $parent->appendElement('insured', $namespace);
+		$band = $insured->appendElement($this->type->value, $namespace);
 
 		if ($this->amount !== null)
 		{
 			$band->setAttribute('value', (string)$this->amount->value);
 		}
 
-		$insured->append($band);
-
 		return $insured;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
-		$additional = Xml::child($xml, 'additionalInsurance');
+		$additional = $xml->child('additionalInsurance');
 
 		if ($additional !== null)
 		{
-			$value = (int)Xml::attribute($additional, 'value');
+			$value = (int)$additional->attribute('value');
 			$amount = InsuranceAmount::tryFrom($value);
 
 			// bpost answers basic warranty as additionalInsurance value="1" on some orders.

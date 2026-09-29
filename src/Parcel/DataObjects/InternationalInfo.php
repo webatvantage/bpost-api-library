@@ -2,13 +2,13 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use Dom\Element;
-use Dom\XMLDocument;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Parcel\Enums\ItemCategory;
 use Webatvantage\Bpost\Api\Parcel\Enums\NonDeliveryInstruction;
-use Webatvantage\Bpost\Api\Parcel\Support\Xml;
+use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * The customs declaration for an outbound parcel. Required for anything leaving Belgium.
@@ -30,21 +30,19 @@ class InternationalInfo implements XmlSerializable
 		Assert::maxLength('currencySender', $currencySender, 3);
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_ANNOUNCEMENT): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Announcement): XmlElement
 	{
-		$element = Xml::element($document, 'international', $prefix);
+		$element = $parent->appendElement('international', $namespace);
 
-		Xml::appendText($document, $element, 'parcelContent', $this->parcelContent, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $element, 'itemCategory', $this->itemCategory->value, Xml::PREFIX_COMMON);
-		Xml::appendText(
-			$document,
-			$element,
+		$element->appendText('parcelContent', $this->parcelContent, ParcelNamespace::Common);
+		$element->appendText('itemCategory', $this->itemCategory->value, ParcelNamespace::Common);
+		$element->appendText(
 			'nonDeliveryInstructions',
 			$this->nonDeliveryInstructions->value,
-			Xml::PREFIX_COMMON,
+			ParcelNamespace::Common,
 		);
-		Xml::appendText($document, $element, 'valueCurrencySender', $this->valueCurrencySender, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $element, 'currencySender', strtoupper($this->currencySender), Xml::PREFIX_COMMON);
+		$element->appendText('valueCurrencySender', $this->valueCurrencySender, ParcelNamespace::Common);
+		$element->appendText('currencySender', strtoupper($this->currencySender), ParcelNamespace::Common);
 
 		return $element;
 	}

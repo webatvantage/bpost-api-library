@@ -2,11 +2,11 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
-use Webatvantage\Bpost\Api\Parcel\Support\Xml;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
+use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Collect payment on delivery.
@@ -31,14 +31,14 @@ class CashOnDelivery implements Option
 		Assert::between('amountTotalInEuroCents', $amountTotalInEuroCents, self::MIN_AMOUNT, self::MAX_AMOUNT);
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Common): XmlElement
 	{
-		$element = Xml::element($document, 'cashOnDelivery', $prefix);
+		$element = $parent->appendElement('cashOnDelivery', $namespace);
 
-		Xml::appendText($document, $element, 'amountTotalInEuroCents', $this->amountTotalInEuroCents, $prefix);
-		Xml::appendText($document, $element, 'bban', $this->bban, $prefix);
-		Xml::appendText($document, $element, 'iban', $this->iban, $prefix);
-		Xml::appendText($document, $element, 'bic', $this->bic, $prefix);
+		$element->appendText('amountTotalInEuroCents', $this->amountTotalInEuroCents, $namespace);
+		$element->appendText('bban', $this->bban, $namespace);
+		$element->appendText('iban', $this->iban, $namespace);
+		$element->appendText('bic', $this->bic, $namespace);
 
 		return $element;
 	}

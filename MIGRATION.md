@@ -18,8 +18,8 @@ use Webatvantage\Bpost\Api\Parcel\ParcelApiConfig;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
 
 $bpost = new BpostApiClient(new BpostApiConfig(
-    shm:    new ShmApiConfig(accountId: '123456', passphrase: '...'),
-    geo:    new GeoApiConfig(partner: '123456', apiKey: '...'),
+    shm: new ShmApiConfig(accountId: '123456', passphrase: '...'),
+    geo: new GeoApiConfig(partner: '123456', apiKey: '...'),
     parcel: new ParcelApiConfig(accountId: '123456', password: '...'),
 ));
 ```
@@ -28,58 +28,59 @@ Each service can also be constructed on its own if you only use one — `new Shm
 
 ## 2. Class map
 
-| 1.x | 2.0 |
-|---|---|
-| `Bpost\BpostApiClient\Geo6` | `Webatvantage\Bpost\Api\Geo\GeoApiClient` |
-| `Bpost\BpostApiClient\Geo6\Geo6Partner` | `Webatvantage\Bpost\Api\Geo\GeoApiClient` |
-| `Bpost\BpostApiClient\Geo6\Geo6Account` | `Webatvantage\Bpost\Api\Geo\GeoApiClient` |
-| `Bpost\BpostApiClient\Geo6\Poi` | `Webatvantage\Bpost\Api\Geo\DataObjects\ServicePoint` |
-| `Bpost\BpostApiClient\Geo6\Day` | `Webatvantage\Bpost\Api\Geo\DataObjects\Day` |
-| `Bpost\BpostApiClient\Geo6\Service` | `Webatvantage\Bpost\Api\Geo\DataObjects\Service` |
-| `Geo6::POINT_TYPE_*` | `Webatvantage\Bpost\Api\Geo\Enums\PointType` |
-| `BpostTaxipostLocatorException` | `Webatvantage\Bpost\Api\Geo\Exceptions\LocatorException` |
-| `BpostInvalidDayException` | `Webatvantage\Bpost\Api\Exceptions\InvalidValueException` |
-| `Bpost\BpostApiClient\Bpost` | `Webatvantage\Bpost\Api\Shm\ShmApiClient` |
-| `…\Bpost\Order` | `…\Shm\DataObjects\Order` |
-| `…\Bpost\Order\Line` | `…\Shm\DataObjects\OrderLine` |
-| `…\Bpost\Order\Box` | `…\Shm\DataObjects\Box` |
-| `…\Bpost\Order\{Address,Sender,Receiver,PugoAddress,ParcelsDepotAddress}` | `…\Shm\DataObjects\…` |
-| `…\Bpost\Order\Box\{AtHome,AtBpost,At247,International,AtIntlPugo}` | `…\Shm\DataObjects\Box\…` |
-| `…\Bpost\Order\Box\National\Unregistered` | `…\Shm\DataObjects\Box\Unregistered` |
-| `…\Bpost\Order\Box\Option\{Messaging,CashOnDelivery,Insured}` | `…\Shm\DataObjects\Options\…` |
-| `…\Bpost\Order\Box\Option\{Signed,SaturdayDelivery,AutomaticSecondPresentation}` | `…\Shm\DataObjects\Options\Flags\…` |
-| `…\Bpost\Order\Box\CustomsInfo\CustomsInfo` | `…\Shm\DataObjects\Customs\CustomsInfo` |
-| `…\Bpost\Order\Box\International\ParcelContent` | `…\Shm\DataObjects\Customs\ParcelContent` |
-| `…\Bpost\{Label,Labels}` | `…\Shm\DataObjects\Label` |
-| `…\Bpost\Label\Barcode` | `…\Shm\DataObjects\Barcode` |
-| `…\Bpost\ProductConfiguration*` | `…\Shm\DataObjects\ProductConfiguration\…` |
-| `Product::PRODUCT_NAME_*` | `…\Shm\Enums\Product` |
-| `Box::BOX_STATUS_*` | `…\Shm\Enums\BoxStatus` |
-| `Bpost::LABEL_FORMAT_*` | `…\Shm\Enums\LabelFormat` |
-| `Insured::INSURANCE_*` | `…\Shm\Enums\{InsuranceType,InsuranceAmount}` |
-| `BpostException` and the `Exception\*` tree | `…\Exceptions\*` |
-| _(new in 2.0 — no 1.x equivalent)_ | `Webatvantage\Bpost\Api\Parcel\ParcelApiClient` |
+| 1.x                                                                              | 2.0                                                       |
+|----------------------------------------------------------------------------------|-----------------------------------------------------------|
+| `Bpost\BpostApiClient\Geo6`                                                      | `Webatvantage\Bpost\Api\Geo\GeoApiClient`                 |
+| `Bpost\BpostApiClient\Geo6\Geo6Partner`                                          | `Webatvantage\Bpost\Api\Geo\GeoApiClient`                 |
+| `Bpost\BpostApiClient\Geo6\Geo6Account`                                          | `Webatvantage\Bpost\Api\Geo\GeoApiClient`                 |
+| `Bpost\BpostApiClient\Geo6\Poi`                                                  | `Webatvantage\Bpost\Api\Geo\DataObjects\ServicePoint`     |
+| `Bpost\BpostApiClient\Geo6\Day`                                                  | `Webatvantage\Bpost\Api\Geo\DataObjects\Day`              |
+| `Bpost\BpostApiClient\Geo6\Service`                                              | `Webatvantage\Bpost\Api\Geo\DataObjects\Service`          |
+| `Geo6::POINT_TYPE_*`                                                             | `Webatvantage\Bpost\Api\Geo\Enums\PointType`              |
+| `BpostTaxipostLocatorException`                                                  | `Webatvantage\Bpost\Api\Geo\Exceptions\LocatorException`  |
+| `BpostInvalidDayException`                                                       | `Webatvantage\Bpost\Api\Exceptions\InvalidValueException` |
+| `Bpost\BpostApiClient\Bpost`                                                     | `Webatvantage\Bpost\Api\Shm\ShmApiClient`                 |
+| `…\Bpost\Order`                                                                  | `…\Shm\DataObjects\Order`                                 |
+| `…\Bpost\Order\Line`                                                             | `…\Shm\DataObjects\OrderLine`                             |
+| `…\Bpost\Order\Box`                                                              | `…\Shm\DataObjects\Box`                                   |
+| `…\Bpost\Order\{Address,Sender,Receiver,PugoAddress,ParcelsDepotAddress}`        | `…\Shm\DataObjects\…`                                     |
+| `…\Bpost\Order\Box\{AtHome,AtBpost,At247,International,AtIntlPugo}`              | `…\Shm\DataObjects\Box\…`                                 |
+| `…\Bpost\Order\Box\National\Unregistered`                                        | `…\Shm\DataObjects\Box\Unregistered`                      |
+| `…\Bpost\Order\Box\Option\{Messaging,CashOnDelivery,Insured}`                    | `…\Shm\DataObjects\Options\…`                             |
+| `…\Bpost\Order\Box\Option\{Signed,SaturdayDelivery,AutomaticSecondPresentation}` | `…\Shm\DataObjects\Options\Flags\…`                       |
+| `…\Bpost\Order\Box\CustomsInfo\CustomsInfo`                                      | `…\Shm\DataObjects\Customs\CustomsInfo`                   |
+| `…\Bpost\Order\Box\International\ParcelContent`                                  | `…\Shm\DataObjects\Customs\ParcelContent`                 |
+| `…\Bpost\{Label,Labels}`                                                         | `…\Shm\DataObjects\Label`                                 |
+| `…\Bpost\Label\Barcode`                                                          | `…\Shm\DataObjects\Barcode`                               |
+| `…\Bpost\ProductConfiguration*`                                                  | `…\Shm\DataObjects\ProductConfiguration\…`                |
+| `Product::PRODUCT_NAME_*`                                                        | `…\Shm\Enums\Product`                                     |
+| `Box::BOX_STATUS_*`                                                              | `…\Shm\Enums\BoxStatus`                                   |
+| `Bpost::LABEL_FORMAT_*`                                                          | `…\Shm\Enums\LabelFormat`                                 |
+| `Insured::INSURANCE_*`                                                           | `…\Shm\Enums\{InsuranceType,InsuranceAmount}`             |
+| `BpostException` and the `Exception\*` tree                                      | `…\Exceptions\*`                                          |
+| _(new in 2.0 — no 1.x equivalent)_                                               | `Webatvantage\Bpost\Api\Parcel\ParcelApiClient`           |
 
 ## 3. Removed with no replacement
 
-| Removed | Why | What to do |
-|---|---|---|
-| `Geo6::getServicePointPage()` | Deprecated alias of `getServicePointPageUrl()` | `$geo->servicePoints()->pageUrl($id, $type)` |
-| `Geo6::getPointType()` | Replaced by a real enum | `PointType::mask(PointType::PostOffice, ...)` |
-| `Geo6::setTimeOut()` / `setUserAgent()` | Guzzle options replace them | Pass `['timeout' => 10]` as `$httpClientOptions` |
-| `FormHandler` | Not an API client: it built parameters for the Shipping Manager JavaScript widget and made no HTTP call. Its checksum was wrong anyway, hashing an `action` field the manual does not list | See the snippet below |
-| `Bpack247` and `Bpack247\*` | Undocumented service on a dead host, reached over plain HTTP with Basic credentials | none |
-| `Option\Insurance`, `Option\Signature` | Deprecated aliases since 3.5 | `Insured`, `Signed` |
-| `Box\AtIntlHome` | Never functional: it inherited `International`'s parser, which reads a different element | `International` |
-| `ProductConfiguration\Visibility` | Unreferenced, and its two values contradicted the ones on `DeliveryMethod` | `Shm\Enums\Visibility` |
-| `BpostOnAppointment` | Appears nowhere in the v3.3.35 manual, and its parser dropped product, options, weight and opening hours | none — ask bpost if you need it |
-| `Insured::INSURANCE_AMOUNT_UP_TO_7500_EUROS` … `_25000_EUROS` | bpost capped additional warranty at 5 000 EUR in 3.3.24; the library's own validation had rejected these ever since | `InsuranceAmount::UpTo2500`, `UpTo5000` |
+| Removed                                                       | Why                                                                                                                                                                                        | What to do                                       |
+|---------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|
+| `Geo6::getServicePointPage()`                                 | Deprecated alias of `getServicePointPageUrl()`                                                                                                                                             | `$geo->servicePoints()->pageUrl($id, $type)`     |
+| `Geo6::getPointType()`                                        | Replaced by a real enum                                                                                                                                                                    | `PointType::mask(PointType::PostOffice, ...)`    |
+| `Geo6::setTimeOut()` / `setUserAgent()`                       | Guzzle options replace them                                                                                                                                                                | Pass `['timeout' => 10]` as `$httpClientOptions` |
+| `FormHandler`                                                 | Not an API client: it built parameters for the Shipping Manager JavaScript widget and made no HTTP call. Its checksum was wrong anyway, hashing an `action` field the manual does not list | See the snippet below                            |
+| `Bpack247` and `Bpack247\*`                                   | Undocumented service on a dead host, reached over plain HTTP with Basic credentials                                                                                                        | none                                             |
+| `Option\Insurance`, `Option\Signature`                        | Deprecated aliases since 3.5                                                                                                                                                               | `Insured`, `Signed`                              |
+| `Box\AtIntlHome`                                              | Never functional: it inherited `International`'s parser, which reads a different element                                                                                                   | `International`                                  |
+| `ProductConfiguration\Visibility`                             | Unreferenced, and its two values contradicted the ones on `DeliveryMethod`                                                                                                                 | `Shm\Enums\Visibility`                           |
+| `BpostOnAppointment`                                          | Appears nowhere in the v3.3.35 manual, and its parser dropped product, options, weight and opening hours                                                                                   | none — ask bpost if you need it                  |
+| `Insured::INSURANCE_AMOUNT_UP_TO_7500_EUROS` … `_25000_EUROS` | bpost capped additional warranty at 5 000 EUR in 3.3.24; the library's own validation had rejected these ever since                                                                        | `InsuranceAmount::UpTo2500`, `UpTo5000`          |
 
 ### Custom data objects
 
 Only relevant if you implemented `XmlSerializable` or `XmlDeserializable` yourself, or subclassed a
-data object and overrode `toXml()` / `fromXml()`. Both contracts are on PHP 8.4's `Dom` API now, not
-`DOMDocument` and `SimpleXMLElement`:
+data object and overrode `toXml()` / `fromXml()`. Both contracts are on PHP 8.4's `Dom` API now,
+through two classes of the library's own: `XmlDocument`, which holds a `Dom\XMLDocument` (that class
+is `final`, so it cannot be extended), and `XmlElement`, which extends `Dom\Element`.
 
 ```php
 // 1.x
@@ -87,14 +88,42 @@ public function toXml(DOMDocument $document, ?string $prefix = null): DOMElement
 public static function fromXml(SimpleXMLElement $xml): static
 
 // 2.0
-public function toXml(Dom\XMLDocument $document, ?string $prefix = null): Dom\Element
-public static function fromXml(Dom\Element $xml): static
+public function toXml(XmlElement $parent, ?XmlNamespace $namespace = null): XmlElement
+public static function fromXml(XmlElement $xml): static
 ```
 
-Build elements with `Xml::element($document, 'tagName', $prefix)` rather than
-`$document->createElement(...)`, so the element lands in the namespace its prefix is declared under;
-`Xml::appendText()` is unchanged. On the way back, `Xml::child()`, `Xml::children()`, `Xml::text()`
-and `Xml::attribute()` replace SimpleXML's property access, and all of them match on local name:
+Two things changed beyond the types. An object now writes **into** the element it is given rather
+than returning a loose one for the caller to append, and the namespace arrives as an enum case —
+`ShmNamespace` or `ParcelNamespace` — that carries both the URI and the prefix bpost writes it
+under, in place of a bare prefix string.
+
+```php
+// 1.x
+public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_COMMON): DOMElement
+{
+    $cod = $document->createElement(Xml::prefixed('cod', $prefix));
+    Xml::appendText($document, $cod, 'codAmount', $this->amount, $prefix);
+
+    return $cod;
+}
+
+// 2.0
+public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespace::Common): XmlElement
+{
+    $cod = $parent->appendElement('cod', $namespace);
+    $cod->appendText('codAmount', $this->amount, $namespace);
+
+    return $cod;
+}
+```
+
+`appendElement()` is named that way because `Dom\Element` already has `append()` and `appendChild()`.
+Passing `null` as the namespace means *no* namespace, which serialises as `xmlns=""` — where the old
+code used a null prefix to mean "the document's default", pass the case for that namespace instead
+(`ShmNamespace::National` inside a national box).
+
+On the way back, the reading methods replace SimpleXML's property access and all match on local
+name, so an undeclared prefix in bpost's own examples is not a problem:
 
 ```php
 // 1.x
@@ -102,17 +131,18 @@ if (isset($xml->reference)) { $order->reference((string)$xml->reference); }
 foreach ($xml->box ?? [] as $box) { ... }
 
 // 2.0
-$reference = Xml::text($xml, 'reference');
+$reference = $xml->text('reference');
 if ($reference !== null) { $order->reference($reference); }
-foreach (Xml::children($xml, 'box') as $box) { ... }
+foreach ($xml->children('box') as $box) { ... }
 ```
 
-`Xml::text()` returns null for an element that is absent *or* blank, since bpost sends both to mean
-the same thing; use `Xml::child()` where the mere presence of an empty element is the signal.
+`text()` returns null for an element that is absent *or* blank, since bpost sends both to mean the
+same thing; use `child()` where the mere presence of an empty element is the signal, and
+`childElements()` for a wrapper whose children are each named after what they are.
 
-A flag option now extends its service's `ShmFlag` or `ParcelFlag` rather than `Contracts\Flag`
-directly — the `common:` prefix maps to a different namespace per service, and the intermediate is
-what knows which.
+Elements must come from `XmlDocument::create()` or `XmlDocument::tryParse()`. That is what registers
+`XmlElement` on the document, and a `Dom\Element` from a document built any other way will not
+satisfy the type.
 
 ### Replacing FormHandler
 

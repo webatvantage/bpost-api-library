@@ -2,10 +2,9 @@
 
 namespace Webatvantage\Bpost\Api\Geo\DataObjects;
 
-use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
-use Webatvantage\Bpost\Api\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * A bpost pick-up point: post office, post point, parcel point, parcel locker or Click & Collect
@@ -52,44 +51,44 @@ class ServicePoint implements XmlDeserializable
 	}
 
 	/**
-	 * @param Element $xml The record element, whose children are Id, Type, Name and so on
+	 * @param XmlElement $xml The record element, whose children are Id, Type, Name and so on
 	 * @param float|null $distance Metres from the searched address; only a nearest-points search has one
 	 * @param string|null $pageUrl The HTML details page bpost links to, when the response carried one
 	 */
-	public static function fromXml(Element $xml, ?float $distance = null, ?string $pageUrl = null): static
+	public static function fromXml(XmlElement $xml, ?float $distance = null, ?string $pageUrl = null): static
 	{
 		$services = [];
-		$serviceList = Xml::child($xml, 'Services');
+		$serviceList = $xml->child('Services');
 
 		if ($serviceList !== null)
 		{
-			foreach (Xml::children($serviceList, 'Service') as $service)
+			foreach ($serviceList->children('Service') as $service)
 			{
 				$services[] = Service::fromXml($service);
 			}
 		}
 
-		$typeCode = Xml::text($xml, 'Type');
-		$hours = Xml::child($xml, 'Hours');
-		$attributes = Xml::child($xml, 'Attributes');
+		$typeCode = $xml->text('Type');
+		$hours = $xml->child('Hours');
+		$attributes = $xml->child('Attributes');
 
 		return new static(
-			id: Xml::text($xml, 'Id', 'ID') ?? '',
+			id: $xml->text('Id', 'ID') ?? '',
 			type: $typeCode === null ? null : PointType::tryFrom((int)$typeCode),
-			name: Xml::text($xml, 'Name', 'OFFICE'),
-			street: Xml::text($xml, 'Street', 'STREET'),
-			number: Xml::text($xml, 'Number', 'NR'),
-			boxNumber: Xml::text($xml, 'BoxNumber', 'BOXNR'),
-			zip: Xml::text($xml, 'Zip', 'ZIP'),
-			city: Xml::text($xml, 'City', 'CITY'),
-			country: Xml::text($xml, 'Country', 'COUNTRY'),
-			latitude: self::float(Xml::text($xml, 'Latitude')),
-			longitude: self::float(Xml::text($xml, 'Longitude')),
-			x: self::int(Xml::text($xml, 'X')),
-			y: self::int(Xml::text($xml, 'Y')),
-			closedFrom: Xml::text($xml, 'ClosedFrom'),
-			closedTo: Xml::text($xml, 'ClosedTo'),
-			note: Xml::text($xml, 'Note', 'NOTE'),
+			name: $xml->text('Name', 'OFFICE'),
+			street: $xml->text('Street', 'STREET'),
+			number: $xml->text('Number', 'NR'),
+			boxNumber: $xml->text('BoxNumber', 'BOXNR'),
+			zip: $xml->text('Zip', 'ZIP'),
+			city: $xml->text('City', 'CITY'),
+			country: $xml->text('Country', 'COUNTRY'),
+			latitude: self::float($xml->text('Latitude')),
+			longitude: self::float($xml->text('Longitude')),
+			x: self::int($xml->text('X')),
+			y: self::int($xml->text('Y')),
+			closedFrom: $xml->text('ClosedFrom'),
+			closedTo: $xml->text('ClosedTo'),
+			note: $xml->text('Note', 'NOTE'),
 			services: $services,
 			openingHours: $hours === null ? new OpeningHours() : OpeningHours::fromXml($hours),
 			attributes: $attributes === null ? new Attributes() : Attributes::fromXml($attributes),

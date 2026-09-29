@@ -6,7 +6,7 @@ use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Order;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlDocument;
 
 /**
  * POST /{accountId}/orders — create an order, or add boxes to one that already exists.
@@ -19,8 +19,8 @@ class CreateOrderRequest extends ShmRequest
 
 	public function __construct(HttpApiAdapter $apiAdapter, ShmApiConfig $config, Order $order)
 	{
-		$document = Xml::document();
-		$document->append($order->toXml($document, $config->accountId));
+		$document = XmlDocument::create();
+		$order->toXml($document, $config->accountId);
 
 		parent::__construct(
 			apiAdapter: $apiAdapter,
@@ -28,7 +28,7 @@ class CreateOrderRequest extends ShmRequest
 			method: Method::POST,
 			path: '/orders',
 			headers: ['Content-Type' => self::CONTENT_TYPE],
-			body: Xml::toString($document),
+			body: $document->toString(),
 			expectsXml: false,
 		);
 	}

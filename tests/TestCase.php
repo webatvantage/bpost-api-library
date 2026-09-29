@@ -2,14 +2,14 @@
 
 namespace Webatvantage\Bpost\Api\Tests;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request as PsrRequest;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
+use Webatvantage\Bpost\Api\Support\XmlDocument;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 class TestCase extends BaseTestCase
 {
@@ -67,10 +67,8 @@ class TestCase extends BaseTestCase
 	/**
 	 * The root element of a snippet, for handing to a fromXml().
 	 */
-	protected function parse(string $xml): Element
+	protected function parse(string $xml): XmlElement
 	{
-		$document = XMLDocument::createFromString($xml, LIBXML_NOBLANKS);
-
-		return $document->documentElement ?? throw new \RuntimeException('Snippet has no root element.');
+		return XmlDocument::tryParse($xml) ?? throw new \RuntimeException('Snippet is not well-formed XML.');
 	}
 }

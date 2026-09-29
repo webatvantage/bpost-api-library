@@ -14,18 +14,19 @@ use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Insured;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Messaging;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\OptionFactory;
 use Webatvantage\Bpost\Api\Shm\Enums\InsuranceAmount;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Tests\Shm\ShmTestCase;
 
 class OptionTest extends ShmTestCase
 {
 	public function test_flag_options_are_empty_elements()
 	{
-		$this->assertXmlFragment('<common:signed/>', $this->serialise(new Signed()->toXml(...)));
-		$this->assertXmlFragment('<common:saturdayDelivery/>', $this->serialise(new SaturdayDelivery()->toXml(...)));
-		$this->assertXmlFragment('<common:fragile/>', $this->serialise(new Fragile()->toXml(...)));
+		$this->assertXmlFragment('<common:signed/>', $this->serialise(new Signed()->toXml(...), ShmNamespace::Common));
+		$this->assertXmlFragment('<common:saturdayDelivery/>', $this->serialise(new SaturdayDelivery()->toXml(...), ShmNamespace::Common));
+		$this->assertXmlFragment('<common:fragile/>', $this->serialise(new Fragile()->toXml(...), ShmNamespace::Common));
 		$this->assertXmlFragment(
 			'<common:automaticSecondPresentation/>',
-			$this->serialise(new AutomaticSecondPresentation()->toXml(...)),
+			$this->serialise(new AutomaticSecondPresentation()->toXml(...), ShmNamespace::Common),
 		);
 	}
 

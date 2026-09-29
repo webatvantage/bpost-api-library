@@ -2,12 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
-use Webatvantage\Bpost\Api\Parcel\Support\Xml;
+use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * A party on an announced parcel.
@@ -79,35 +79,35 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_ANNOUNCEMENT): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Announcement): XmlElement
 	{
-		$party = Xml::element($document, static::TAG_NAME, $prefix);
+		$party = $parent->appendElement(static::TAG_NAME, $namespace);
 
-		Xml::appendText($document, $party, 'name', $this->name, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $party, 'addressDepartment', $this->addressDepartment, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $party, 'addressContactName', $this->addressContactName, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $party, 'addressPlace', $this->addressPlace, Xml::PREFIX_COMMON);
+		$party->appendText('name', $this->name, ParcelNamespace::Common);
+		$party->appendText('addressDepartment', $this->addressDepartment, ParcelNamespace::Common);
+		$party->appendText('addressContactName', $this->addressContactName, ParcelNamespace::Common);
+		$party->appendText('addressPlace', $this->addressPlace, ParcelNamespace::Common);
 
 		if ($this->address !== null)
 		{
-			$party->append($this->address->toXml($document));
+			$this->address->toXml($party);
 		}
 
 		if ($this->contactDetail !== null)
 		{
-			$party->append($this->contactDetail->toXml($document));
+			$this->contactDetail->toXml($party);
 		}
 
 		return $party;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$party = new static();
 
 		foreach (['name', 'addressDepartment', 'addressContactName', 'addressPlace'] as $field)
 		{
-			$value = Xml::text($xml, $field);
+			$value = $xml->text($field);
 
 			if ($value !== null)
 			{
@@ -115,14 +115,14 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 			}
 		}
 
-		$address = Xml::child($xml, 'address');
+		$address = $xml->child('address');
 
 		if ($address !== null)
 		{
 			$party->address(Address::fromXml($address));
 		}
 
-		$contactDetail = Xml::child($xml, 'contactDetail');
+		$contactDetail = $xml->child('contactDetail');
 
 		if ($contactDetail !== null)
 		{

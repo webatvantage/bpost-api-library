@@ -2,11 +2,10 @@
 
 namespace Webatvantage\Bpost\Api\Geo\DataObjects;
 
-use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Enums\Weekday;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
-use Webatvantage\Bpost\Api\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * One day's opening hours, as two optional ranges.
@@ -23,7 +22,7 @@ class Day implements XmlDeserializable
 		public readonly ?string $pmClose = null,
 	) {}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$weekday = Weekday::tryFrom(ucfirst(strtolower($xml->localName)));
 
@@ -34,10 +33,10 @@ class Day implements XmlDeserializable
 
 		return new static(
 			$weekday,
-			Xml::text($xml, 'AMOpen'),
-			Xml::text($xml, 'AMClose'),
-			Xml::text($xml, 'PMOpen'),
-			Xml::text($xml, 'PMClose'),
+			$xml->text('AMOpen'),
+			$xml->text('AMClose'),
+			$xml->text('PMOpen'),
+			$xml->text('PMClose'),
 		);
 	}
 

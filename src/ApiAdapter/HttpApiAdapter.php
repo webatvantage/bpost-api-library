@@ -3,7 +3,6 @@
 namespace Webatvantage\Bpost\Api\ApiAdapter;
 
 use Closure;
-use Dom\Element;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleLogMiddleware\LogMiddleware;
@@ -14,7 +13,8 @@ use Psr\Log\LoggerInterface;
 use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Exceptions\TransporterException;
 use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
-use Webatvantage\Bpost\Api\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlDocument;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 class HttpApiAdapter
 {
@@ -58,11 +58,8 @@ class HttpApiAdapter
 
 	/**
 	 * Send a request and hand back its parsed body.
-	 *
-	 * Returns the root element for an XML response, and a string otherwise — including the empty
-	 * string, which is what a successful Create Order answers with.
 	 */
-	public function request(Request $request): Element|string
+	public function request(Request $request): XmlElement|string
 	{
 		$headers = [...$this->defaultHeaders, ...$request->getHeaders()];
 
@@ -94,7 +91,7 @@ class HttpApiAdapter
 			return $contents;
 		}
 
-		$xml = Xml::tryParse($contents);
+		$xml = XmlDocument::tryParse($contents);
 
 		if ($xml === null)
 		{

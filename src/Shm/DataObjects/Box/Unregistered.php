@@ -2,13 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Enums\Language;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * How to reach a receiver who is not a registered parcel locker user.
@@ -64,27 +63,27 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = null): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = null): XmlElement
 	{
-		$element = Xml::element($document, 'unregistered', $prefix);
+		$element = $parent->appendElement('unregistered', $namespace);
 
-		Xml::appendText($document, $element, 'language', $this->language?->value, $prefix);
-		Xml::appendText($document, $element, 'mobilePhone', $this->mobilePhone, $prefix);
-		Xml::appendText($document, $element, 'emailAddress', $this->emailAddress, $prefix);
+		$element->appendText('language', $this->language?->value, $namespace);
+		$element->appendText('mobilePhone', $this->mobilePhone, $namespace);
+		$element->appendText('emailAddress', $this->emailAddress, $namespace);
 
 		if ($this->reducedMobilityZone)
 		{
-			$element->append(Xml::element($document, 'reducedMobilityZone', $prefix));
+			$element->appendElement('reducedMobilityZone', $namespace);
 		}
 
 		return $element;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$unregistered = new static();
 
-		$language = Xml::text($xml, 'language');
+		$language = $xml->text('language');
 
 		if ($language !== null)
 		{
@@ -93,14 +92,14 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 			);
 		}
 
-		$mobilePhone = Xml::text($xml, 'mobilePhone');
+		$mobilePhone = $xml->text('mobilePhone');
 
 		if ($mobilePhone !== null)
 		{
 			$unregistered->mobilePhone($mobilePhone);
 		}
 
-		$emailAddress = Xml::text($xml, 'emailAddress');
+		$emailAddress = $xml->text('emailAddress');
 
 		if ($emailAddress !== null)
 		{
@@ -109,7 +108,7 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 
 		// Present at all means yes. v3.3 spelled it as a Y/N value, so a literal "N" is honoured
 		// too for anyone replaying an older response.
-		$reducedMobilityZone = Xml::child($xml, 'reducedMobilityZone');
+		$reducedMobilityZone = $xml->child('reducedMobilityZone');
 
 		if ($reducedMobilityZone !== null)
 		{

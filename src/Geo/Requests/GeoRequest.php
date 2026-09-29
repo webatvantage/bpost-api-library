@@ -2,12 +2,11 @@
 
 namespace Webatvantage\Bpost\Api\Geo\Requests;
 
-use Dom\Element;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Geo\Exceptions\LocatorException;
-use Webatvantage\Bpost\Api\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Base for the four Geolocator operations.
@@ -41,20 +40,20 @@ abstract class GeoRequest extends Request
 		return $this->addParameter('IncludeAttributes', $include);
 	}
 
-	protected function send(): Element
+	protected function send(): XmlElement
 	{
 		$xml = $this->apiAdapter->request($this);
 
-		if (!$xml instanceof Element)
+		if (!$xml instanceof XmlElement)
 		{
 			throw new LocatorException('The Geolocator did not answer with XML.', 200, $xml);
 		}
 
-		if (Xml::attribute($xml, 'type') === 'TaxipostLocatorError')
+		if ($xml->attribute('type') === 'TaxipostLocatorError')
 		{
 			throw new LocatorException(
-				Xml::text($xml, 'txt') ?? 'The Geolocator rejected the request.',
-				(int)Xml::text($xml, 'status'),
+				$xml->text('txt') ?? 'The Geolocator rejected the request.',
+				(int)$xml->text('status'),
 				(string)$xml->C14N(),
 			);
 		}

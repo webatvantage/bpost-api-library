@@ -2,10 +2,9 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\ProductConfiguration;
 
-use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Shm\Enums\Product as ProductName;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * What this account is configured to sell: delivery methods, products, prices and options.
@@ -17,11 +16,11 @@ class ProductConfiguration implements XmlDeserializable
 	 */
 	public function __construct(public private(set) array $deliveryMethods = []) {}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$methods = [];
 
-		foreach (Xml::children($xml, 'deliveryMethod') as $method)
+		foreach ($xml->children('deliveryMethod') as $method)
 		{
 			$methods[] = DeliveryMethod::fromXml($method);
 		}

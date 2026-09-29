@@ -2,7 +2,6 @@
 
 namespace Webatvantage\Bpost\Api\Tests\ApiAdapter;
 
-use Dom\Element;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use Psr\Http\Message\RequestInterface;
@@ -14,7 +13,7 @@ use Webatvantage\Bpost\Api\Exceptions\InvalidResponseException;
 use Webatvantage\Bpost\Api\Exceptions\SystemException;
 use Webatvantage\Bpost\Api\Exceptions\TransporterException;
 use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
-use Webatvantage\Bpost\Api\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 use Webatvantage\Bpost\Api\Tests\Doubles\FakeRequest;
 use Webatvantage\Bpost\Api\Tests\TestCase;
 
@@ -26,9 +25,9 @@ class HttpApiAdapterTest extends TestCase
 
 		$result = $this->adapter()->request(new FakeRequest(Method::GET, '/orders/ref'));
 
-		$this->assertInstanceOf(Element::class, $result);
+		$this->assertInstanceOf(XmlElement::class, $result);
 		$this->assertSame('labels', $result->localName);
-		$this->assertSame('323212345', Xml::text(Xml::child($result, 'label'), 'barcode'));
+		$this->assertSame('323212345', $result->child('label')?->text('barcode'));
 	}
 
 	public function test_it_returns_an_empty_string_for_an_empty_created_response()

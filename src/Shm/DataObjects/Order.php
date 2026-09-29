@@ -2,11 +2,11 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlDocument;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * A Shipping Manager order: one reference, and the parcels sent under it.
@@ -57,45 +57,45 @@ class Order implements XmlDeserializable
 	 * @param string $accountId Written into the document, and it must match the account the
 	 *                          request authenticates as
 	 */
-	public function toXml(XMLDocument $document, string $accountId): Element
+	public function toXml(XmlDocument $document, string $accountId): XmlElement
 	{
-		$order = Xml::element($document, 'order', Xml::PREFIX_GLOBAL);
-		Xml::declareNamespaces($order);
+		$order = $document->root('order', ShmNamespace::Global);
+		ShmNamespace::declareOn($order);
 
-		Xml::appendText($document, $order, 'accountId', $accountId, Xml::PREFIX_GLOBAL);
-		Xml::appendText($document, $order, 'reference', $this->reference, Xml::PREFIX_GLOBAL);
-		Xml::appendText($document, $order, 'costCenter', $this->costCenter, Xml::PREFIX_GLOBAL);
+		$order->appendText('accountId', $accountId, ShmNamespace::Global);
+		$order->appendText('reference', $this->reference, ShmNamespace::Global);
+		$order->appendText('costCenter', $this->costCenter, ShmNamespace::Global);
 
 		foreach ($this->lines as $line)
 		{
-			$order->append($line->toXml($document, Xml::PREFIX_GLOBAL));
+			$line->toXml($order, ShmNamespace::Global);
 		}
 
 		foreach ($this->boxes as $box)
 		{
-			$order->append($box->toXml($document, Xml::PREFIX_GLOBAL));
+			$box->toXml($order, ShmNamespace::Global);
 		}
 
 		return $order;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
-		$order = new static(Xml::text($xml, 'reference') ?? '');
+		$order = new static($xml->text('reference') ?? '');
 
-		$costCenter = Xml::text($xml, 'costCenter');
+		$costCenter = $xml->text('costCenter');
 
 		if ($costCenter !== null)
 		{
 			$order->costCenter($costCenter);
 		}
 
-		foreach (Xml::children($xml, 'orderLine') as $line)
+		foreach ($xml->children('orderLine') as $line)
 		{
 			$order->lines[] = OrderLine::fromXml($line);
 		}
 
-		foreach (Xml::children($xml, 'box') as $box)
+		foreach ($xml->children('box') as $box)
 		{
 			$order->addBox(Box::fromXml($box));
 		}

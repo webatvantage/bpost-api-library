@@ -2,15 +2,15 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBox;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBoxFactory;
 use Webatvantage\Bpost\Api\Shm\Enums\BoxStatus;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * One parcel in an order.
@@ -70,33 +70,33 @@ class Box implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_GLOBAL): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespace::Global): XmlElement
 	{
-		$box = Xml::element($document, 'box', $prefix);
+		$box = $parent->appendElement('box', $namespace);
 
 		if ($this->sender !== null)
 		{
-			$box->append($this->sender->toXml($document, $prefix));
+			$this->sender->toXml($box, $namespace);
 		}
 
 		if ($this->deliveryBox !== null)
 		{
-			$box->append($this->deliveryBox->toXml($document, $prefix));
+			$this->deliveryBox->toXml($box, $namespace);
 		}
 
-		Xml::appendText($document, $box, 'remark', $this->remark, $prefix);
+		$box->appendText('remark', $this->remark, $namespace);
 
-		Xml::appendText($document, $box, 'additionalCustomerReference', $this->additionalCustomerReference, $prefix);
-		Xml::appendText($document, $box, 'barcode', $this->barcode, $prefix);
+		$box->appendText('additionalCustomerReference', $this->additionalCustomerReference, $namespace);
+		$box->appendText('barcode', $this->barcode, $namespace);
 
 		return $box;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static();
 
-		$sender = Xml::child($xml, 'sender');
+		$sender = $xml->child('sender');
 
 		if ($sender !== null)
 		{
@@ -106,41 +106,41 @@ class Box implements XmlDeserializable, XmlSerializable
 		// Either wrapper holds one delivery method; which namespace it claims does not matter.
 		foreach (['nationalBox', 'internationalBox'] as $wrapper)
 		{
-			$element = Xml::child($xml, $wrapper);
+			$element = $xml->child($wrapper);
 
 			if ($element === null)
 			{
 				continue;
 			}
 
-			foreach ($element->children as $method)
+			foreach ($element->childElements() as $method)
 			{
 				$box->deliverTo(DeliveryBoxFactory::fromXml($method));
 			}
 		}
 
-		$remark = Xml::text($xml, 'remark');
+		$remark = $xml->text('remark');
 
 		if ($remark !== null)
 		{
 			$box->remark($remark);
 		}
 
-		$additionalCustomerReference = Xml::text($xml, 'additionalCustomerReference');
+		$additionalCustomerReference = $xml->text('additionalCustomerReference');
 
 		if ($additionalCustomerReference !== null)
 		{
 			$box->additionalCustomerReference($additionalCustomerReference);
 		}
 
-		$barcode = Xml::text($xml, 'barcode');
+		$barcode = $xml->text('barcode');
 
 		if ($barcode !== null)
 		{
 			$box->barcode = strtoupper($barcode);
 		}
 
-		$status = Xml::text($xml, 'status');
+		$status = $xml->text('status');
 
 		if ($status !== null)
 		{

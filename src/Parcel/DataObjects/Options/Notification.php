@@ -2,13 +2,13 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
-use Webatvantage\Bpost\Api\Parcel\Support\Xml;
+use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * A notification to the receiver.
@@ -64,13 +64,13 @@ class Notification implements Option
 		return $this;
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Common): XmlElement
 	{
-		$element = Xml::element($document, $this->tagName, $prefix);
+		$element = $parent->appendElement($this->tagName, $namespace);
 
-		Xml::appendText($document, $element, 'language', $this->language->value, $prefix);
-		Xml::appendText($document, $element, 'emailAddress', $this->emailAddress, $prefix);
-		Xml::appendText($document, $element, 'smsNumber', $this->smsNumber, $prefix);
+		$element->appendText('language', $this->language->value, $namespace);
+		$element->appendText('emailAddress', $this->emailAddress, $namespace);
+		$element->appendText('smsNumber', $this->smsNumber, $namespace);
 
 		return $element;
 	}

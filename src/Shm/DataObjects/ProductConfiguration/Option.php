@@ -2,10 +2,9 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\ProductConfiguration;
 
-use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Shm\Enums\OptionVisibility;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * An option offered on a product, and what it costs.
@@ -22,21 +21,21 @@ class Option implements XmlDeserializable
 		public private(set) array $characteristics = [],
 	) {}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$characteristics = [];
 
 		// bpost spells it "chracteristic" in the response. Mirrored rather than corrected.
-		foreach (Xml::children($xml, 'chracteristic') as $characteristic)
+		foreach ($xml->children('chracteristic') as $characteristic)
 		{
 			$characteristics[] = Characteristic::fromXml($characteristic);
 		}
 
 		return new static(
-			Xml::attribute($xml, 'name'),
-			Xml::integerAttribute($xml, 'price'),
+			$xml->attribute('name'),
+			$xml->integerAttribute('price'),
 			// And "visiblity" here. Also bpost's own spelling.
-			OptionVisibility::tryFrom(Xml::attribute($xml, 'visiblity') ?? ''),
+			OptionVisibility::tryFrom($xml->attribute('visiblity') ?? ''),
 			$characteristics,
 		);
 	}

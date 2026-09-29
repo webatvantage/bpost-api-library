@@ -2,7 +2,6 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 
-use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\AutomaticSecondPresentation;
@@ -10,6 +9,7 @@ use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\Fragile;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\SaturdayDelivery;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\Signed;
 use Webatvantage\Bpost\Api\Shm\Enums\MessagingType;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Builds an option from its element name.
@@ -21,7 +21,7 @@ class OptionFactory
 	/**
 	 * @throws UnexpectedValueException
 	 */
-	public static function fromXml(Element $xml): Option
+	public static function fromXml(XmlElement $xml): Option
 	{
 		$name = $xml->localName;
 

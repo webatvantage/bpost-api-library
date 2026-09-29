@@ -2,9 +2,9 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use Dom\Element;
 use Dom\XPath;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * What bpost made of an announcement.
@@ -20,7 +20,7 @@ class Feedback implements XmlDeserializable
 	 */
 	public function __construct(public private(set) array $warnings = [], public private(set) array $errors = []) {}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$document = $xml->ownerDocument;
 

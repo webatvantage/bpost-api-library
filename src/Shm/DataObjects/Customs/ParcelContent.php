@@ -2,12 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Customs;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * One kind of item in a parcel leaving the EU customs zone.
@@ -40,29 +40,29 @@ class ParcelContent implements XmlDeserializable, XmlSerializable
 		Assert::countryCode('originOfGoods', $originOfGoods);
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_INTERNATIONAL): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespace::International): XmlElement
 	{
-		$element = Xml::element($document, 'parcelContent', $prefix);
+		$element = $parent->appendElement('parcelContent', $namespace);
 
-		Xml::appendText($document, $element, 'numberOfItemType', $this->numberOfItemType, $prefix);
-		Xml::appendText($document, $element, 'valueOfItem', $this->valueOfItem, $prefix);
-		Xml::appendText($document, $element, 'itemDescription', $this->itemDescription, $prefix);
-		Xml::appendText($document, $element, 'nettoWeight', $this->nettoWeight, $prefix);
-		Xml::appendText($document, $element, 'hsTariffCode', $this->hsTariffCode, $prefix);
-		Xml::appendText($document, $element, 'originOfGoods', $this->originOfGoods, $prefix);
+		$element->appendText('numberOfItemType', $this->numberOfItemType, $namespace);
+		$element->appendText('valueOfItem', $this->valueOfItem, $namespace);
+		$element->appendText('itemDescription', $this->itemDescription, $namespace);
+		$element->appendText('nettoWeight', $this->nettoWeight, $namespace);
+		$element->appendText('hsTariffCode', $this->hsTariffCode, $namespace);
+		$element->appendText('originOfGoods', $this->originOfGoods, $namespace);
 
 		return $element;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		return new static(
-			(int)Xml::text($xml, 'numberOfItemType'),
-			(int)Xml::text($xml, 'valueOfItem'),
-			Xml::text($xml, 'itemDescription') ?? '',
-			(int)Xml::text($xml, 'nettoWeight'),
-			Xml::text($xml, 'hsTariffCode') ?? '',
-			Xml::text($xml, 'originOfGoods') ?? '',
+			(int)$xml->text('numberOfItemType'),
+			(int)$xml->text('valueOfItem'),
+			$xml->text('itemDescription') ?? '',
+			(int)$xml->text('nettoWeight'),
+			$xml->text('hsTariffCode') ?? '',
+			$xml->text('originOfGoods') ?? '',
 		);
 	}
 }

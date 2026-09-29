@@ -6,7 +6,7 @@ use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Address;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Receiver;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Sender;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Tests\Shm\ShmTestCase;
 
 class CustomerTest extends ShmTestCase
@@ -41,7 +41,7 @@ class CustomerTest extends ShmTestCase
 			. '<common:emailAddress>sender@mail.be</common:emailAddress>'
 			. '<common:phoneNumber>022011111</common:phoneNumber>'
 			. '</tns:sender>',
-			$this->serialise(fn ($document) => $sender->toXml($document, Xml::PREFIX_GLOBAL)),
+			$this->serialise(fn ($parent) => $sender->toXml($parent, ShmNamespace::Global)),
 		);
 	}
 

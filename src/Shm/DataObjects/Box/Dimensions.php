@@ -2,11 +2,10 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Parcel dimensions in millimetres.
@@ -25,23 +24,23 @@ class Dimensions implements XmlDeserializable, XmlSerializable
 	/**
 	 * Append the three elements to the box, since bpost has no wrapper for them.
 	 */
-	public function appendTo(XMLDocument $document, Element $parent, ?string $prefix = null): void
+	public function appendTo(XmlElement $parent, ?XmlNamespace $namespace = null): void
 	{
-		Xml::appendText($document, $parent, 'height', $this->height, $prefix);
-		Xml::appendText($document, $parent, 'length', $this->length, $prefix);
-		Xml::appendText($document, $parent, 'width', $this->width, $prefix);
+		$parent->appendText('height', $this->height, $namespace);
+		$parent->appendText('length', $this->length, $namespace);
+		$parent->appendText('width', $this->width, $namespace);
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = null): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = null): XmlElement
 	{
-		$element = Xml::element($document, 'dimensions', $prefix);
-		$this->appendTo($document, $element, $prefix);
+		$element = $parent->appendElement('dimensions', $namespace);
+		$this->appendTo($element, $namespace);
 
 		return $element;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
-		return new static((int)Xml::text($xml, 'height'), (int)Xml::text($xml, 'length'), (int)Xml::text($xml, 'width'));
+		return new static((int)$xml->text('height'), (int)$xml->text('length'), (int)$xml->text('width'));
 	}
 }

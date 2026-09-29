@@ -2,23 +2,22 @@
 
 namespace Webatvantage\Bpost\Api\Contracts;
 
-use Dom\Element;
-use Dom\XMLDocument;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * A data object that can write itself into a bpost request document.
  *
  * Serialisation is explicit rather than reflected from the constructor: bpost validates against an
- * XSD in which element order is significant, and several elements are namespace-prefixed
- * differently depending on where they appear.
+ * XSD in which element order is significant, and several elements sit in a different namespace
+ * depending on where they appear.
  */
 interface XmlSerializable
 {
 	/**
-	 * @param XMLDocument $document
-	 * @param string|null $prefix Namespace prefix to write children under, or null for the default namespace
+	 * @param XmlElement $parent
+	 * @param XmlNamespace|null $namespace The namespace to write this element and its children in
 	 *
-	 * @return Element
+	 * @return XmlElement
 	 */
-	public function toXml(XMLDocument $document, ?string $prefix = null): Element;
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = null): XmlElement;
 }

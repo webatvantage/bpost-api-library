@@ -2,8 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
-use Dom\Element;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Builds a delivery method from its element name.
@@ -16,7 +16,7 @@ class DeliveryBoxFactory
 	/**
 	 * @throws UnexpectedValueException
 	 */
-	public static function fromXml(Element $xml): DeliveryBox
+	public static function fromXml(XmlElement $xml): DeliveryBox
 	{
 		return match ($xml->localName)
 		{

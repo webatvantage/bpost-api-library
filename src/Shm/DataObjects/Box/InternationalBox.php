@@ -2,11 +2,11 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
-use Dom\Element;
-use Dom\XMLDocument;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Customs\CustomsInfo;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Receiver;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * A box leaving Belgium.
@@ -25,9 +25,9 @@ abstract class InternationalBox extends DeliveryBox
 		return 'internationalBox';
 	}
 
-	protected function childPrefix(): ?string
+	protected function childNamespace(): XmlNamespace
 	{
-		return Xml::PREFIX_INTERNATIONAL;
+		return ShmNamespace::International;
 	}
 
 	public function receiver(Receiver $receiver): static
@@ -51,44 +51,39 @@ abstract class InternationalBox extends DeliveryBox
 	 * Write product, options, receiver and parcelWeight, which both international methods share
 	 * and in this order.
 	 */
-	protected function appendShared(XMLDocument $document, Element $element): void
+	protected function appendShared(XmlElement $element): void
 	{
-		$prefix = $this->childPrefix();
+		$namespace = $this->childNamespace();
 
-		Xml::appendText($document, $element, 'product', $this->product?->value, $prefix);
+		$element->appendText('product', $this->product?->value, $namespace);
 
-		$options = $this->buildOptions($document);
-
-		if ($options !== null)
-		{
-			$element->append($options);
-		}
+		$this->appendOptions($element);
 
 		if ($this->receiver !== null)
 		{
-			$element->append($this->receiver->toXml($document, $prefix));
+			$this->receiver->toXml($element, $namespace);
 		}
 
-		Xml::appendText($document, $element, 'parcelWeight', $this->weight, $prefix);
+		$element->appendText('parcelWeight', $this->weight, $namespace);
 
 		if ($this->customsInfo !== null)
 		{
-			$element->append($this->customsInfo->toXml($document));
+			$this->customsInfo->toXml($element);
 		}
 	}
 
-	protected function readShared(Element $xml): void
+	protected function readShared(XmlElement $xml): void
 	{
 		$this->readCommon($xml, 'parcelWeight');
 
-		$receiver = Xml::child($xml, 'receiver');
+		$receiver = $xml->child('receiver');
 
 		if ($receiver !== null)
 		{
 			$this->receiver(Receiver::fromXml($receiver));
 		}
 
-		$customsInfo = Xml::child($xml, 'customsInfo');
+		$customsInfo = $xml->child('customsInfo');
 
 		if ($customsInfo !== null)
 		{

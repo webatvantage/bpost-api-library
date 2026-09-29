@@ -2,12 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
-use Webatvantage\Bpost\Api\Parcel\Support\Xml;
+use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Parcel dimensions in millimetres. Mandatory for bpack XL.
@@ -24,19 +24,19 @@ class Dimensions implements XmlDeserializable, XmlSerializable
 		Assert::between('lengthInMm', $lengthInMm, 1, 9999);
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_ANNOUNCEMENT): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Announcement): XmlElement
 	{
-		$element = Xml::element($document, 'dimensions', $prefix);
+		$element = $parent->appendElement('dimensions', $namespace);
 
-		Xml::appendText($document, $element, 'widthInMm', $this->widthInMm, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $element, 'heightInMm', $this->heightInMm, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $element, 'lengthInMm', $this->lengthInMm, Xml::PREFIX_COMMON);
+		$element->appendText('widthInMm', $this->widthInMm, ParcelNamespace::Common);
+		$element->appendText('heightInMm', $this->heightInMm, ParcelNamespace::Common);
+		$element->appendText('lengthInMm', $this->lengthInMm, ParcelNamespace::Common);
 
 		return $element;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
-		return new static((int)Xml::text($xml, 'widthInMm'), (int)Xml::text($xml, 'heightInMm'), (int)Xml::text($xml, 'lengthInMm'));
+		return new static((int)$xml->text('widthInMm'), (int)$xml->text('heightInMm'), (int)$xml->text('lengthInMm'));
 	}
 }

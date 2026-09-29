@@ -3,13 +3,11 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use DateTimeInterface;
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Shm\DataObjects\ParcelsDepotAddress;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Delivery to a parcel locker.
@@ -90,77 +88,73 @@ class At247 extends NationalBox implements XmlDeserializable
 		return 'at24-7';
 	}
 
-	protected function buildElement(XMLDocument $document): Element
+	protected function buildElement(XmlElement $wrapper): XmlElement
 	{
-		$element = Xml::element($document, $this->elementName());
+		$namespace = $this->childNamespace();
+		$element = $wrapper->appendElement($this->elementName(), $namespace);
 
-		Xml::appendText($document, $element, 'product', $this->product?->value);
+		$element->appendText('product', $this->product?->value, $namespace);
 
-		$options = $this->buildOptions($document);
+		$this->appendOptions($element);
 
-		if ($options !== null)
-		{
-			$element->append($options);
-		}
-
-		Xml::appendText($document, $element, 'weight', $this->weight);
-		Xml::appendText($document, $element, 'parcelsDepotId', $this->parcelsDepotId);
-		Xml::appendText($document, $element, 'parcelsDepotName', $this->parcelsDepotName);
+		$element->appendText('weight', $this->weight, $namespace);
+		$element->appendText('parcelsDepotId', $this->parcelsDepotId, $namespace);
+		$element->appendText('parcelsDepotName', $this->parcelsDepotName, $namespace);
 
 		if ($this->parcelsDepotAddress !== null)
 		{
-			$element->append($this->parcelsDepotAddress->toXml($document));
+			$this->parcelsDepotAddress->toXml($element, $namespace);
 		}
 
 		if ($this->unregistered !== null)
 		{
-			$element->append($this->unregistered->toXml($document));
+			$this->unregistered->toXml($element, $namespace);
 		}
 
-		Xml::appendText($document, $element, 'receiverName', $this->receiverName);
-		Xml::appendText($document, $element, 'receiverCompany', $this->receiverCompany);
-		Xml::appendText($document, $element, 'requestedDeliveryDate', $this->requestedDeliveryDate);
+		$element->appendText('receiverName', $this->receiverName, $namespace);
+		$element->appendText('receiverCompany', $this->receiverCompany, $namespace);
+		$element->appendText('requestedDeliveryDate', $this->requestedDeliveryDate, $namespace);
 
 		return $element;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static(self::readProduct($xml));
 		$box->readCommon($xml);
 
-		$box->parcelsDepotId = Xml::text($xml, 'parcelsDepotId');
-		$box->parcelsDepotName = Xml::text($xml, 'parcelsDepotName');
+		$box->parcelsDepotId = $xml->text('parcelsDepotId');
+		$box->parcelsDepotName = $xml->text('parcelsDepotName');
 
-		$parcelsDepotAddress = Xml::child($xml, 'parcelsDepotAddress');
+		$parcelsDepotAddress = $xml->child('parcelsDepotAddress');
 
 		if ($parcelsDepotAddress !== null)
 		{
 			$box->parcelsDepotAddress = ParcelsDepotAddress::fromXml($parcelsDepotAddress);
 		}
 
-		$unregistered = Xml::child($xml, 'unregistered');
+		$unregistered = $xml->child('unregistered');
 
 		if ($unregistered !== null)
 		{
 			$box->unregistered = Unregistered::fromXml($unregistered);
 		}
 
-		$receiverName = Xml::text($xml, 'receiverName');
+		$receiverName = $xml->text('receiverName');
 
 		if ($receiverName !== null)
 		{
 			$box->receiverName($receiverName);
 		}
 
-		$receiverCompany = Xml::text($xml, 'receiverCompany');
+		$receiverCompany = $xml->text('receiverCompany');
 
 		if ($receiverCompany !== null)
 		{
 			$box->receiverCompany($receiverCompany);
 		}
 
-		$requestedDeliveryDate = Xml::text($xml, 'requestedDeliveryDate');
+		$requestedDeliveryDate = $xml->text('requestedDeliveryDate');
 
 		if ($requestedDeliveryDate !== null)
 		{

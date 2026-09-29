@@ -2,11 +2,11 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Parcel\Enums\InsuranceAmount;
-use Webatvantage\Bpost\Api\Parcel\Support\Xml;
+use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Warranty above the basic band.
@@ -18,11 +18,11 @@ class AdditionalInsurance implements Option
 {
 	public function __construct(public private(set) InsuranceAmount $maxAmount) {}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Common): XmlElement
 	{
-		$element = Xml::element($document, 'additionalInsurance', $prefix);
+		$element = $parent->appendElement('additionalInsurance', $namespace);
 
-		Xml::appendText($document, $element, 'maxAmount', $this->maxAmount->value, $prefix);
+		$element->appendText('maxAmount', $this->maxAmount->value, $namespace);
 
 		return $element;
 	}

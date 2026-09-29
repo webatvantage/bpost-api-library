@@ -2,12 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * A party on a shipment. Sender and Receiver differ only in the element they are written under.
@@ -64,60 +64,60 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = null): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = null): XmlElement
 	{
-		$customer = Xml::element($document, static::TAG_NAME, $prefix);
+		$customer = $parent->appendElement(static::TAG_NAME, $namespace);
 
-		Xml::appendText($document, $customer, 'name', $this->name, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $customer, 'company', $this->company, Xml::PREFIX_COMMON);
+		$customer->appendText('name', $this->name, ShmNamespace::Common);
+		$customer->appendText('company', $this->company, ShmNamespace::Common);
 
 		if ($this->address !== null)
 		{
-			$customer->append($this->address->toXml($document));
+			$this->address->toXml($customer);
 		}
 
-		Xml::appendText($document, $customer, 'emailAddress', $this->emailAddress, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $customer, 'phoneNumber', $this->phoneNumber, Xml::PREFIX_COMMON);
+		$customer->appendText('emailAddress', $this->emailAddress, ShmNamespace::Common);
+		$customer->appendText('phoneNumber', $this->phoneNumber, ShmNamespace::Common);
 
 		return $customer;
 	}
 
 	/**
-	 * @param Element $xml The customer element's children, already in the common namespace
+	 * @param XmlElement $xml The customer element's children, already in the common namespace
 	 */
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$customer = new static();
 
-		$name = Xml::child($xml, 'name');
+		$name = $xml->child('name');
 
 		if ($name !== null)
 		{
 			$customer->name(trim($name->textContent));
 		}
 
-		$company = Xml::child($xml, 'company');
+		$company = $xml->child('company');
 
 		if ($company !== null)
 		{
 			$customer->company(trim($company->textContent));
 		}
 
-		$address = Xml::child($xml, 'address');
+		$address = $xml->child('address');
 
 		if ($address !== null)
 		{
 			$customer->address(Address::fromXml($address));
 		}
 
-		$emailAddress = Xml::child($xml, 'emailAddress');
+		$emailAddress = $xml->child('emailAddress');
 
 		if ($emailAddress !== null)
 		{
 			$customer->emailAddress(trim($emailAddress->textContent));
 		}
 
-		$phoneNumber = Xml::child($xml, 'phoneNumber');
+		$phoneNumber = $xml->child('phoneNumber');
 
 		if ($phoneNumber !== null)
 		{

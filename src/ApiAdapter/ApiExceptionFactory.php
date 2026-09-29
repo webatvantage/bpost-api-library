@@ -2,19 +2,16 @@
 
 namespace Webatvantage\Bpost\Api\ApiAdapter;
 
-use Dom\Element;
 use Dom\XPath;
 use Webatvantage\Bpost\Api\Exceptions\ApiException;
 use Webatvantage\Bpost\Api\Exceptions\BusinessException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidResponseException;
 use Webatvantage\Bpost\Api\Exceptions\SystemException;
-use Webatvantage\Bpost\Api\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlDocument;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
- * Maps a bpost fault document onto an exception.
- *
- * The body is always carried through, since bpost's message is the only thing that says which
- * field it objected to.
+ * Maps a bpost fault document onto an exception
  */
 class ApiExceptionFactory
 {
@@ -22,7 +19,7 @@ class ApiExceptionFactory
 
 	public static function fromResponse(int $statusCode, string $body): ApiException
 	{
-		$xml = Xml::tryParse($body);
+		$xml = XmlDocument::tryParse($body);
 
 		if ($xml === null)
 		{
@@ -45,7 +42,7 @@ class ApiExceptionFactory
 	 * root element, and which namespace varies between the business and system shapes, so they are
 	 * matched on local name.
 	 */
-	private static function firstValue(Element $xml, string $localName): ?string
+	private static function firstValue(XmlElement $xml, string $localName): ?string
 	{
 		$document = $xml->ownerDocument;
 

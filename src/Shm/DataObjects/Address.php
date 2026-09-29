@@ -2,12 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * A postal address.
@@ -19,7 +19,7 @@ class Address implements XmlDeserializable, XmlSerializable
 {
 	protected const string TAG_NAME = 'address';
 
-	protected const ?string TAG_PREFIX = Xml::PREFIX_COMMON;
+	protected const ?XmlNamespace TAG_NAMESPACE = ShmNamespace::Common;
 
 	public private(set) ?string $streetName = null;
 
@@ -79,60 +79,60 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = null): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = null): XmlElement
 	{
-		$address = Xml::element($document, static::TAG_NAME, static::TAG_PREFIX);
+		$address = $parent->appendElement(static::TAG_NAME, static::TAG_NAMESPACE);
 
-		Xml::appendText($document, $address, 'streetName', $this->streetName, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $address, 'number', $this->number, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $address, 'box', $this->box, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $address, 'postalCode', $this->postalCode, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $address, 'locality', $this->locality, Xml::PREFIX_COMMON);
-		Xml::appendText($document, $address, 'countryCode', $this->countryCode, Xml::PREFIX_COMMON);
+		$address->appendText('streetName', $this->streetName, ShmNamespace::Common);
+		$address->appendText('number', $this->number, ShmNamespace::Common);
+		$address->appendText('box', $this->box, ShmNamespace::Common);
+		$address->appendText('postalCode', $this->postalCode, ShmNamespace::Common);
+		$address->appendText('locality', $this->locality, ShmNamespace::Common);
+		$address->appendText('countryCode', $this->countryCode, ShmNamespace::Common);
 
 		return $address;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$address = new static();
 
-		$streetName = Xml::child($xml, 'streetName');
+		$streetName = $xml->child('streetName');
 
 		if ($streetName !== null)
 		{
 			$address->streetName(trim($streetName->textContent));
 		}
 
-		$number = Xml::child($xml, 'number');
+		$number = $xml->child('number');
 
 		if ($number !== null)
 		{
 			$address->number(trim($number->textContent));
 		}
 
-		$box = Xml::text($xml, 'box');
+		$box = $xml->text('box');
 
 		if ($box !== null)
 		{
 			$address->box($box);
 		}
 
-		$postalCode = Xml::child($xml, 'postalCode');
+		$postalCode = $xml->child('postalCode');
 
 		if ($postalCode !== null)
 		{
 			$address->postalCode(trim($postalCode->textContent));
 		}
 
-		$locality = Xml::child($xml, 'locality');
+		$locality = $xml->child('locality');
 
 		if ($locality !== null)
 		{
 			$address->locality(trim($locality->textContent));
 		}
 
-		$countryCode = Xml::child($xml, 'countryCode');
+		$countryCode = $xml->child('countryCode');
 
 		if ($countryCode !== null)
 		{

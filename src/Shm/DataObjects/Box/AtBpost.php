@@ -3,14 +3,12 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use DateTimeInterface;
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
 use Webatvantage\Bpost\Api\Shm\DataObjects\PugoAddress;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Delivery to a pick-up point: a post office, post point or parcel point.
@@ -106,94 +104,90 @@ class AtBpost extends NationalBox implements XmlDeserializable
 		return 'atBpost';
 	}
 
-	protected function buildElement(XMLDocument $document): Element
+	protected function buildElement(XmlElement $wrapper): XmlElement
 	{
-		$element = Xml::element($document, $this->elementName());
+		$namespace = $this->childNamespace();
+		$element = $wrapper->appendElement($this->elementName(), $namespace);
 
-		Xml::appendText($document, $element, 'product', $this->product?->value);
+		$element->appendText('product', $this->product?->value, $namespace);
 
-		$options = $this->buildOptions($document);
+		$this->appendOptions($element);
 
-		if ($options !== null)
-		{
-			$element->append($options);
-		}
-
-		Xml::appendText($document, $element, 'weight', $this->weight);
+		$element->appendText('weight', $this->weight, $namespace);
 
 		if ($this->openingHours !== null && !$this->openingHours->isEmpty())
 		{
-			$element->append($this->openingHours->toXml($document, namespace: Xml::WRITE_NATIONAL));
+			$this->openingHours->toXml($element, $namespace);
 		}
 
-		Xml::appendText($document, $element, 'desiredDeliveryPlace', $this->desiredDeliveryPlace);
-		Xml::appendText($document, $element, 'pugoId', $this->pugoId);
-		Xml::appendText($document, $element, 'pugoName', $this->pugoName);
+		$element->appendText('desiredDeliveryPlace', $this->desiredDeliveryPlace, $namespace);
+		$element->appendText('pugoId', $this->pugoId, $namespace);
+		$element->appendText('pugoName', $this->pugoName, $namespace);
 
 		if ($this->pugoAddress !== null)
 		{
-			$element->append($this->pugoAddress->toXml($document));
+			$this->pugoAddress->toXml($element, $namespace);
 		}
 
-		Xml::appendText($document, $element, 'receiverName', $this->receiverName);
-		Xml::appendText($document, $element, 'receiverCompany', $this->receiverCompany);
-		Xml::appendText($document, $element, 'shopHandlingInstruction', $this->shopHandlingInstruction?->instruction);
-		Xml::appendText($document, $element, 'requestedDeliveryDate', $this->requestedDeliveryDate);
+		$element->appendText('receiverName', $this->receiverName, $namespace);
+		$element->appendText('receiverCompany', $this->receiverCompany, $namespace);
+		$element->appendText('shopHandlingInstruction', $this->shopHandlingInstruction?->instruction, $namespace);
+		$element->appendText('requestedDeliveryDate', $this->requestedDeliveryDate, $namespace);
 
 		return $element;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static(self::readProduct($xml));
 		$box->readCommon($xml);
 
-		$openingHours = Xml::child($xml, 'openingHours');
+		$openingHours = $xml->child('openingHours');
 
 		if ($openingHours !== null)
 		{
 			$box->openingHours = OpeningHours::fromXml($openingHours);
 		}
 
-		$desiredDeliveryPlace = Xml::text($xml, 'desiredDeliveryPlace');
+		$desiredDeliveryPlace = $xml->text('desiredDeliveryPlace');
 
 		if ($desiredDeliveryPlace !== null)
 		{
 			$box->desiredDeliveryPlace($desiredDeliveryPlace);
 		}
 
-		$box->pugoId = Xml::text($xml, 'pugoId');
-		$box->pugoName = Xml::text($xml, 'pugoName');
+		$box->pugoId = $xml->text('pugoId');
+		$box->pugoName = $xml->text('pugoName');
 
-		$pugoAddress = Xml::child($xml, 'pugoAddress');
+		$pugoAddress = $xml->child('pugoAddress');
 
 		if ($pugoAddress !== null)
 		{
 			$box->pugoAddress = PugoAddress::fromXml($pugoAddress);
 		}
 
-		$receiverName = Xml::text($xml, 'receiverName');
+		$receiverName = $xml->text('receiverName');
 
 		if ($receiverName !== null)
 		{
 			$box->receiverName($receiverName);
 		}
 
-		$receiverCompany = Xml::text($xml, 'receiverCompany');
+		$receiverCompany = $xml->text('receiverCompany');
 
 		if ($receiverCompany !== null)
 		{
 			$box->receiverCompany($receiverCompany);
 		}
 
-		$shopHandlingInstruction = Xml::text($xml, 'shopHandlingInstruction');
+		$shopHandlingInstruction = $xml->text('shopHandlingInstruction');
 
 		if ($shopHandlingInstruction !== null)
 		{
 			$box->shopHandlingInstruction($shopHandlingInstruction);
 		}
 
-		$requestedDeliveryDate = Xml::text($xml, 'requestedDeliveryDate');
+		$requestedDeliveryDate = $xml->text('requestedDeliveryDate');
 
 		if ($requestedDeliveryDate !== null)
 		{

@@ -2,11 +2,11 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Collect payment on delivery, into an IBAN account.
@@ -25,23 +25,23 @@ class CashOnDelivery implements Option, XmlDeserializable
 		public private(set) string $bic,
 	) {}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespace::Common): XmlElement
 	{
-		$cod = Xml::element($document, 'cod', $prefix);
+		$cod = $parent->appendElement('cod', $namespace);
 
-		Xml::appendText($document, $cod, 'codAmount', $this->amount, $prefix);
-		Xml::appendText($document, $cod, 'iban', $this->iban, $prefix);
-		Xml::appendText($document, $cod, 'bic', $this->bic, $prefix);
+		$cod->appendText('codAmount', $this->amount, $namespace);
+		$cod->appendText('iban', $this->iban, $namespace);
+		$cod->appendText('bic', $this->bic, $namespace);
 
 		return $cod;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		return new static(
-			(int)Xml::text($xml, 'codAmount'),
-			Xml::text($xml, 'iban') ?? '',
-			Xml::text($xml, 'bic') ?? '',
+			(int)$xml->text('codAmount'),
+			$xml->text('iban') ?? '',
+			$xml->text('bic') ?? '',
 		);
 	}
 }

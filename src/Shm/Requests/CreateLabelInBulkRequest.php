@@ -6,8 +6,10 @@ use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Shm\Enums\LabelFormat;
 use Webatvantage\Bpost\Api\Shm\Enums\LabelOutput;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\DefaultNamespace;
+use Webatvantage\Bpost\Api\Support\XmlDocument;
 
 /**
  * Labels for the unprinted boxes of several orders at once.
@@ -29,21 +31,19 @@ class CreateLabelInBulkRequest extends CreateLabelRequest
 		LabelOutput $output,
 		bool $withReturnLabels = false,
 	) {
-		// Not the order namespace map: batchLabels defaults to the global namespace, where an
-		// order document defaults to the national one.
-		$document = Xml::document();
-		$batch = $document->createElementNS(Xml::WRITE_GLOBAL, 'batchLabels');
-		$batch->setAttributeNS(Xml::XMLNS, 'xmlns:xsi', Xml::XSI);
-		$batch->setAttributeNS(Xml::XSI, 'xsi:schemaLocation', Xml::WRITE_GLOBAL);
+		// batchLabels puts the global namespace in the default position, where an order document
+		// puts the national one and writes global elements under tns:.
+		$namespace = new DefaultNamespace(ShmNamespace::Global->uri());
+
+		$document = XmlDocument::create();
+		$batch = $document->root('batchLabels', $namespace);
+		$batch->setAttributeNS(XmlDocument::XMLNS, 'xmlns:xsi', XmlDocument::XSI);
+		$batch->setAttributeNS(XmlDocument::XSI, 'xsi:schemaLocation', ShmNamespace::Global->uri());
 
 		foreach ($references as $reference)
 		{
-			$order = $document->createElementNS(Xml::WRITE_GLOBAL, 'order');
-			$order->textContent = $reference;
-			$batch->append($order);
+			$batch->appendText('order', $reference, $namespace);
 		}
-
-		$document->append($batch);
 
 		parent::__construct(
 			apiAdapter: $apiAdapter,
@@ -53,7 +53,7 @@ class CreateLabelInBulkRequest extends CreateLabelRequest
 			output: $output,
 			withReturnLabels: $withReturnLabels,
 			method: Method::POST,
-			body: Xml::toString($document),
+			body: $document->toString(),
 		);
 	}
 }

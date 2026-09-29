@@ -2,11 +2,10 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\ProductConfiguration;
 
-use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBox;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * What a product costs to one country, banded by weight.
@@ -24,12 +23,12 @@ class Price implements XmlDeserializable
 		public private(set) ?int $price20To30 = null,
 	) {}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
-		$attribute = static fn (string $name): ?int => (int)Xml::attribute($xml, $name) ?: null;
+		$attribute = static fn (string $name): ?int => (int)$xml->attribute($name) ?: null;
 
 		return new static(
-			Xml::attribute($xml, 'countryIso2Code'),
+			$xml->attribute('countryIso2Code'),
 			$attribute('priceLessThan2'),
 			$attribute('price2To5'),
 			$attribute('price5To10'),

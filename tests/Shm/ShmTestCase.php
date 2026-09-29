@@ -2,10 +2,10 @@
 
 namespace Webatvantage\Bpost\Api\Tests\Shm;
 
-use Dom\XMLDocument;
-use DOMException;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlDocument;
 use Webatvantage\Bpost\Api\Tests\TestCase;
 
 abstract class ShmTestCase extends TestCase
@@ -19,14 +19,17 @@ abstract class ShmTestCase extends TestCase
 	 * Serialise a fragment on its own, so a test can assert the element shape without an order
 	 * wrapped around it.
 	 */
-	protected function serialise(callable $build, ?string $prefix = null): string
+	protected function serialise(callable $build, ?XmlNamespace $namespace = null): string
 	{
-		$document = Xml::document();
+		// A fragment needs a root to hang from; the wrapper is stripped again on the way out.
+		$document = XmlDocument::create();
+		$root = $document->root('fragment', ShmNamespace::Global);
+		ShmNamespace::declareOn($root);
 
-		// Only pass a prefix when the test names one, so each class keeps its own default.
-		$document->append($prefix === null ? $build($document) : $build($document, $prefix));
+		// Only pass a namespace when the test names one, so each class keeps its own default.
+		$namespace === null ? $build($root) : $build($root, $namespace);
 
-		return trim(Xml::toString($document));
+		return trim((string)$root->firstElementChild?->C14N());
 	}
 
 	protected function fixture(string $name): string
@@ -65,37 +68,38 @@ abstract class ShmTestCase extends TestCase
 	 */
 	protected function assertXmlContains(string $expected, string $actual): void
 	{
-		try
-		{
-			$expected = $this->canonicalise($expected);
-		}
-		catch (DOMException)
-		{
-			$expected = trim($expected);
-		}
-
-		$this->assertStringContainsString($expected, $this->canonicalise($actual));
+		$this->assertStringContainsString(
+			$this->canonicalise($expected) ?? trim($expected),
+			(string)$this->canonicalise($actual),
+		);
 	}
 
-	private function canonicalise(string $xml): string
+	/**
+	 * Null for markup that does not stand on its own, such as a bare opening tag.
+	 */
+	private function canonicalise(string $xml): ?string
 	{
 		// A declaration is only legal at the top of a document, not inside the wrapper.
 		$xml = preg_replace('/<\?xml[^>]*\?>/', '', $xml) ?? $xml;
 
 		$wrapped = sprintf(
-			'<fragment xmlns="%s" xmlns:common="%s" xmlns:%s="%s" xmlns:%s="%s" xmlns:xsi="%s">%s</fragment>',
-			Xml::WRITE_NATIONAL,
-			Xml::WRITE_COMMON,
-			Xml::PREFIX_GLOBAL,
-			Xml::WRITE_GLOBAL,
-			Xml::PREFIX_INTERNATIONAL,
-			Xml::WRITE_INTERNATIONAL,
-			Xml::XSI,
+			'<fragment xmlns="%s" xmlns:common="%s" xmlns:tns="%s" xmlns:international="%s" xmlns:xsi="%s">%s</fragment>',
+			ShmNamespace::National->uri(),
+			ShmNamespace::Common->uri(),
+			ShmNamespace::Global->uri(),
+			ShmNamespace::International->uri(),
+			XmlDocument::XSI,
 			trim($xml),
 		);
 
-		$document = XMLDocument::createFromString($wrapped, LIBXML_NOBLANKS | LIBXML_NOERROR);
-		$canonical = (string)$document->documentElement?->C14N();
+		$root = XmlDocument::tryParse($wrapped);
+
+		if ($root === null)
+		{
+			return null;
+		}
+
+		$canonical = (string)$root->C14N();
 
 		// Drop the wrapper itself, so what is compared is only what the caller wrote.
 		$start = strpos($canonical, '>');

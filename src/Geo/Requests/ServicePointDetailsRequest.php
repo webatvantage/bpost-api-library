@@ -8,7 +8,6 @@ use Webatvantage\Bpost\Api\Geo\DataObjects\ServicePoint;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
 use Webatvantage\Bpost\Api\Geo\Exceptions\LocatorException;
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
-use Webatvantage\Bpost\Api\Support\Xml;
 
 /**
  * `Function=info` — the details of one pick-up point, by id and type.
@@ -46,8 +45,8 @@ class ServicePointDetailsRequest extends GeoRequest
 	{
 		$xml = $this->send();
 
-		$entry = Xml::child($xml, 'Poi');
-		$record = $entry === null ? null : Xml::child($entry, 'Record');
+		$entry = $xml->child('Poi');
+		$record = $entry === null ? null : $entry->child('Record');
 
 		if ($entry === null || $record === null)
 		{
@@ -58,12 +57,12 @@ class ServicePointDetailsRequest extends GeoRequest
 			);
 		}
 
-		$page = Xml::child($entry, 'Page');
+		$page = $entry->child('Page');
 
 		return ServicePoint::fromXml(
 			$record,
 			null,
-			$page === null ? null : Xml::attribute($page, 'ServiceRef'),
+			$page === null ? null : $page->attribute('ServiceRef'),
 		);
 	}
 }

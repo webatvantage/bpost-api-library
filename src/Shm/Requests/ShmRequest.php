@@ -2,12 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\Shm\Requests;
 
-use Dom\Element;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Base for the Shipping Manager operations.
@@ -38,11 +38,11 @@ abstract class ShmRequest extends Request
 		);
 	}
 
-	protected function sendExpectingXml(): Element
+	protected function sendExpectingXml(): XmlElement
 	{
 		$response = $this->apiAdapter->request($this);
 
-		if (!$response instanceof Element)
+		if (!$response instanceof XmlElement)
 		{
 			throw new UnserializableResponseException('The Shipping Manager did not answer with XML.', 200, (string)$response);
 		}

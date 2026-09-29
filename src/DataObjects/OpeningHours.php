@@ -2,13 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\DataObjects;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Enums\Weekday;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
-use Webatvantage\Bpost\Api\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * When the receiving business is open.
@@ -66,18 +65,15 @@ class OpeningHours implements XmlDeserializable, XmlSerializable
 	}
 
 	/**
-	 * A week of hours is the one block both services write, so it is told which namespace it is
-	 * being written into rather than resolving a prefix against a map it cannot see from here.
-	 *
-	 * @param string|null $namespace The service's namespace for these elements
+	 * The Shipping Manager names this block openingHours, an announcement names it
+	 * receiverOpeningHours, so the caller supplies the tag along with its namespace.
 	 */
 	public function toXml(
-		XMLDocument $document,
-		?string $prefix = null,
+		XmlElement $parent,
+		?XmlNamespace $namespace = null,
 		string $tagName = 'openingHours',
-		?string $namespace = null,
-	): Element {
-		$element = $document->createElementNS($namespace, Xml::prefixed($tagName, $prefix));
+	): XmlElement {
+		$element = $parent->appendElement($tagName, $namespace);
 
 		foreach (Weekday::cases() as $weekday)
 		{
@@ -86,21 +82,19 @@ class OpeningHours implements XmlDeserializable, XmlSerializable
 				continue;
 			}
 
-			$day = $document->createElementNS($namespace, Xml::prefixed($weekday->value, $prefix));
-			$day->textContent = $this->days[$weekday->value];
-			$element->append($day);
+			$element->appendText($weekday->value, $this->days[$weekday->value], $namespace);
 		}
 
 		return $element;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$hours = new static();
 
 		foreach (Weekday::cases() as $weekday)
 		{
-			$value = Xml::text($xml, $weekday->value);
+			$value = $xml->text($weekday->value);
 
 			if ($value === null)
 			{

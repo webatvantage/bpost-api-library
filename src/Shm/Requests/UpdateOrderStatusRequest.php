@@ -6,8 +6,10 @@ use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\BoxStatus;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\DefaultNamespace;
+use Webatvantage\Bpost\Api\Support\XmlDocument;
 
 /**
  * POST /{accountId}/orders/{reference} — set the status of every unprinted box in an order.
@@ -38,15 +40,13 @@ class UpdateOrderStatusRequest extends ShmRequest
 
 		// Still on the v3 namespace, and it is this document's default — unlike an order, which
 		// defaults to the national namespace.
-		$document = Xml::document();
-		$update = $document->createElementNS(Xml::READ_GLOBAL, 'orderUpdate');
-		$update->setAttributeNS(Xml::XMLNS, 'xmlns:xsi', Xml::XSI);
-		$update->setAttributeNS(Xml::XSI, 'xsi:schemaLocation', Xml::READ_GLOBAL);
+		$namespace = new DefaultNamespace(ShmNamespace::LegacyGlobal->uri());
 
-		$state = $document->createElementNS(Xml::READ_GLOBAL, 'status');
-		$state->textContent = $status->value;
-		$update->append($state);
-		$document->append($update);
+		$document = XmlDocument::create();
+		$update = $document->root('orderUpdate', $namespace);
+		$update->setAttributeNS(XmlDocument::XMLNS, 'xmlns:xsi', XmlDocument::XSI);
+		$update->setAttributeNS(XmlDocument::XSI, 'xsi:schemaLocation', ShmNamespace::LegacyGlobal->uri());
+		$update->appendText('status', $status->value, $namespace);
 
 		parent::__construct(
 			apiAdapter: $apiAdapter,
@@ -54,7 +54,7 @@ class UpdateOrderStatusRequest extends ShmRequest
 			method: Method::POST,
 			path: '/orders/' . rawurlencode($reference),
 			headers: ['Content-Type' => self::CONTENT_TYPE],
-			body: Xml::toString($document),
+			body: $document->toString(),
 			expectsXml: false,
 		);
 	}

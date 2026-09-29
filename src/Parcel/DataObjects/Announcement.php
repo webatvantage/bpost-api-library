@@ -2,13 +2,13 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\DataObjects\OpeningHours;
 use Webatvantage\Bpost\Api\Parcel\Enums\DeliveryMethod;
-use Webatvantage\Bpost\Api\Parcel\Support\Xml;
+use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlDocument;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Tells bpost a parcel is coming, before it reaches them.
@@ -159,78 +159,65 @@ class Announcement
 		return $this;
 	}
 
-	public function toXml(XMLDocument $document, string $accountId): Element
+	public function toXml(XmlDocument $document, string $accountId): XmlElement
 	{
-		$prefix = Xml::PREFIX_ANNOUNCEMENT;
-		$announcement = Xml::element($document, 'announcement', $prefix);
-		Xml::declareNamespaces($announcement);
+		$namespace = ParcelNamespace::Announcement;
+		$announcement = $document->root('announcement', $namespace);
+		ParcelNamespace::declareOn($announcement);
 
-		Xml::appendText($document, $announcement, 'accountId', $accountId, $prefix);
-		Xml::appendText($document, $announcement, 'type', $this->type, $prefix);
-		Xml::appendText($document, $announcement, 'itemCode', $this->itemCode, $prefix);
-		Xml::appendText($document, $announcement, 'productCode', $this->productCode, $prefix);
+		$announcement->appendText('accountId', $accountId, $namespace);
+		$announcement->appendText('type', $this->type, $namespace);
+		$announcement->appendText('itemCode', $this->itemCode, $namespace);
+		$announcement->appendText('productCode', $this->productCode, $namespace);
 
-		$announcement->append($this->sender->toXml($document, $prefix));
-		$announcement->append($this->receiver->toXml($document, $prefix));
+		$this->sender->toXml($announcement, $namespace);
+		$this->receiver->toXml($announcement, $namespace);
 
 		if ($this->receiverOpeningHours !== null && !$this->receiverOpeningHours->isEmpty())
 		{
-			$announcement->append(
-				$this->receiverOpeningHours->toXml($document, $prefix, 'receiverOpeningHours', Xml::ANNOUNCEMENT),
-			);
+			$this->receiverOpeningHours->toXml($announcement, $namespace, 'receiverOpeningHours');
 		}
 
-		Xml::appendText(
-			$document,
-			$announcement,
+		$announcement->appendText(
 			'receiverDesiredDeliveryPlace',
 			$this->receiverDesiredDeliveryPlace,
-			$prefix,
+			$namespace,
 		);
-		Xml::appendText($document, $announcement, 'weightInGrams', $this->weightInGrams, $prefix);
-		Xml::appendText($document, $announcement, 'customerReference', $this->customerReference, $prefix);
-		Xml::appendText($document, $announcement, 'costCenter', $this->costCenter, $prefix);
-		Xml::appendText(
-			$document,
-			$announcement,
+		$announcement->appendText('weightInGrams', $this->weightInGrams, $namespace);
+		$announcement->appendText('customerReference', $this->customerReference, $namespace);
+		$announcement->appendText('costCenter', $this->costCenter, $namespace);
+		$announcement->appendText(
 			'freeTextCustomerReference1',
 			$this->freeTextCustomerReference1,
-			$prefix,
+			$namespace,
 		);
-		Xml::appendText(
-			$document,
-			$announcement,
+		$announcement->appendText(
 			'freeTextCustomerReference2',
 			$this->freeTextCustomerReference2,
-			$prefix,
+			$namespace,
 		);
 
 		if ($this->international !== null)
 		{
-			$announcement->append($this->international->toXml($document, $prefix));
+			$this->international->toXml($announcement, $namespace);
 		}
 
-		$method = Xml::element($document, 'deliveryMethod', $prefix);
-		$method->append(
-			Xml::element($document, $this->deliveryMethod->value, Xml::PREFIX_COMMON),
-		);
-		$announcement->append($method);
+		$method = $announcement->appendElement('deliveryMethod', $namespace);
+		$method->appendElement($this->deliveryMethod->value, ParcelNamespace::Common);
 
 		if (count($this->options) > 0)
 		{
-			$options = Xml::element($document, 'options', $prefix);
+			$options = $announcement->appendElement('options', $namespace);
 
 			foreach ($this->options as $option)
 			{
-				$options->append($option->toXml($document));
+				$option->toXml($options, ParcelNamespace::Common);
 			}
-
-			$announcement->append($options);
 		}
 
 		if ($this->dimensions !== null)
 		{
-			$announcement->append($this->dimensions->toXml($document, $prefix));
+			$this->dimensions->toXml($announcement, $namespace);
 		}
 
 		return $announcement;

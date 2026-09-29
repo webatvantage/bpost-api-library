@@ -2,9 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
-use Webatvantage\Bpost\Api\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Where a parcel is waiting, when tracking says it is awaiting collection.
@@ -20,15 +19,15 @@ class PickupPoint implements XmlDeserializable
 		public private(set) ?string $city = null,
 	) {}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		return new static(
-			Xml::text($xml, 'id'),
-			Xml::text($xml, 'name'),
-			Xml::text($xml, 'streetName'),
-			Xml::text($xml, 'houseNumber'),
-			Xml::text($xml, 'postalCode'),
-			Xml::text($xml, 'city'),
+			$xml->text('id'),
+			$xml->text('name'),
+			$xml->text('streetName'),
+			$xml->text('houseNumber'),
+			$xml->text('postalCode'),
+			$xml->text('city'),
 		);
 	}
 }

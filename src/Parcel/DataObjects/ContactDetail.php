@@ -2,12 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
-use Webatvantage\Bpost\Api\Parcel\Support\Xml;
+use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * How to reach a party.
@@ -49,24 +49,24 @@ class ContactDetail implements XmlDeserializable, XmlSerializable
 		return $this->telephoneNumber !== null || $this->mobilePhone !== null;
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Common): XmlElement
 	{
-		$detail = Xml::element($document, 'contactDetail', $prefix);
+		$detail = $parent->appendElement('contactDetail', $namespace);
 
-		Xml::appendText($document, $detail, 'emailAddress', $this->emailAddress, $prefix);
-		Xml::appendText($document, $detail, 'telephoneNumber', $this->telephoneNumber, $prefix);
-		Xml::appendText($document, $detail, 'mobilePhone', $this->mobilePhone, $prefix);
+		$detail->appendText('emailAddress', $this->emailAddress, $namespace);
+		$detail->appendText('telephoneNumber', $this->telephoneNumber, $namespace);
+		$detail->appendText('mobilePhone', $this->mobilePhone, $namespace);
 
 		return $detail;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$detail = new static();
 
 		foreach (['emailAddress', 'telephoneNumber', 'mobilePhone'] as $field)
 		{
-			$value = Xml::text($xml, $field);
+			$value = $xml->text($field);
 
 			if ($value !== null)
 			{

@@ -2,16 +2,16 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Customs;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\Currency;
 use Webatvantage\Bpost\Api\Shm\Enums\ParcelReturnInstruction;
 use Webatvantage\Bpost\Api\Shm\Enums\ShipmentType;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * The customs declaration for an international parcel.
@@ -67,53 +67,51 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_INTERNATIONAL): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespace::International): XmlElement
 	{
-		$element = Xml::element($document, 'customsInfo', $prefix);
+		$element = $parent->appendElement('customsInfo', $namespace);
 
-		Xml::appendText($document, $element, 'parcelValue', $this->parcelValue, $prefix);
-		Xml::appendText($document, $element, 'contentDescription', $this->contentDescription, $prefix);
-		Xml::appendText($document, $element, 'shipmentType', $this->shipmentType->value, $prefix);
-		Xml::appendText($document, $element, 'parcelReturnInstructions', $this->parcelReturnInstructions->value, $prefix);
-		Xml::appendText($document, $element, 'privateAddress', $this->privateAddress ? 'true' : 'false', $prefix);
-		Xml::appendText($document, $element, 'currency', $this->currency?->value, $prefix);
+		$element->appendText('parcelValue', $this->parcelValue, $namespace);
+		$element->appendText('contentDescription', $this->contentDescription, $namespace);
+		$element->appendText('shipmentType', $this->shipmentType->value, $namespace);
+		$element->appendText('parcelReturnInstructions', $this->parcelReturnInstructions->value, $namespace);
+		$element->appendText('privateAddress', $this->privateAddress ? 'true' : 'false', $namespace);
+		$element->appendText('currency', $this->currency?->value, $namespace);
 
 		if ($this->amtPostagePaidByAddresse !== null)
 		{
-			Xml::appendText(
-				$document,
-				$element,
+			$element->appendText(
 				'amtPostagePaidByAddresse',
 				sprintf('%0.2f', $this->amtPostagePaidByAddresse),
-				$prefix,
+				$namespace,
 			);
 		}
 
 		return $element;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$info = new static(
-			(int)Xml::text($xml, 'parcelValue'),
-			Xml::text($xml, 'contentDescription') ?? '',
-			Assert::enum('shipmentType', ShipmentType::class, strtoupper(Xml::text($xml, 'shipmentType') ?? '')),
+			(int)$xml->text('parcelValue'),
+			$xml->text('contentDescription') ?? '',
+			Assert::enum('shipmentType', ShipmentType::class, strtoupper($xml->text('shipmentType') ?? '')),
 			Assert::enum(
 				'parcelReturnInstructions',
 				ParcelReturnInstruction::class,
-				strtoupper(Xml::text($xml, 'parcelReturnInstructions') ?? ''),
+				strtoupper($xml->text('parcelReturnInstructions') ?? ''),
 			),
-			(Xml::text($xml, 'privateAddress') ?? '') === 'true',
+			($xml->text('privateAddress') ?? '') === 'true',
 		);
 
-		$currency = Xml::text($xml, 'currency');
+		$currency = $xml->text('currency');
 
 		if ($currency !== null)
 		{
 			$info->currency(Assert::enum('currency', Currency::class, strtoupper($currency)));
 		}
 
-		$postagePaid = Xml::text($xml, 'amtPostagePaidByAddresse');
+		$postagePaid = $xml->text('amtPostagePaidByAddresse');
 
 		if ($postagePaid !== null)
 		{

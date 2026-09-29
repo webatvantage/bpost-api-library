@@ -2,13 +2,11 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Customs\ParcelContent;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * Delivery to an address abroad.
@@ -72,43 +70,41 @@ class International extends InternationalBox implements XmlDeserializable
 		return 'international';
 	}
 
-	protected function buildElement(XMLDocument $document): Element
+	protected function buildElement(XmlElement $wrapper): XmlElement
 	{
-		$prefix = $this->childPrefix();
-		$element = Xml::element($document, $this->elementName(), $prefix);
+		$namespace = $this->childNamespace();
+		$element = $wrapper->appendElement($this->elementName(), $namespace);
 
-		$this->appendShared($document, $element);
+		$this->appendShared($element);
 
 		if (count($this->parcelContents) === 0)
 		{
 			return $element;
 		}
 
-		$contents = Xml::element($document, 'parcelContents', $prefix);
+		$contents = $element->appendElement('parcelContents', $namespace);
 
 		foreach ($this->parcelContents as $content)
 		{
-			$contents->append($content->toXml($document, $prefix));
+			$content->toXml($contents, $namespace);
 		}
-
-		$element->append($contents);
 
 		return $element;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static(self::readProduct($xml));
 		$box->readShared($xml);
 
-		$contents = Xml::child($xml, 'parcelContents');
+		$contents = $xml->child('parcelContents');
 
 		if ($contents === null)
 		{
 			return $box;
 		}
 
-		foreach ($contents->children as $content)
+		foreach ($contents->childElements() as $content)
 		{
 			$box->withParcelContent(ParcelContent::fromXml($content));
 		}

@@ -12,7 +12,7 @@ use Webatvantage\Bpost\Api\Shm\DataObjects\Order;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Receiver;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Sender;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlDocument;
 use Webatvantage\Bpost\Api\Tests\Shm\ShmTestCase;
 
 class OrderTest extends ShmTestCase
@@ -55,13 +55,10 @@ class OrderTest extends ShmTestCase
 					->additionalCustomerReference('Reference that can be used for cross-referencing'),
 			);
 
-		$document = Xml::document();
-		$document->appendChild($order->toXml($document, '{accountID}'));
+		$document = XmlDocument::create();
+		$order->toXml($document, '{accountID}');
 
-		$this->assertXmlFragment(
-			$this->fixture('create-order-at-home.xml'),
-			Xml::toString($document),
-		);
+		$this->assertXmlFragment($this->fixture('create-order-at-home.xml'), $document->toString());
 	}
 
 	/**
@@ -72,9 +69,9 @@ class OrderTest extends ShmTestCase
 	{
 		$order = new Order('ref')->addBox(new Box()->deliverTo(new AtHome(Product::Bpack24hPro)));
 
-		$document = Xml::document();
-		$document->appendChild($order->toXml($document, '123456'));
-		$xml = Xml::toString($document);
+		$document = XmlDocument::create();
+		$order->toXml($document, '123456');
+		$xml = $document->toString();
 
 		$this->assertStringNotContainsString('additionalCustomerReference', $xml);
 		$this->assertStringNotContainsString('PHP', $xml);

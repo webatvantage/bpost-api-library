@@ -2,10 +2,9 @@
 
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\ProductConfiguration;
 
-use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Shm\Enums\Product as ProductName;
-use Webatvantage\Bpost\Api\Shm\Support\Xml;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * A product this account may use, with its prices and options.
@@ -23,24 +22,24 @@ class Product implements XmlDeserializable
 		public private(set) array $options = [],
 	) {}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$prices = [];
 		$options = [];
 
-		foreach (Xml::children($xml, 'price') as $price)
+		foreach ($xml->children('price') as $price)
 		{
 			$prices[] = Price::fromXml($price);
 		}
 
-		foreach (Xml::children($xml, 'option') as $option)
+		foreach ($xml->children('option') as $option)
 		{
 			$options[] = Option::fromXml($option);
 		}
 
 		return new static(
-			ProductName::tryFrom(Xml::attribute($xml, 'name') ?? ''),
-			Xml::attribute($xml, 'default') === 'true',
+			ProductName::tryFrom($xml->attribute('name') ?? ''),
+			$xml->attribute('default') === 'true',
 			$prices,
 			$options,
 		);

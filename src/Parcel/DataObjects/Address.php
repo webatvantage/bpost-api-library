@@ -2,12 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use Dom\Element;
-use Dom\XMLDocument;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
-use Webatvantage\Bpost\Api\Parcel\Support\Xml;
+use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Assert;
+use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
  * A postal address as the announcement and tracking services spell it.
@@ -74,27 +74,27 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
-	public function toXml(XMLDocument $document, ?string $prefix = Xml::PREFIX_COMMON): Element
+	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Common): XmlElement
 	{
-		$address = Xml::element($document, 'address', $prefix);
+		$address = $parent->appendElement('address', $namespace);
 
-		Xml::appendText($document, $address, 'streetName', $this->streetName, $prefix);
-		Xml::appendText($document, $address, 'houseNumber', $this->houseNumber, $prefix);
-		Xml::appendText($document, $address, 'boxNumber', $this->boxNumber, $prefix);
-		Xml::appendText($document, $address, 'postalCode', $this->postalCode, $prefix);
-		Xml::appendText($document, $address, 'city', $this->city, $prefix);
-		Xml::appendText($document, $address, 'countryCode', $this->countryCode, $prefix);
+		$address->appendText('streetName', $this->streetName, $namespace);
+		$address->appendText('houseNumber', $this->houseNumber, $namespace);
+		$address->appendText('boxNumber', $this->boxNumber, $namespace);
+		$address->appendText('postalCode', $this->postalCode, $namespace);
+		$address->appendText('city', $this->city, $namespace);
+		$address->appendText('countryCode', $this->countryCode, $namespace);
 
 		return $address;
 	}
 
-	public static function fromXml(Element $xml): static
+	public static function fromXml(XmlElement $xml): static
 	{
 		$address = new static();
 
 		foreach (['streetName', 'houseNumber', 'boxNumber', 'postalCode', 'city', 'countryCode'] as $field)
 		{
-			$value = Xml::text($xml, $field);
+			$value = $xml->text($field);
 
 			if ($value !== null)
 			{

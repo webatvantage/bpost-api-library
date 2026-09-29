@@ -77,32 +77,41 @@ Each service can also be constructed on its own if you only use one — `new Shm
 
 ### Custom data objects
 
-Only relevant if you implemented `XmlSerializable` or `XmlDeserializable` yourself, or subclassed a
-data object and overrode `toXml()` / `fromXml()`. Both contracts are on PHP 8.4's `Dom` API now,
-through two classes of the library's own: `XmlDocument`, which holds a `Dom\XMLDocument` (that class
-is `final`, so it cannot be extended), and `XmlElement`, which extends `Dom\Element`.
+Only relevant if you subclassed a data object and overrode `toXML()` or `createFromXML()`. 2.0
+puts both behind contracts — `XmlSerializable` and `XmlDeserializable` — on PHP 8.4's `Dom` API,
+through `Support\XmlDocument` and `Support\XmlElement`.
 
 ```php
 // 1.x
-public function toXml(DOMDocument $document, ?string $prefix = null): DOMElement
-public static function fromXml(SimpleXMLElement $xml): static
+public function toXML(DOMDocument $document, $prefix = 'common')
+public static function createFromXML(SimpleXMLElement $xml)
 
 // 2.0
 public function toXml(XmlElement $parent, ?XmlNamespace $namespace = null): XmlElement
 public static function fromXml(XmlElement $xml): static
 ```
 
-Two things changed beyond the types. An object now writes **into** the element it is given rather
-than returning a loose one for the caller to append, and the namespace arrives as an enum case —
-`ShmNamespace` or `ParcelNamespace` — that carries both the URI and the prefix bpost writes it
-under, in place of a bare prefix string.
+Note the spelling: `toXML` and `createFromXML` became `toXml` and `fromXml`.
+
+Beyond the types: an object now writes **into** the element it is given rather than returning a
+loose one for the caller to append, and the namespace arrives as a `ShmNamespace` or
+`ParcelNamespace` case carrying the prefix with it, in place of a bare prefix string.
 
 ```php
 // 1.x
-public function toXml(DOMDocument $document, ?string $prefix = Xml::PREFIX_COMMON): DOMElement
+public function toXML(DOMDocument $document, $prefix = 'common')
 {
-    $cod = $document->createElement(Xml::prefixed('cod', $prefix));
-    Xml::appendText($document, $cod, 'codAmount', $this->amount, $prefix);
+    $cod = $document->createElement(XmlHelper::getPrefixedTagName('cod', $prefix));
+
+    if ($this->getAmount() !== null) {
+        $cod->appendChild(
+            XmlHelper::createTextElement(
+                $document,
+                XmlHelper::getPrefixedTagName('codAmount', $prefix),
+                $this->getAmount()
+            )
+        );
+    }
 
     return $cod;
 }
@@ -117,22 +126,21 @@ public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespac
 }
 ```
 
-`appendElement()` is named that way because `Dom\Element` already has `append()` and `appendChild()`.
-Passing `null` as the namespace means *no* namespace, which serialises as `xmlns=""` — where the old
-code used a null prefix to mean "the document's default", pass the case for that namespace instead
-(`ShmNamespace::National` inside a national box).
+Watch the null namespace: it now means *no* namespace and serialises as `xmlns=""`. Where the old
+code passed a null prefix to mean "the document's default", pass that namespace's case instead —
+`ShmNamespace::National` inside a national box.
 
-On the way back, the reading methods replace SimpleXML's property access and all match on local
-name, so an undeclared prefix in bpost's own examples is not a problem:
+On the way back, the reading methods replace SimpleXML's property access. All of them match on
+local name, so a prefix bpost never declares still reads:
 
 ```php
 // 1.x
-if (isset($xml->reference)) { $order->reference((string)$xml->reference); }
-foreach ($xml->box ?? [] as $box) { ... }
+if (isset($xml->costCenter) && $xml->costCenter != '') { $order->setCostCenter((string) $xml->costCenter); }
+foreach ($xml->box as $box) { ... }
 
 // 2.0
-$reference = $xml->text('reference');
-if ($reference !== null) { $order->reference($reference); }
+$costCenter = $xml->text('costCenter');
+if ($costCenter !== null) { $order->costCenter($costCenter); }
 foreach ($xml->children('box') as $box) { ... }
 ```
 

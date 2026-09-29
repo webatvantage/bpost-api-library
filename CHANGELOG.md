@@ -41,21 +41,14 @@
 * `getPossibleXValues()` arrays are replaced by enums throughout
 * `ext-curl` is a suggestion rather than a requirement: the library no longer calls cURL itself and
   Guzzle works on the stream handler without it
-* XML is handled by PHP 8.4's `Dom` API throughout, on both sides. Requests were built with
-  `DOMDocument` and responses read with `SimpleXMLElement`; both now go through two classes of the
-  library's own — `XmlDocument`, which holds a `Dom\XMLDocument` because that class is `final`, and
-  `XmlElement`, which extends `Dom\Element`. `XmlSerializable::toXml()` takes the parent element and
-  writes into it rather than returning a loose one, `XmlDeserializable::fromXml()` takes an
-  `XmlElement`, and `HttpApiAdapter::request()` returns `XmlElement|string`
+* XML goes through `Support\XmlDocument` and `Support\XmlElement` on both sides, in place of
+  `DOMDocument` for writing and `SimpleXMLElement` for reading. `XmlSerializable::toXml()` writes
+  into the element it is given rather than returning a loose one, `XmlDeserializable::fromXml()`
+  takes an `XmlElement`, and `HttpApiAdapter::request()` returns `XmlElement|string`
 * Namespaces are enum cases — `Shm\Enums\ShmNamespace`, `Parcel\Enums\ParcelNamespace` — carrying
-  both the URI and the prefix bpost writes it under, in place of the prefix strings and namespace
-  constants on the old `Xml` helpers. Request documents now carry a real namespace tree: elements
-  were created with the prefix baked into the tag name and the `xmlns` attributes set by hand, so
-  nothing was actually namespaced. The serialised output is unchanged: every order document is
-  byte-identical across the change, and a generated order still matches bpost's own example
-  document down to the order its namespace declarations are written in
-* Response elements are matched on local name, which is what bpost's own examples need: several use
-  prefixes they never declare. `Xml::readChildren()` and the SimpleXML attribute workaround are gone
+  the URI and the prefix together, in place of the prefix strings and namespace constants on the old
+  `Xml` helpers. What goes on the wire is unchanged: a generated order is byte-identical, down to
+  the order its namespace declarations are written in
 
 #### Removed
 

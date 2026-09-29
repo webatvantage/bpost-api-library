@@ -29,13 +29,19 @@ class Validate
 	}
 
 	/**
+	 * @template T of int|float
+	 *
+	 * @param T $value
+	 *
+	 * @return T
+	 *
 	 * @throws InvalidValueException
 	 */
-	public static function between(string $name, int $value, int $min, int $max): int
+	public static function between(string $name, int|float $value, int|float $min, int|float $max): int|float
 	{
 		if ($value < $min || $value > $max)
 		{
-			throw new InvalidValueException($name, $value, [sprintf('%d to %d', $min, $max)]);
+			throw new InvalidValueException($name, $value, [sprintf('%s to %s', $min, $max)]);
 		}
 
 		return $value;

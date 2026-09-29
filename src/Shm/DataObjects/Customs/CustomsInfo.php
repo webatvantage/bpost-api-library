@@ -5,7 +5,6 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Customs;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
-use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\Currency;
 use Webatvantage\Bpost\Api\Shm\Enums\ParcelReturnInstruction;
 use Webatvantage\Bpost\Api\Shm\Enums\ShipmentType;
@@ -64,16 +63,7 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 	 */
 	public function amtPostagePaidByAddresse(float $amount): static
 	{
-		if ($amount < 0 || $amount > 999.99)
-		{
-			throw new InvalidValueException(
-				name: 'amtPostagePaidByAddresse',
-				value: $amount,
-				allowed: ['0 to 999.99'],
-			);
-		}
-
-		$this->amtPostagePaidByAddresse = $amount;
+		$this->amtPostagePaidByAddresse = Validate::between('amtPostagePaidByAddresse', $amount, 0, 999.99);
 
 		return $this;
 	}

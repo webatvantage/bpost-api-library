@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api\ApiAdapter;
 use Closure;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleLogMiddleware\LogMiddleware;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
@@ -18,6 +19,9 @@ use Webatvantage\Bpost\Api\Support\XmlElement;
 
 class HttpApiAdapter
 {
+	/** Guzzle request option carrying the decision for the request being sent. */
+	private const string LOGGING_OPTION = 'bpost_logging';
+
 	private readonly Client $client;
 
 	private readonly string $baseUri;
@@ -25,12 +29,15 @@ class HttpApiAdapter
 	/** @var (Closure(RequestInterface, ResponseInterface): void)|null */
 	private ?Closure $debugCallback;
 
+	private bool $logging;
+
 	/**
 	 * @param string $baseUri
 	 * @param array<string, string> $defaultHeaders
 	 * @param array<string, mixed> $httpClientOptions
 	 * @param LoggerInterface|null $logger
 	 * @param (Closure(RequestInterface $request, ResponseInterface $response): void)|null $debugCallback
+	 * @param bool $logging
 	 */
 	public function __construct(
 		string $baseUri,
@@ -38,15 +45,17 @@ class HttpApiAdapter
 		array $httpClientOptions = [],
 		?LoggerInterface $logger = null,
 		?Closure $debugCallback = null,
+		bool $logging = true,
 	) {
 		$this->debugCallback = $debugCallback;
+		$this->logging = $logging;
 		$this->baseUri = rtrim($baseUri, '/');
 
 		$handler = $httpClientOptions['handler'] ?? HandlerStack::create();
 
 		if ($logger !== null && $handler instanceof HandlerStack)
 		{
-			$handler->push(new LogMiddleware($logger));
+			$handler->push(self::conditionalLogging(new LogMiddleware($logger)));
 		}
 
 		$this->client = new Client([
@@ -66,7 +75,9 @@ class HttpApiAdapter
 		try
 		{
 			$psrRequest = $request->toRequest($headers, $this->baseUri);
-			$response = $this->client->send($psrRequest);
+			$response = $this->client->send($psrRequest, [
+				self::LOGGING_OPTION => $request->isLogging() ?? $this->logging,
+			]);
 		}
 		catch (ClientExceptionInterface $clientException)
 		{
@@ -115,5 +126,33 @@ class HttpApiAdapter
 		$this->debugCallback = $callback;
 
 		return $this;
+	}
+
+	public function isLogging(): bool
+	{
+		return $this->logging;
+	}
+
+	public function setLogging(bool $logging): static
+	{
+		$this->logging = $logging;
+
+		return $this;
+	}
+
+	/**
+	 * Wrap the log middleware so a silenced request skips it instead of reaching it.
+	 */
+	private static function conditionalLogging(LogMiddleware $middleware): Closure
+	{
+		return static function (callable $handler) use ($middleware): Closure {
+			$logged = $middleware($handler);
+
+			return static function (RequestInterface $request, array $options) use ($handler, $logged): PromiseInterface {
+				return ($options[self::LOGGING_OPTION] ?? true)
+					? $logged($request, $options)
+					: $handler($request, $options);
+			};
+		};
 	}
 }

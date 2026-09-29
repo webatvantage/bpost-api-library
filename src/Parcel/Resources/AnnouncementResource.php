@@ -22,6 +22,6 @@ class AnnouncementResource extends Resource
 	 */
 	public function create(Announcement $announcement): Feedback
 	{
-		return new CreateAnnouncementRequest($this->apiAdapter, $this->config, $announcement)->send();
+		return $this->prepare(new CreateAnnouncementRequest($this->apiAdapter, $this->config, $announcement))->send();
 	}
 }

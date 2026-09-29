@@ -29,17 +29,17 @@ class ServicePointResource extends Resource
 	 */
 	public function nearest(string $zone, ?string $street = null, ?string $number = null): NearestServicePointsRequest
 	{
-		return new NearestServicePointsRequest($this->apiAdapter, $this->config, $zone, $street, $number);
+		return $this->prepare(new NearestServicePointsRequest($this->apiAdapter, $this->config, $zone, $street, $number));
 	}
 
 	public function details(string $id, PointType $type): ServicePointDetailsRequest
 	{
-		return new ServicePointDetailsRequest($this->apiAdapter, $this->config, $id, $type);
+		return $this->prepare(new ServicePointDetailsRequest($this->apiAdapter, $this->config, $id, $type));
 	}
 
 	public function all(): AllServicePointsRequest
 	{
-		return new AllServicePointsRequest($this->apiAdapter, $this->config);
+		return $this->prepare(new AllServicePointsRequest($this->apiAdapter, $this->config));
 	}
 
 	/**

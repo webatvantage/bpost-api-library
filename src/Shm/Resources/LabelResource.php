@@ -30,14 +30,14 @@ class LabelResource extends Resource
 		LabelOutput $output = LabelOutput::Pdf,
 		bool $withReturnLabels = false,
 	): CreateLabelForOrderRequest {
-		return new CreateLabelForOrderRequest(
+		return $this->prepare(new CreateLabelForOrderRequest(
 			apiAdapter: $this->apiAdapter,
 			config: $this->config,
 			reference: $reference,
 			format: $format,
 			output: $output,
 			withReturnLabels: $withReturnLabels,
-		);
+		));
 	}
 
 	public function forBox(
@@ -46,14 +46,14 @@ class LabelResource extends Resource
 		LabelOutput $output = LabelOutput::Pdf,
 		bool $withReturnLabels = false,
 	): CreateLabelForBoxRequest {
-		return new CreateLabelForBoxRequest(
+		return $this->prepare(new CreateLabelForBoxRequest(
 			apiAdapter: $this->apiAdapter,
 			config: $this->config,
 			barcode: $barcode,
 			format: $format,
 			output: $output,
 			withReturnLabels: $withReturnLabels,
-		);
+		));
 	}
 
 	/**
@@ -65,13 +65,13 @@ class LabelResource extends Resource
 		LabelOutput $output = LabelOutput::Pdf,
 		bool $withReturnLabels = false,
 	): CreateLabelInBulkRequest {
-		return new CreateLabelInBulkRequest(
+		return $this->prepare(new CreateLabelInBulkRequest(
 			apiAdapter: $this->apiAdapter,
 			config: $this->config,
 			references: $references,
 			format: $format,
 			output: $output,
 			withReturnLabels: $withReturnLabels,
-		);
+		));
 	}
 }

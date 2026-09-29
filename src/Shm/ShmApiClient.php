@@ -31,6 +31,21 @@ readonly class ShmApiClient
 		);
 	}
 
+	/**
+	 * Log every call this client makes, or keep them all out of the log.
+	 */
+	public function withLogging(bool $logging = true): static
+	{
+		$this->apiAdapter->setLogging($logging);
+
+		return $this;
+	}
+
+	public function withoutLogging(): static
+	{
+		return $this->withLogging(false);
+	}
+
 	public function orders(): OrderResource
 	{
 		return new OrderResource($this->apiAdapter, $this->config);

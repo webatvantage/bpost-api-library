@@ -17,6 +17,6 @@ class ProductConfigurationResource extends Resource
 
 	public function get(): ProductConfiguration
 	{
-		return new FetchProductConfigurationRequest($this->apiAdapter, $this->config)->get();
+		return $this->prepare(new FetchProductConfigurationRequest($this->apiAdapter, $this->config))->get();
 	}
 }

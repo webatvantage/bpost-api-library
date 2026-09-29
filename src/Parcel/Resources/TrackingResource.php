@@ -10,6 +10,6 @@ class TrackingResource extends Resource
 {
 	public function get(string $barcode): ItemTracking
 	{
-		return new FetchTrackingInfoRequest($this->apiAdapter, $barcode)->get();
+		return $this->prepare(new FetchTrackingInfoRequest($this->apiAdapter, $barcode))->get();
 	}
 }

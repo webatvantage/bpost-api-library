@@ -18,6 +18,8 @@ abstract class Request
 {
 	use Conditionable;
 
+	private ?bool $logging = null;
+
 	/**
 	 * @param array<string, mixed> $parameters
 	 * @param array<string, string> $headers
@@ -73,6 +75,29 @@ abstract class Request
 	public function expectsXml(): bool
 	{
 		return $this->expectsXml;
+	}
+
+	/**
+	 * Log this one call, or keep it out of the log, whatever the client is set to.
+	 */
+	public function withLogging(bool $logging = true): static
+	{
+		$this->logging = $logging;
+
+		return $this;
+	}
+
+	public function withoutLogging(): static
+	{
+		return $this->withLogging(false);
+	}
+
+	/**
+	 * Null when the request has no opinion and the client decides.
+	 */
+	public function isLogging(): ?bool
+	{
+		return $this->logging;
 	}
 
 	/**

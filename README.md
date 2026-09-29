@@ -43,6 +43,30 @@ $bpost->geo()->servicePoints()->nearest(zone: '1000')->get();
 Reaching a service you did not configure throws `MissingConfigurationException` rather than failing
 later at the HTTP layer.
 
+### Logging
+
+Pass a PSR-3 logger and every request and response is written to it. You can then narrow that down
+at three levels: the whole client, one service, or one call.
+
+```php
+$bpost = new BpostApiClient($config, logger: $logger);
+
+// Everything, including services you have not reached yet.
+$bpost->withoutLogging();
+
+// One service.
+$bpost->shm()->withoutLogging();
+
+// One call. A resource is built fresh each time, so this reaches nothing else.
+$bpost->shm()->orders()->withoutLogging()->get('order-123');
+
+// Or on a request you were narrowing anyway.
+$bpost->geo()->servicePoints()->nearest(zone: '1000')->withoutLogging()->get();
+```
+
+Each of these has a `withLogging(bool $logging = true)` counterpart, so a single noisy call can be
+logged while the rest of the client stays quiet. The narrowest setting wins.
+
 ### Shipping Manager
 
 #### Building an order

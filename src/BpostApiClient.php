@@ -19,6 +19,8 @@ class BpostApiClient
 
 	private ?ParcelApiClient $parcel = null;
 
+	private bool $logging = true;
+
 	/**
 	 * @param array<string, mixed> $httpClientOptions
 	 */
@@ -35,7 +37,8 @@ class BpostApiClient
 			throw MissingConfigurationException::forDomain('shm');
 		}
 
-		return $this->shm ??= new ShmApiClient($this->config->shm, $this->httpClientOptions, $this->logger);
+		return $this->shm ??= new ShmApiClient($this->config->shm, $this->httpClientOptions, $this->logger)
+			->withLogging($this->logging);
 	}
 
 	public function geo(): GeoApiClient
@@ -45,7 +48,8 @@ class BpostApiClient
 			throw MissingConfigurationException::forDomain('geo');
 		}
 
-		return $this->geo ??= new GeoApiClient($this->config->geo, $this->httpClientOptions, $this->logger);
+		return $this->geo ??= new GeoApiClient($this->config->geo, $this->httpClientOptions, $this->logger)
+			->withLogging($this->logging);
 	}
 
 	public function parcel(): ParcelApiClient
@@ -55,6 +59,28 @@ class BpostApiClient
 			throw MissingConfigurationException::forDomain('parcel');
 		}
 
-		return $this->parcel ??= new ParcelApiClient($this->config->parcel, $this->httpClientOptions, $this->logger);
+		return $this->parcel ??= new ParcelApiClient($this->config->parcel, $this->httpClientOptions, $this->logger)
+			->withLogging($this->logging);
+	}
+
+	/**
+	 * Log every call to every service, or keep them all out of the log.
+	 *
+	 * This reaches the domain clients you already took hold of as well as the ones you have not.
+	 */
+	public function withLogging(bool $logging = true): static
+	{
+		$this->logging = $logging;
+
+		$this->shm?->withLogging($logging);
+		$this->geo?->withLogging($logging);
+		$this->parcel?->withLogging($logging);
+
+		return $this;
+	}
+
+	public function withoutLogging(): static
+	{
+		return $this->withLogging(false);
 	}
 }

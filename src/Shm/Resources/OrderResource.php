@@ -23,12 +23,12 @@ class OrderResource extends Resource
 	 */
 	public function create(Order $order): void
 	{
-		new CreateOrderRequest($this->apiAdapter, $this->config, $order)->send();
+		$this->prepare(new CreateOrderRequest($this->apiAdapter, $this->config, $order))->send();
 	}
 
 	public function get(string $reference): Order
 	{
-		return new FetchOrderRequest($this->apiAdapter, $this->config, $reference)->get();
+		return $this->prepare(new FetchOrderRequest($this->apiAdapter, $this->config, $reference))->get();
 	}
 
 	/**
@@ -36,6 +36,6 @@ class OrderResource extends Resource
 	 */
 	public function updateStatus(string $reference, BoxStatus $status): void
 	{
-		new UpdateOrderStatusRequest($this->apiAdapter, $this->config, $reference, $status)->send();
+		$this->prepare(new UpdateOrderStatusRequest($this->apiAdapter, $this->config, $reference, $status))->send();
 	}
 }

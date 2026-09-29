@@ -6,6 +6,16 @@ cURL transport with Guzzle. Every class moved, so this is a hard break — there
 Work through it in three steps: swap the entry point, update the `use` statements from the table,
 then check the removals at the bottom.
 
+## 0. PHP version
+
+2.0 needs **PHP 8.5 or newer**, where 1.x ran on 8.2. Composer refuses to install it on anything
+older rather than failing later, so raise the platform first — nothing below is reachable until
+you do.
+
+Most of the distance is 8.4: the data objects use asymmetric visibility (`public private(set)`),
+the fluent examples rely on `new Foo()->bar()` without wrapping parentheses, and the XML layer is
+built on the `Dom` API that replaced `DOMDocument` and `SimpleXMLElement`.
+
 ## 1. Entry point
 
 Every service is reached from one client.
@@ -78,7 +88,7 @@ Each service can also be constructed on its own if you only use one — `new Shm
 ### Custom data objects
 
 Only relevant if you subclassed a data object and overrode `toXML()` or `createFromXML()`. 2.0
-puts both behind contracts — `XmlSerializable` and `XmlDeserializable` — on PHP 8.4's `Dom` API,
+puts both behind contracts — `XmlSerializable` and `XmlDeserializable` — on the `Dom` API,
 through `Support\XmlDocument` and `Support\XmlElement`.
 
 ```php

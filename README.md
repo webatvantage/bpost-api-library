@@ -10,7 +10,7 @@ Upgrading from 1.x? See [MIGRATION.md](MIGRATION.md).
 
 ## Requirements
 
-PHP 8.4 or newer.
+PHP 8.5 or newer.
 
 ## Installation
 

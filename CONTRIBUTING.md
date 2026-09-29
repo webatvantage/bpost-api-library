@@ -18,7 +18,7 @@ class name. Include your PHP version and the library version or commit.
 
 ### Requirements
 
-PHP 8.4 or newer. If your `php` is older, the composer scripts fail the platform check.
+PHP 8.5 or newer. If your `php` is older, the composer scripts fail the platform check.
 
 ```bash
 composer install

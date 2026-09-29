@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
@@ -28,6 +29,9 @@ class Dimensions implements XmlDeserializable, XmlSerializable
 		Validate::between('lengthInMm', $lengthInMm, 1, 9999);
 	}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Announcement): XmlElement
 	{
 		$element = $parent->appendElement('dimensions', $namespace);

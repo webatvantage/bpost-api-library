@@ -3,6 +3,7 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
@@ -26,6 +27,9 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 
 	public private(set) ?string $receiverCompany = null;
 
+	/**
+	 * @throws InvalidValueException
+	 */
 	public function __construct()
 	{
 		// The only product this delivery method offers.
@@ -74,6 +78,9 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 		return 'atIntlPugo';
 	}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	protected function buildElement(XmlElement $wrapper): XmlElement
 	{
 		$namespace = $this->childNamespace();

@@ -6,6 +6,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Enums\Language;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Support\Validate;
@@ -71,6 +72,9 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = null): XmlElement
 	{
 		$element = $parent->appendElement('unregistered', $namespace);

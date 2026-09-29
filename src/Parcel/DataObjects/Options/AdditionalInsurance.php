@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects\Options;
 
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Parcel\Enums\InsuranceAmount;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -18,6 +19,9 @@ class AdditionalInsurance implements Option
 {
 	public function __construct(public private(set) InsuranceAmount $maxAmount) {}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Common): XmlElement
 	{
 		$element = $parent->appendElement('additionalInsurance', $namespace);

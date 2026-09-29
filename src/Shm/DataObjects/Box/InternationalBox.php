@@ -3,6 +3,10 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Customs\CustomsInfo;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Receiver;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
@@ -50,6 +54,8 @@ abstract class InternationalBox extends DeliveryBox
 	/**
 	 * Write product, options, receiver and parcelWeight, which both international methods share
 	 * and in this order.
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	protected function appendShared(XmlElement $element): void
 	{
@@ -72,6 +78,11 @@ abstract class InternationalBox extends DeliveryBox
 		}
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
+	 */
 	protected function readShared(XmlElement $xml): void
 	{
 		$this->readCommon($xml, 'parcelWeight');

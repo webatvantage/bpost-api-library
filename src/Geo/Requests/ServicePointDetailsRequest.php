@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Geo\Requests;
 
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Enums\Language;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Geo\DataObjects\ServicePoint;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
 use Webatvantage\Bpost\Api\Geo\Exceptions\LocatorException;
@@ -41,6 +42,9 @@ class ServicePointDetailsRequest extends GeoRequest
 		return $this->addParameter('Language', $language);
 	}
 
+	/**
+	 * @throws UnexpectedValueException
+	 */
 	public function get(): ServicePoint
 	{
 		$xml = $this->send();

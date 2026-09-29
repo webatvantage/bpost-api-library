@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Shm\Enums\InsuranceAmount;
 use Webatvantage\Bpost\Api\Shm\Enums\InsuranceType;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
@@ -32,6 +33,9 @@ class Insured implements Option, XmlDeserializable
 		return new static(InsuranceType::Additional, $amount);
 	}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespace::Common): XmlElement
 	{
 		$insured = $parent->appendElement('insured', $namespace);

@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Options;
 use Webatvantage\Bpost\Api\Contracts\Option;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
@@ -25,6 +26,9 @@ class CashOnDelivery implements Option, XmlDeserializable
 		public private(set) string $bic,
 	) {}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespace::Common): XmlElement
 	{
 		$cod = $parent->appendElement('cod', $namespace);

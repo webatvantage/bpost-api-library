@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use DateTimeInterface;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
@@ -33,6 +34,9 @@ class At247 extends NationalBox implements XmlDeserializable
 
 	public private(set) ?string $requestedDeliveryDate = null;
 
+	/**
+	 * @throws InvalidValueException
+	 */
 	public function __construct(Product $product = Product::Bpack247)
 	{
 		$this->product($product);
@@ -97,6 +101,9 @@ class At247 extends NationalBox implements XmlDeserializable
 		return 'at24-7';
 	}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	protected function buildElement(XmlElement $wrapper): XmlElement
 	{
 		$namespace = $this->childNamespace();

@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Parcel\Enums\ItemCategory;
 use Webatvantage\Bpost\Api\Parcel\Enums\NonDeliveryInstruction;
@@ -33,6 +34,9 @@ class InternationalInfo implements XmlSerializable
 		Validate::maxLength('currencySender', $currencySender, 3);
 	}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ParcelNamespace::Announcement): XmlElement
 	{
 		$element = $parent->appendElement('international', $namespace);

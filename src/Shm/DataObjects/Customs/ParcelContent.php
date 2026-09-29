@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Customs;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
@@ -45,6 +46,9 @@ class ParcelContent implements XmlDeserializable, XmlSerializable
 		Validate::countryCode('originOfGoods', $originOfGoods);
 	}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = ShmNamespace::International): XmlElement
 	{
 		$element = $parent->appendElement('parcelContent', $namespace);

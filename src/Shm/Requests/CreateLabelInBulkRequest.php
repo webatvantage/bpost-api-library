@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Shm\Requests;
 
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Enums\Method;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Shm\Enums\LabelFormat;
 use Webatvantage\Bpost\Api\Shm\Enums\LabelOutput;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
@@ -22,6 +23,8 @@ class CreateLabelInBulkRequest extends CreateLabelRequest
 {
 	/**
 	 * @param array<int, string> $references
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct(
 		HttpApiAdapter $apiAdapter,

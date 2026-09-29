@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Geo\Requests;
 
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Enums\Language;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Geo\DataObjects\ServicePoint;
 use Webatvantage\Bpost\Api\Geo\Enums\LockerType;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
@@ -70,6 +71,8 @@ class AllServicePointsRequest extends GeoRequest
 
 	/**
 	 * @return array<ServicePoint>
+	 *
+	 * @throws UnexpectedValueException
 	 */
 	public function get(): array
 	{

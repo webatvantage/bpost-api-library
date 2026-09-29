@@ -35,6 +35,8 @@ class XmlElement extends Element
 
 	/**
 	 * Append a text element, skipping it when the value is null or empty
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function appendText(
 		string $tagName,

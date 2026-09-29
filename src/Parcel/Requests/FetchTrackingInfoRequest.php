@@ -5,6 +5,8 @@ namespace Webatvantage\Bpost\Api\Parcel\Requests;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Method;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
 use Webatvantage\Bpost\Api\Parcel\DataObjects\ItemTracking;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -22,6 +24,10 @@ class FetchTrackingInfoRequest extends Request
 		);
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 */
 	public function get(): ItemTracking
 	{
 		$response = $this->apiAdapter->request($this);

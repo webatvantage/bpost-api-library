@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Shm\Requests;
 
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Enums\Method;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\BoxStatus;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
@@ -22,6 +23,7 @@ class UpdateOrderStatusRequest extends ShmRequest
 
 	/**
 	 * @throws InvalidValueException
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct(
 		HttpApiAdapter $apiAdapter,

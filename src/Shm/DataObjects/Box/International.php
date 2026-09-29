@@ -3,6 +3,7 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
@@ -21,6 +22,9 @@ class International extends InternationalBox implements XmlDeserializable
 	/** @var array<int, ParcelContent> */
 	public private(set) array $parcelContents = [];
 
+	/**
+	 * @throws InvalidValueException
+	 */
 	public function __construct(Product $product)
 	{
 		$this->product($product);
@@ -57,6 +61,9 @@ class International extends InternationalBox implements XmlDeserializable
 		return $this;
 	}
 
+	/**
+	 * @throws InvalidValueException
+	 */
 	public function withParcelContents(ParcelContent ...$contents): static
 	{
 		foreach ($contents as $content)
@@ -72,6 +79,9 @@ class International extends InternationalBox implements XmlDeserializable
 		return 'international';
 	}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	protected function buildElement(XmlElement $wrapper): XmlElement
 	{
 		$namespace = $this->childNamespace();

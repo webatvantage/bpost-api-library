@@ -6,6 +6,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Enums\Weekday;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
@@ -67,6 +68,8 @@ class OpeningHours implements XmlDeserializable, XmlSerializable
 	/**
 	 * The Shipping Manager names this block openingHours, an announcement names it
 	 * receiverOpeningHours, so the caller supplies the tag along with its namespace.
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function toXml(
 		XmlElement $parent,

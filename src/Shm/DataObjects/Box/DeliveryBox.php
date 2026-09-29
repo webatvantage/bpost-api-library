@@ -115,6 +115,8 @@ abstract class DeliveryBox implements XmlSerializable
 
 	/**
 	 * Write the <options> element, unless the box carries none.
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	protected function appendOptions(XmlElement $parent): void
 	{
@@ -137,7 +139,7 @@ abstract class DeliveryBox implements XmlSerializable
 	 * An unrecognised name throws rather than being dropped: a box whose product we do not know is
 	 * one we cannot send back, so failing here is more useful than failing later with less to go on.
 	 *
-	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
 	 */
 	protected static function readProduct(XmlElement $xml): Product
 	{
@@ -158,6 +160,8 @@ abstract class DeliveryBox implements XmlSerializable
 
 	/**
 	 * Read options and weight, which every delivery method shares.
+	 *
+	 * @throws UnexpectedValueException
 	 */
 	protected function readCommon(XmlElement $xml, string $weightElement = 'weight'): void
 	{

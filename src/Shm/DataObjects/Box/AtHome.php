@@ -32,6 +32,9 @@ class AtHome extends NationalBox implements XmlDeserializable
 
 	public private(set) ?string $requestedDeliveryDate = null;
 
+	/**
+	 * @throws InvalidValueException
+	 */
 	public function __construct(Product $product)
 	{
 		$this->product($product);

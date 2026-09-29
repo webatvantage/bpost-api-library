@@ -4,6 +4,9 @@ namespace Webatvantage\Bpost\Api\Shm\Requests;
 
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Enums\Method;
+use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Order;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
 
@@ -28,6 +31,11 @@ class FetchOrderRequest extends ShmRequest
 		);
 	}
 
+	/**
+	 * @throws InvalidLengthException
+	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
+	 */
 	public function get(): Order
 	{
 		return Order::fromXml($this->sendExpectingXml());

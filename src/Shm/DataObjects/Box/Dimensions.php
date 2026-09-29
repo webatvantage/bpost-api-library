@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -23,6 +24,8 @@ class Dimensions implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * Append the three elements to the box, since bpost has no wrapper for them.
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function appendTo(XmlElement $parent, ?XmlNamespace $namespace = null): void
 	{
@@ -31,6 +34,9 @@ class Dimensions implements XmlDeserializable, XmlSerializable
 		$parent->appendText('width', $this->width, $namespace);
 	}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = null): XmlElement
 	{
 		$element = $parent->appendElement('dimensions', $namespace);

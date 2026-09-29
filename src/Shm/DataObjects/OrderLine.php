@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -17,6 +18,9 @@ class OrderLine implements XmlDeserializable, XmlSerializable
 {
 	public function __construct(public private(set) string $text, public private(set) int $numberOfItems) {}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = null): XmlElement
 	{
 		$line = $parent->appendElement('orderLine', $namespace);

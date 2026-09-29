@@ -3,6 +3,7 @@
 namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
@@ -64,6 +65,8 @@ class Order implements XmlDeserializable
 	/**
 	 * @param string $accountId Written into the document, and it must match the account the
 	 *                          request authenticates as
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function toXml(XmlDocument $document, string $accountId): XmlElement
 	{

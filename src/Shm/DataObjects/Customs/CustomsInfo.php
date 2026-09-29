@@ -20,6 +20,8 @@ use Webatvantage\Bpost\Api\Support\XmlElement;
  */
 class CustomsInfo implements XmlDeserializable, XmlSerializable
 {
+	public private(set) ?string $contentDescription = null;
+
 	public private(set) ?Currency $currency = null;
 
 	public private(set) ?float $amtPostagePaidByAddresse = null;
@@ -30,12 +32,21 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 	 */
 	public function __construct(
 		public private(set) int $parcelValue,
-		public private(set) string $contentDescription,
 		public private(set) ShipmentType $shipmentType,
 		public private(set) ParcelReturnInstruction $parcelReturnInstructions,
 		public private(set) bool $privateAddress = false,
-	) {
+	) {}
+
+	/**
+	 * Optional: a European shipment is accepted without a description
+	 */
+	public function contentDescription(string $contentDescription): static
+	{
 		Validate::maxLength('contentDescription', $contentDescription, 50);
+
+		$this->contentDescription = $contentDescription;
+
+		return $this;
 	}
 
 	/**
@@ -94,7 +105,6 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 	{
 		$info = new static(
 			(int)$xml->text('parcelValue'),
-			$xml->text('contentDescription') ?? '',
 			Validate::enum('shipmentType', ShipmentType::class, strtoupper($xml->text('shipmentType') ?? '')),
 			Validate::enum(
 				'parcelReturnInstructions',
@@ -103,6 +113,13 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 			),
 			($xml->text('privateAddress') ?? '') === 'true',
 		);
+
+		$contentDescription = $xml->text('contentDescription');
+
+		if ($contentDescription !== null)
+		{
+			$info->contentDescription($contentDescription);
+		}
 
 		$currency = $xml->text('currency');
 

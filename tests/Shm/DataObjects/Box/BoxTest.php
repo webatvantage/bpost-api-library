@@ -75,7 +75,10 @@ class BoxTest extends ShmTestCase
 		$box = new AtIntlPugo()
 			->weight(2000)
 			->receiver(new Receiver()->name('name_of_final_receiver'))
-			->customsInfo(new CustomsInfo(1000, 'Test description', ShipmentType::Goods, ParcelReturnInstruction::ReturnToSender))
+			->customsInfo(
+				new CustomsInfo(1000, ShipmentType::Goods, ParcelReturnInstruction::ReturnToSender)
+					->contentDescription('Test description'),
+			)
 			->pugo('163372', 'name_of_delivery_point', new PugoAddress()->streetName('street_of_delivery_point'));
 
 		$xml = $this->serialise($box->toXml(...));
@@ -98,11 +101,30 @@ class BoxTest extends ShmTestCase
 		$this->assertSame('bpost', $box->receiverCompany);
 	}
 
+	/**
+	 * bpost accepted a European shipment without one against the live API, so the element is left
+	 * out rather than sent empty.
+	 */
+	public function test_a_customs_declaration_may_omit_the_content_description()
+	{
+		$box = new International(Product::BpackEuropeBusiness)
+			->weight(1250)
+			->customsInfo(new CustomsInfo(625, ShipmentType::Documents, ParcelReturnInstruction::ReturnToSender));
+
+		$xml = $this->serialise($box->toXml(...));
+
+		$this->assertStringNotContainsString('contentDescription', $xml);
+		$this->assertXmlContains('<international:parcelValue>625</international:parcelValue>', $xml);
+	}
+
 	public function test_an_international_box_carries_electronic_advance_data()
 	{
 		$box = new International(Product::BpackWorldBusiness)
 			->weight(1250)
-			->customsInfo(new CustomsInfo(625, 'Ipad 6', ShipmentType::Gift, ParcelReturnInstruction::ReturnToSender))
+			->customsInfo(
+				new CustomsInfo(625, ShipmentType::Gift, ParcelReturnInstruction::ReturnToSender)
+					->contentDescription('Ipad 6'),
+			)
 			->withParcelContent(new ParcelContent(2, 200, 't-shirt ARMANI L WINTER 2020', 400, '61091000', 'US'));
 
 		$xml = $this->serialise($box->toXml(...));

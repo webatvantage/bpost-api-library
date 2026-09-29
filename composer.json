@@ -27,9 +27,9 @@
   "require": {
     "php": "^8.5",
     "ext-dom": "*",
-    "ext-mbstring": "*",
     "ext-libxml": "*",
-    "gmponos/guzzle_logger": "^2.2",
+    "ext-mbstring": "*",
+    "covergenius/guzzle_logger": "^2.3",
     "guzzlehttp/guzzle": "^7.8",
     "psr/log": "^2.0 || ^3.0"
   },

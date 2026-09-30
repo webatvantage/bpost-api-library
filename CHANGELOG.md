@@ -1,5 +1,45 @@
 # Changelog
 
+### Unreleased
+
+#### Fixed
+
+* `atIntlPugo` wrote `<pugoAddress>` in the national namespace, where manual B.3.2.2.2 has
+  `<international:pugoAddress>`, so every `bpack@bpost international` order carrying a pick-up
+  point address failed bpost's schema validation. `Shm\DataObjects\Address::toXml()` took a
+  namespace and ignored it; it now uses the one it is given and falls back to its own
+* Passing a `handler` in `$httpClientOptions` had the log middleware pushed onto that stack once
+  per service, so a client reaching all three bpost services wrote every request to the log three
+  times over. The stack is cloned before the middleware goes on
+* Reading a response no longer applies the send-side field lengths and ranges: a retrieved order
+  whose locality runs past the documented 40 characters, or a parcel content weighing less than
+  the minimum a new one may declare, is reported as bpost holds it instead of throwing
+  `InvalidLengthException` at a caller with nothing to correct. `Validate::reading()` covers the
+  reads whose checks sit in a constructor
+* A malformed `deliveryTime` or scan `time` in a tracking response threw
+  `DateMalformedStringException`, outside `BpostException`. It is an `UnexpectedValueException`
+  now, and dates are read through the new `XmlElement::dateTime()`
+* `Resource::debug()` set its callback on the shared adapter, where it stayed for the life of the
+  client and fired for every later call on every other resource. It now reaches only the calls
+  made on that resource, matching `withoutLogging()`
+* The Geolocator's `language()` refused nothing, though all four operations document `NL` or `FR`
+  only and quietly ignore anything else. `EN` and `DE` are rejected, in one place rather than four
+
+#### Added
+
+* `withDebug()` on `BpostApiClient` and on each service client, completing the same levels logging
+  already had: the whole client, one service, one resource or one call
+* `Contracts\Loggable` and `Contracts\Debuggable`, implemented at each of those levels. The names
+  had drifted apart once already, and an interface makes that a load-time error rather than
+  something to notice in review
+
+#### Changed
+
+* `HttpApiAdapter::setLogging()` is now `withLogging()` and gained `withoutLogging()`;
+  `setDebugCallback()` is now `withDebug()`. Every level of the ladder spells the pair the same way
+* `.claude/` and `composer.lock` are `export-ignore`d, so a `composer require` no longer pulls
+  down the repository's own working notes
+
 ### 2.0.0 - 2026-09-28
 
 #### Added

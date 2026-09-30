@@ -99,12 +99,7 @@ class OpeningHours implements XmlDeserializable, XmlSerializable
 		{
 			$value = $xml->text($weekday->value);
 
-			if ($value === null)
-			{
-				continue;
-			}
-
-			if ($value !== '')
+			if (isset($value))
 			{
 				$hours->days[$weekday->value] = $value;
 			}

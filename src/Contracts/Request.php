@@ -50,13 +50,6 @@ abstract class Request implements Debuggable, Loggable
 		return $this;
 	}
 
-	public function addHeader(string $name, string $value): static
-	{
-		$this->headers[$name] = $value;
-
-		return $this;
-	}
-
 	/**
 	 * @return array<string, string>
 	 */

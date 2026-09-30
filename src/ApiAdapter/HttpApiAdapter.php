@@ -140,11 +140,6 @@ class HttpApiAdapter implements Debuggable, Loggable
 		return $this;
 	}
 
-	public function isLogging(): bool
-	{
-		return $this->logging;
-	}
-
 	public function withLogging(bool $logging = true): static
 	{
 		$this->logging = $logging;

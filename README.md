@@ -268,6 +268,23 @@ $geo = new GeoApiClient(new GeoApiConfig(
 ));
 ```
 
+#### Which host, and whether you need a key
+
+The key goes with the host. `pudo.bpost.cloud`, the default since 2.0 and the one bpost documents,
+rejects a request without `x-api-key`. The older `pudo.bpost.be` still answers and ignores the
+header entirely, so an integration pointed at it needs no key:
+
+```php
+$geo = new GeoApiClient(new GeoApiConfig(
+    partner: '999999',
+    apiKey: '',                            // unused on this host
+    baseUri: 'https://pudo.bpost.be',
+));
+```
+
+`GeoApiConfig` asks for the key whichever host you name, because the default is the one that
+requires it — pass an empty string on the legacy host rather than leaving the argument out.
+
 #### Nearest points
 
 ```php

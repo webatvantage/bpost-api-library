@@ -24,7 +24,7 @@ class BpostApiClient implements Debuggable, Loggable
 
 	private ?ParcelApiClient $parcel = null;
 
-	private bool $logging = true;
+	private bool $logging = false;
 
 	/** @var (Closure(RequestInterface, ResponseInterface): void)|null */
 	private ?Closure $debugCallback = null;

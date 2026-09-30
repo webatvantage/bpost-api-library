@@ -29,27 +29,26 @@ class LoggingTest extends TestCase
 		$this->logger = new SpyLogger();
 	}
 
-	public function test_a_logger_logs_until_it_is_switched_off()
+	public function test_a_logger_stays_quiet_until_it_is_switched_on()
 	{
 		$adapter = $this->loggingAdapter();
 
 		$this->mockResponse(200, '<orderInfo/>');
 		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-1'));
 
-		$this->assertNotEmpty($this->logger->records);
+		$this->assertEmpty($this->logger->records);
 
-		$this->logger->records = [];
-		$adapter->withLogging(false);
+		$adapter->withLogging();
 
 		$this->mockResponse(200, '<orderInfo/>');
 		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-2'));
 
-		$this->assertEmpty($this->logger->records);
+		$this->assertNotEmpty($this->logger->records);
 	}
 
 	public function test_a_request_overrules_the_client_either_way()
 	{
-		$adapter = $this->loggingAdapter();
+		$adapter = $this->loggingAdapter()->withLogging();
 
 		$this->mockResponse(200, '<orderInfo/>');
 		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-1')->withoutLogging());
@@ -64,35 +63,41 @@ class LoggingTest extends TestCase
 		$this->assertNotEmpty($this->logger->records);
 	}
 
-	public function test_a_resource_silences_only_the_calls_made_on_it()
+	public function test_a_resource_logs_only_the_calls_made_on_it()
 	{
 		$client = $this->client();
 
 		$this->mockResponse(200, '<orderInfo><reference>ref-1</reference></orderInfo>');
-		$client->shm()->orders()->withoutLogging()->get('ref-1');
+		$client->shm()->orders()->withLogging()->get('ref-1');
 
-		$this->assertEmpty($this->logger->records);
+		$this->assertNotEmpty($this->logger->records);
+
+		$this->logger->records = [];
 
 		$this->mockResponse(200, '<orderInfo><reference>ref-2</reference></orderInfo>');
 		$client->shm()->orders()->get('ref-2');
 
-		$this->assertNotEmpty($this->logger->records);
+		$this->assertEmpty($this->logger->records);
 	}
 
-	public function test_switching_the_whole_client_off_reaches_the_services_built_before_and_after()
+	public function test_switching_the_whole_client_on_reaches_the_services_built_before_and_after()
 	{
 		$client = $this->client();
 		$shm = $client->shm();
 
-		$client->withoutLogging();
+		$client->withLogging();
 
 		$this->mockResponse(200, '<orderInfo><reference>ref-1</reference></orderInfo>');
 		$shm->orders()->get('ref-1');
 
+		$this->assertNotEmpty($this->logger->records);
+
+		$this->logger->records = [];
+
 		$this->mockResponse(200, '<Poi/>');
 		$client->geo()->servicePoints()->nearest(zone: '1000')->get();
 
-		$this->assertEmpty($this->logger->records);
+		$this->assertNotEmpty($this->logger->records);
 	}
 
 	/**
@@ -104,7 +109,7 @@ class LoggingTest extends TestCase
 	{
 		$order = '<orderInfo><reference>ref-1</reference></orderInfo>';
 
-		$client = $this->client();
+		$client = $this->client()->withLogging();
 		$this->mockResponse(200, $order);
 		$client->shm()->orders()->get('ref-1');
 
@@ -140,7 +145,7 @@ class LoggingTest extends TestCase
 	#[DataProvider('statusLevels')]
 	public function test_a_response_is_logged_at_the_level_its_status_deserves(int $status, string $level)
 	{
-		$adapter = $this->loggingAdapter();
+		$adapter = $this->loggingAdapter()->withLogging();
 
 		$this->mockResponse($status, '<orderInfo/>');
 

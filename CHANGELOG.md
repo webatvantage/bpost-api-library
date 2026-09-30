@@ -61,6 +61,10 @@
   `debug`, a 2xx is `info`, a 3xx `notice`, a 4xx `error` and a 5xx `critical`. Everything went out
   at `debug` before, so a refused order read the same as a successful one and keeping only the
   failures meant filtering on message text. A logger set to `warning` now does it
+* A supplied logger is not switched on. `withLogging()` is what asks for the calls that worked, at
+  any of the four levels; what bpost refused arrives either way. Handing the client a logger used
+  to mean every request and response went to it, which is a great deal of writing for an
+  integration that only wanted to hear about the failures
 * `withoutLogging()` quiets the calls that worked, not the ones that did not: a 4xx, a 5xx and a
   transport failure are written whatever it is set to, while a 2xx and a 3xx are dropped. Silencing
   a chatty call used to mean agreeing to lose the reason it failed. The decision moved into the log

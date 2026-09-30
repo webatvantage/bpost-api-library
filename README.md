@@ -295,38 +295,38 @@ $url = $geo->servicePoints()->pageUrl('220000', PointType::PostOffice);
 
 ### Logging
 
-Pass a PSR-3 logger and every request and response is written to it. You can then narrow that down
-at four levels: the whole client, one service, one resource, or one call.
+Pass a PSR-3 logger and what bpost refused is written to it. The calls that worked are not, until
+you ask for them — and you can ask at four levels: the whole client, one service, one resource, or
+one call.
 
 ```php
 // The config from Usage above, and any PSR-3 logger.
 $bpost = new BpostApiClient($config, logger: $logger);
 
 // Everything, including services you have not reached yet.
-$bpost->withoutLogging();
+$bpost->withLogging();
 
 // One service.
-$bpost->shm()->withoutLogging();
+$bpost->shm()->withLogging();
 
 // One resource. It is built fresh each time, so this reaches nothing else.
-$bpost->shm()->orders()->withoutLogging()->get('order-123');
+$bpost->shm()->orders()->withLogging()->get('order-123');
 
 // One call, on a request you were narrowing anyway.
-$bpost->geo()->servicePoints()->nearest(zone: '1000')->withoutLogging()->get();
+$bpost->geo()->servicePoints()->nearest(zone: '1000')->withLogging()->get();
 ```
 
-Each of these has a `withLogging(bool $logging = true)` counterpart, so a single noisy call can be
-logged while the rest of the client stays quiet. The narrowest setting wins.
+Each of these has a `withoutLogging()` counterpart, so a single noisy call can be dropped while the
+rest of the client keeps writing. The narrowest setting wins.
 
-Switching it off quiets the calls that worked, not the ones that did not. What bpost refused is
-written whatever the setting, because silencing a chatty call is not the same as agreeing to lose
-the reason it failed:
+The switch only ever covers the calls that worked. What bpost refused is written either way, because
+not wanting the chatter is not the same as agreeing to lose the reason a call failed:
 
-| answer                                 | logging on | logging off      |
-|----------------------------------------|------------|------------------|
-| 2xx, 3xx                               | logged     | nothing          |
-| 4xx, 5xx                               | logged     | **still logged** |
-| no response at all — DNS, TLS, timeout | logged     | **still logged** |
+| answer                                 | default          | after `withLogging()` |
+|----------------------------------------|------------------|-----------------------|
+| 2xx, 3xx                               | nothing          | logged                |
+| 4xx, 5xx                               | **still logged** | logged                |
+| no response at all — DNS, TLS, timeout | **still logged** | logged                |
 
 That switch is about noise, and it is per call. Severity is the other axis, and it is the same for
 every call: records carry the level of what bpost answered, so your own logger's threshold decides
@@ -340,8 +340,8 @@ how much of the detail survives.
 | a 4xx response — a refused order, a bad barcode | `error`    |
 | a 5xx response — bpost is having trouble        | `critical` |
 
-A logger set to `warning` therefore keeps the refusals and drops the rest — across the board,
-where `withoutLogging()` does it for the one call you point it at.
+A logger set to `warning` therefore drops the request and the successes across the board, where
+`withoutLogging()` does it for the one call you point it at.
 
 To change what a record is made of — the levels, the truncation size, one line instead of an
 array — pass your own handler on the config. It reaches every service:
@@ -360,8 +360,8 @@ $bpost = new BpostApiClient(
 ```
 
 Pass it to a service client directly as `logHandler:` if you construct one yourself. Either way
-the middleware is still wrapped, so `withoutLogging()` reaches a handler you brought — which it
-would not if you pushed your own `LogMiddleware` onto a Guzzle handler stack instead.
+the middleware is still wrapped, so the switch reaches a handler you brought — which it would not
+if you pushed your own `LogMiddleware` onto a Guzzle handler stack instead.
 
 ### Debugging
 

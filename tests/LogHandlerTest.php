@@ -53,7 +53,7 @@ class LogHandlerTest extends TestCase
 			httpClientOptions: ['handler' => $this->handlerStack()],
 			logger: $this->logger,
 			logHandler: $this->countingHandler(),
-		);
+		)->withLogging();
 
 		$this->mockResponse(200, '<orderInfo/>');
 		$adapter->request(new FakeRequest(Method::GET, '/orders/ref'));
@@ -73,10 +73,18 @@ class LogHandlerTest extends TestCase
 			httpClientOptions: ['handler' => $this->handlerStack()],
 			logger: $this->logger,
 			logHandler: $this->countingHandler(),
-		)->withoutLogging();
+		)->withLogging();
 
 		$this->mockResponse(200, '<orderInfo/>');
-		$adapter->request(new FakeRequest(Method::GET, '/orders/ref'));
+		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-1'));
+
+		$this->assertNotEmpty($this->logger->records);
+
+		$this->logger->records = [];
+		$adapter->withoutLogging();
+
+		$this->mockResponse(200, '<orderInfo/>');
+		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-2'));
 
 		$this->assertEmpty($this->logger->records);
 	}
@@ -94,7 +102,7 @@ class LogHandlerTest extends TestCase
 			),
 			['handler' => $this->handlerStack()],
 			$this->logger,
-		);
+		)->withLogging();
 
 		$this->mockResponse(200, '<orderInfo><reference>ref-1</reference></orderInfo>');
 		$client->shm()->orders()->get('ref-1');
@@ -108,7 +116,7 @@ class LogHandlerTest extends TestCase
 			new BpostApiConfig(shm: new ShmApiConfig(accountId: '123456', passphrase: 'passphrase')),
 			['handler' => $this->handlerStack()],
 			$this->logger,
-		);
+		)->withLogging();
 
 		$this->mockResponse(200, '<orderInfo><reference>ref-1</reference></orderInfo>');
 		$client->shm()->orders()->get('ref-1');

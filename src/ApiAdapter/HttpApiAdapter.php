@@ -35,7 +35,7 @@ class HttpApiAdapter implements Debuggable, Loggable
 	/** @var (Closure(RequestInterface, ResponseInterface): void)|null */
 	private ?Closure $debugCallback = null;
 
-	private bool $logging = true;
+	private bool $logging = false;
 
 	/**
 	 * @param string $baseUri

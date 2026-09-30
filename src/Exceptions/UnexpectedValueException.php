@@ -2,6 +2,8 @@
 
 namespace Webatvantage\Bpost\Api\Exceptions;
 
+use Throwable;
+
 /**
  * A value in bpost's response that this library cannot map onto its model.
  *
@@ -17,6 +19,7 @@ class UnexpectedValueException extends BpostException
 		public readonly string $name,
 		public readonly mixed $value,
 		array $known = [],
+		?Throwable $previous = null,
 	) {
 		$message = sprintf('bpost sent an unrecognised value (%s) for "%s".', var_export($value, true), $name);
 
@@ -30,6 +33,6 @@ class UnexpectedValueException extends BpostException
 			);
 		}
 
-		parent::__construct($message);
+		parent::__construct($message, 0, $previous);
 	}
 }

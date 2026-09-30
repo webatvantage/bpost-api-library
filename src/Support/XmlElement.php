@@ -2,9 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\Support;
 
+use DateMalformedStringException;
+use DateTimeImmutable;
 use Dom\Element;
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 
 /**
  * The element every bpost document is built from and read through.
@@ -127,6 +130,30 @@ class XmlElement extends Element
 		$value = trim($child->textContent);
 
 		return $value === '' ? null : $value;
+	}
+
+	/**
+	 * The first child element with one of these local names, read as a moment in time.
+	 *
+	 * @throws UnexpectedValueException
+	 */
+	public function dateTime(string ...$localNames): ?DateTimeImmutable
+	{
+		$value = $this->text(...$localNames);
+
+		if ($value === null)
+		{
+			return null;
+		}
+
+		try
+		{
+			return new DateTimeImmutable($value);
+		}
+		catch (DateMalformedStringException $exception)
+		{
+			throw new UnexpectedValueException($localNames[0] ?? 'dateTime', $value, previous: $exception);
+		}
 	}
 
 	public function attribute(string $name): ?string

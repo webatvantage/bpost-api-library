@@ -2,11 +2,9 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use DateTimeImmutable;
 use DateTimeInterface;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
-use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
-use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -35,8 +33,7 @@ class ItemTracking implements XmlDeserializable
 	) {}
 
 	/**
-	 * @throws InvalidLengthException
-	 * @throws InvalidValueException
+	 * @throws UnexpectedValueException
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{
@@ -51,22 +48,21 @@ class ItemTracking implements XmlDeserializable
 		$addressee = $xml->child('addressee');
 		$itemDetail = $xml->child('itemDetail');
 		$pickupPoint = $xml->child('pickupPoint');
-		$deliveryTime = $xml->text('deliveryTime');
 
 		return new static(
 			itemCode: $xml->text('itemCode'),
-			sender: $sender === null ? null : Sender::fromXml($sender),
-			addressee: $addressee === null ? null : Addressee::fromXml($addressee),
+			sender: isset($sender) ? Sender::fromXml($sender) : null,
+			addressee: isset($addressee) ? Addressee::fromXml($addressee) : null,
 			// bpost lower-cases the d in departure but not in destination.
 			cityOrCountryOfDeparture: $xml->text('cityOrCountryOfdeparture'),
 			cityOrCountryOfDestination: $xml->text('cityOrCountryOfDestination'),
 			nameOfDestination: $xml->text('nameOfDestination'),
-			deliveryTime: $deliveryTime === null ? null : new DateTimeImmutable($deliveryTime),
+			deliveryTime: $xml->dateTime('deliveryTime'),
 			customerReference: $xml->text('customerReference'),
-			itemDetail: $itemDetail === null ? null : ItemDetail::fromXml($itemDetail),
+			itemDetail: isset($itemDetail) ? ItemDetail::fromXml($itemDetail) : null,
 			states: $states,
 			trackingId: $xml->text('trackingId'),
-			pickupPoint: $pickupPoint === null ? null : PickupPoint::fromXml($pickupPoint),
+			pickupPoint: isset($pickupPoint) ? PickupPoint::fromXml($pickupPoint) : null,
 		);
 	}
 

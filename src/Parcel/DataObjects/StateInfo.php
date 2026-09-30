@@ -2,9 +2,9 @@
 
 namespace Webatvantage\Bpost\Api\Parcel\DataObjects;
 
-use DateTimeImmutable;
 use DateTimeInterface;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
+use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -21,12 +21,13 @@ class StateInfo implements XmlDeserializable
 		public private(set) ?string $stateDescription = null,
 	) {}
 
+	/**
+	 * @throws UnexpectedValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
-		$time = $xml->text('time') ?? '';
-
 		return new static(
-			$time === '' ? null : new DateTimeImmutable($time),
+			$xml->dateTime('time'),
 			$xml->text('stateCode'),
 			$xml->text('stateDescription'),
 		);

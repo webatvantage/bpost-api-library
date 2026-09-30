@@ -32,11 +32,11 @@ class Option implements XmlDeserializable
 		}
 
 		return new static(
-			$xml->attribute('name'),
-			$xml->integerAttribute('price'),
-			// And "visiblity" here. Also bpost's own spelling.
+			name: $xml->attribute('name'),
+			price: $xml->integerAttribute('price'),
+			visibility: // And "visiblity" here. Also bpost's own spelling.
 			OptionVisibility::tryFrom($xml->attribute('visiblity') ?? ''),
-			$characteristics,
+			characteristics: $characteristics,
 		);
 	}
 }

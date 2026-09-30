@@ -35,11 +35,11 @@ class Day implements XmlDeserializable
 		}
 
 		return new static(
-			$weekday,
-			$xml->text('AMOpen'),
-			$xml->text('AMClose'),
-			$xml->text('PMOpen'),
-			$xml->text('PMClose'),
+			weekday: $weekday,
+			amOpen: $xml->text('AMOpen'),
+			amClose: $xml->text('AMClose'),
+			pmOpen: $xml->text('PMOpen'),
+			pmClose: $xml->text('PMClose'),
 		);
 	}
 

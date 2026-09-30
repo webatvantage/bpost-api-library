@@ -39,10 +39,10 @@ class Label implements XmlDeserializable
 		}
 
 		return new static(
-			$barcodes,
-			$xml->text('mimeType'),
-			static::decode($xml),
-			$xml->text('zplCode'),
+			barcodes: $barcodes,
+			mimeType: $xml->text('mimeType'),
+			bytes: static::decode($xml),
+			zplCode: $xml->text('zplCode'),
 		);
 	}
 

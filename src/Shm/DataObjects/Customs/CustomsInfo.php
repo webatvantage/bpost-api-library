@@ -93,9 +93,9 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 		if ($this->amtPostagePaidByAddresse !== null)
 		{
 			$element->appendText(
-				'amtPostagePaidByAddresse',
-				sprintf('%0.2f', $this->amtPostagePaidByAddresse),
-				$namespace,
+				tagName: 'amtPostagePaidByAddresse',
+				value: sprintf('%0.2f', $this->amtPostagePaidByAddresse),
+				namespace: $namespace,
 			);
 		}
 
@@ -108,14 +108,10 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 	public static function fromXml(XmlElement $xml): static
 	{
 		$info = new static(
-			(int)$xml->text('parcelValue'),
-			Validate::enum('shipmentType', ShipmentType::class, strtoupper($xml->text('shipmentType') ?? '')),
-			Validate::enum(
-				'parcelReturnInstructions',
-				ParcelReturnInstruction::class,
-				strtoupper($xml->text('parcelReturnInstructions') ?? ''),
-			),
-			($xml->text('privateAddress') ?? '') === 'true',
+			parcelValueInCents: (int)$xml->text('parcelValue'),
+			shipmentType: Validate::enum('shipmentType', ShipmentType::class, strtoupper($xml->text('shipmentType') ?? '')),
+			parcelReturnInstructions: Validate::enum('parcelReturnInstructions', ParcelReturnInstruction::class, strtoupper($xml->text('parcelReturnInstructions') ?? '')),
+			privateAddress: ($xml->text('privateAddress') ?? '') === 'true',
 		);
 
 		$currency = $xml->text('currency');

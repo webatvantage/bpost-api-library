@@ -51,9 +51,9 @@ class ServicePointDetailsRequest extends GeoRequest
 		if ($entry === null || $record === null)
 		{
 			throw new LocatorException(
-				'The Geolocator returned no point for this id.',
-				200,
-				(string)$xml->C14N(),
+				message: 'The Geolocator returned no point for this id.',
+				statusCode: 200,
+				body: (string)$xml->C14N(),
 			);
 		}
 

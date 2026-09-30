@@ -44,9 +44,9 @@ class InternationalInfo implements XmlSerializable
 		$element->appendText('parcelContent', $this->parcelContent, ParcelNamespace::Common);
 		$element->appendText('itemCategory', $this->itemCategory->value, ParcelNamespace::Common);
 		$element->appendText(
-			'nonDeliveryInstructions',
-			$this->nonDeliveryInstructions->value,
-			ParcelNamespace::Common,
+			tagName: 'nonDeliveryInstructions',
+			value: $this->nonDeliveryInstructions->value,
+			namespace: ParcelNamespace::Common,
 		);
 		$element->appendText('valueCurrencySender', $this->valueCurrencySender, ParcelNamespace::Common);
 		$element->appendText('currencySender', strtoupper($this->currencySender), ParcelNamespace::Common);

@@ -22,12 +22,12 @@ class PickupPoint implements XmlDeserializable
 	public static function fromXml(XmlElement $xml): static
 	{
 		return new static(
-			$xml->text('id'),
-			$xml->text('name'),
-			$xml->text('streetName'),
-			$xml->text('houseNumber'),
-			$xml->text('postalCode'),
-			$xml->text('city'),
+			id: $xml->text('id'),
+			name: $xml->text('name'),
+			streetName: $xml->text('streetName'),
+			houseNumber: $xml->text('houseNumber'),
+			postalCode: $xml->text('postalCode'),
+			city: $xml->text('city'),
 		);
 	}
 }

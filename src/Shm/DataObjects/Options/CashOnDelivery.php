@@ -43,9 +43,9 @@ class CashOnDelivery implements Option, XmlDeserializable
 	public static function fromXml(XmlElement $xml): static
 	{
 		return new static(
-			(int)$xml->text('codAmount'),
-			$xml->text('iban') ?? '',
-			$xml->text('bic') ?? '',
+			amount: (int)$xml->text('codAmount'),
+			iban: $xml->text('iban') ?? '',
+			bic: $xml->text('bic') ?? '',
 		);
 	}
 }

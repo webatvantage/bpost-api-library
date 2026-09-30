@@ -19,9 +19,9 @@ class Characteristic implements XmlDeserializable
 	public static function fromXml(XmlElement $xml): static
 	{
 		return new static(
-			$xml->attribute('name'),
-			$xml->attribute('displayValue'),
-			$xml->integerAttribute('value'),
+			name: $xml->attribute('name'),
+			displayValue: $xml->attribute('displayValue'),
+			value: $xml->integerAttribute('value'),
 		);
 	}
 }

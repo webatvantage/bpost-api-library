@@ -55,9 +55,9 @@ abstract class GeoRequest extends Request
 		if ($xml->attribute('type') === 'TaxipostLocatorError')
 		{
 			throw new LocatorException(
-				$xml->text('txt') ?? 'The Geolocator rejected the request.',
-				(int)$xml->text('status'),
-				(string)$xml->C14N(),
+				message: $xml->text('txt') ?? 'The Geolocator rejected the request.',
+				statusCode: (int)$xml->text('status'),
+				body: (string)$xml->C14N(),
 			);
 		}
 

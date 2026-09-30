@@ -210,22 +210,22 @@ class Announcement
 		}
 
 		$announcement->appendText(
-			'receiverDesiredDeliveryPlace',
-			$this->receiverDesiredDeliveryPlace,
-			$namespace,
+			tagName: 'receiverDesiredDeliveryPlace',
+			value: $this->receiverDesiredDeliveryPlace,
+			namespace: $namespace,
 		);
 		$announcement->appendText('weightInGrams', $this->weightInGrams, $namespace);
 		$announcement->appendText('customerReference', $this->customerReference, $namespace);
 		$announcement->appendText('costCenter', $this->costCenter, $namespace);
 		$announcement->appendText(
-			'freeTextCustomerReference1',
-			$this->freeTextCustomerReference1,
-			$namespace,
+			tagName: 'freeTextCustomerReference1',
+			value: $this->freeTextCustomerReference1,
+			namespace: $namespace,
 		);
 		$announcement->appendText(
-			'freeTextCustomerReference2',
-			$this->freeTextCustomerReference2,
-			$namespace,
+			tagName: 'freeTextCustomerReference2',
+			value: $this->freeTextCustomerReference2,
+			namespace: $namespace,
 		);
 
 		$this->international?->toXml($announcement, $namespace);

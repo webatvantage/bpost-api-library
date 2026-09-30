@@ -58,11 +58,6 @@ class NearestServicePointsRequest extends GeoRequest
 		return $this->addParameter('Country', strtoupper($country));
 	}
 
-	public function language(Language $language): static
-	{
-		return $this->addParameter('Language', $language);
-	}
-
 	public function limit(int $limit): static
 	{
 		return $this->addParameter('Limit', $limit);

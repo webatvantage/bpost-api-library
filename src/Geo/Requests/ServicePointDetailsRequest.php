@@ -37,11 +37,6 @@ class ServicePointDetailsRequest extends GeoRequest
 		return $this->addParameter('Country', strtoupper($country));
 	}
 
-	public function language(Language $language): static
-	{
-		return $this->addParameter('Language', $language);
-	}
-
 	/**
 	 * @throws UnexpectedValueException
 	 */

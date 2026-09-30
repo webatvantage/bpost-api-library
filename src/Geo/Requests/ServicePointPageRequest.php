@@ -7,6 +7,7 @@ use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
+use Webatvantage\Bpost\Api\Geo\Traits\HasLanguageParameter;
 
 /**
  * `Function=page` — the HTML details page for one point.
@@ -16,6 +17,8 @@ use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
  */
 class ServicePointPageRequest extends Request
 {
+	use HasLanguageParameter;
+
 	public function __construct(GeoApiConfig $config, string $id, PointType $type)
 	{
 		parent::__construct(Method::GET, '/Locator', [
@@ -26,11 +29,6 @@ class ServicePointPageRequest extends Request
 			'Type' => $type,
 			'Language' => Language::NL->value,
 		], expectsXml: false);
-	}
-
-	public function language(Language $language): static
-	{
-		return $this->addParameter('Language', $language);
 	}
 
 	public function withAttributes(bool $include = true): static

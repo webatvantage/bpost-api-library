@@ -6,6 +6,7 @@ use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Geo\Exceptions\LocatorException;
+use Webatvantage\Bpost\Api\Geo\Traits\HasLanguageParameter;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
 /**
@@ -16,6 +17,8 @@ use Webatvantage\Bpost\Api\Support\XmlElement;
  */
 abstract class GeoRequest extends Request
 {
+	use HasLanguageParameter;
+
 	/**
 	 * @param array<string, mixed> $parameters
 	 */

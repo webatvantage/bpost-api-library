@@ -49,7 +49,10 @@ abstract class GeoRequest extends Request
 
 		if (!$xml instanceof XmlElement)
 		{
-			throw new LocatorException('The Geolocator did not answer with XML.', 200, $xml);
+			throw new LocatorException(
+				message: 'The Geolocator answered without an XML document.',
+				body: $xml,
+			);
 		}
 
 		if ($xml->attribute('type') === 'TaxipostLocatorError')

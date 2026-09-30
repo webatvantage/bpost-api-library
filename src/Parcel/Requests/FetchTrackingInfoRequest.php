@@ -34,7 +34,10 @@ class FetchTrackingInfoRequest extends Request
 
 		if (!$response instanceof XmlElement)
 		{
-			throw new UnserializableResponseException('The tracking service did not answer with XML.', 200, (string)$response);
+			throw new UnserializableResponseException(
+				message: 'The tracking service answered without an XML document.',
+				body: (string)$response,
+			);
 		}
 
 		return ItemTracking::fromXml($response);

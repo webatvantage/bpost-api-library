@@ -66,7 +66,6 @@ class Label implements XmlDeserializable
 		{
 			throw new UnserializableResponseException(
 				message: 'The label bytes bpost returned are not valid base64.',
-				statusCode: 200,
 				body: $bytes,
 			);
 		}

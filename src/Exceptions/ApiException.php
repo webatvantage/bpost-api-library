@@ -12,6 +12,11 @@ use Throwable;
  */
 class ApiException extends BpostException
 {
+	/**
+	 * @param int $statusCode What bpost answered, or 0 where the status is not what went wrong —
+	 *                        a 2xx whose body this library could not read leaves it unset rather
+	 *                        than naming a code nobody checked
+	 */
 	public function __construct(
 		string $message,
 		public readonly int $statusCode = 0,

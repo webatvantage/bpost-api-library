@@ -51,7 +51,10 @@ abstract class ShmRequest extends Request
 
 		if (!$response instanceof XmlElement)
 		{
-			throw new UnserializableResponseException('The Shipping Manager did not answer with XML.', 200, (string)$response);
+			throw new UnserializableResponseException(
+				message: 'The Shipping Manager answered without an XML document.',
+				body: (string)$response,
+			);
 		}
 
 		return $response;

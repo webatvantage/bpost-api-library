@@ -24,5 +24,16 @@ and any longer name would be an invention.
 ## bpost's spelling is not ours
 
 Where bpost names an element badly, the element name is fixed but the variable is not. The v4
-rename moved the library's vocabulary from `Poi` to `ServicePoint`; read `$xml->PoiList->Poi` into
-`$point`, not `$poi`.
+rename moved the library's vocabulary from `Poi` to `ServicePoint`, so `Poi` survives only as the
+string bpost answers with — `NearestServicePointsRequest::get()`:
+
+```php
+$list = $xml->child('PoiList');
+
+foreach ($list === null ? [] : $list->children('Poi') as $entry)
+{
+	$record = $entry->child('Record');
+```
+
+Three of bpost's spellings in three lines, and not one of them reaches a variable: `$list`,
+`$entry`, `$record`, and further down `$point`. Never `$poi`.

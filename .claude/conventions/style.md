@@ -42,6 +42,9 @@ parent::__construct(
 For method calls and static property access both. Late static binding is the default even where no
 subclass exists today.
 
+Enums are the exception: they cannot be extended, so a case or a constant reached from inside one
+stays `self::` — `self::Pdf`, `self::MAX_WEIGHT`. `static::` there would only be noise.
+
 PHPStan reports `static::` on a **private** static property as `staticClassAccess.privateProperty`.
 The answer is to widen the property, not to retreat to `self::`:
 
@@ -59,7 +62,8 @@ PHP 8.4 allows asymmetric visibility but not on static properties.
   `Traits/Conditionable.php` still takes `callable` and is the one legacy holdout.
 - **Class constants carry a type:** `protected const string TAG_NAME = 'sender';`,
   `public const int MAX_WEIGHT = 30_000;`. Nullable where a subclass overrides with null
-  (`protected const ?string TAG_PREFIX`). Enum cases are not constants and take no type.
+  (`protected const ?XmlNamespace TAG_NAMESPACE`, as `Address.php` does). Enum cases are not
+  constants and take no type.
 - **phpdoc uses `array<T>`, never `list<T>`** — including where the value genuinely is a zero-indexed
   list, and inside nested types (`array<string, string|array<string>>`).
 

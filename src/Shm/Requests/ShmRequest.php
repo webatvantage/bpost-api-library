@@ -5,6 +5,8 @@ namespace Webatvantage\Bpost\Api\Shm\Requests;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Enums\Method;
+use Webatvantage\Bpost\Api\Exceptions\ApiException;
+use Webatvantage\Bpost\Api\Exceptions\TransporterException;
 use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -38,6 +40,11 @@ abstract class ShmRequest extends Request
 		);
 	}
 
+	/**
+	 * @throws UnserializableResponseException
+	 * @throws TransporterException
+	 * @throws ApiException
+	 */
 	protected function sendExpectingXml(): XmlElement
 	{
 		$response = $this->apiAdapter->request($this);

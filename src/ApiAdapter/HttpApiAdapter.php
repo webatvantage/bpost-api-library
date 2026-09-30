@@ -6,7 +6,6 @@ use Closure;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleLogMiddleware\Handler\HandlerInterface;
 use GuzzleLogMiddleware\Handler\LogLevelStrategy\ThresholdStrategy;
 use GuzzleLogMiddleware\Handler\MultiRecordArrayHandler;
@@ -27,7 +26,7 @@ use Webatvantage\Bpost\Api\Support\XmlElement;
 class HttpApiAdapter implements Debuggable, Loggable
 {
 	/** Guzzle request option carrying the decision for the request being sent. */
-	protected const string LOGGING_OPTION = 'bpost_logging';
+	protected const string LOGGING_OPTION_NAME = 'bpost_logging';
 
 	private readonly Client $client;
 
@@ -63,19 +62,23 @@ class HttpApiAdapter implements Debuggable, Loggable
 
 		$handler = $httpClientOptions['handler'] ?? HandlerStack::create();
 
-		if ($logger !== null && $handler instanceof HandlerStack)
+		if (isset($logger) && $handler instanceof HandlerStack)
 		{
 			// One set of client options is shared by every service, so the caller's own stack
 			// would collect a copy of the middleware per service.
 			$handler = clone $handler;
-			// Wrapped here whoever supplied it, so withoutLogging() still silences a handler the
-			// caller brought and the stack still collects one copy rather than one per service.
-			$handler->push(static::conditionalLogging(new LogMiddleware(
+			// The middleware runs even for a silenced call, because what reaches the log is decided
+			// on the status and the handler is where that is known. Whoever supplied the handler,
+			// it is wrapped here, so a silenced call still drops a record it brought.
+			$handler->push(new LogMiddleware(
 				logger: $logger,
 				// Levels by status range, so a logger set above debug keeps only the failures.
-				handler: $logHandler ?? new MultiRecordArrayHandler(new ThresholdStrategy()),
+				handler: new ConditionalLogHandler(
+					handler:$logHandler ?? new MultiRecordArrayHandler(new ThresholdStrategy()),
+					loggingOptionName: static::LOGGING_OPTION_NAME,
+				),
 				logStatistics: true,
-			)));
+			), 'logger');
 		}
 
 		$this->client = new Client([
@@ -98,7 +101,7 @@ class HttpApiAdapter implements Debuggable, Loggable
 		try
 		{
 			$response = $this->client->send($psrRequest, [
-				static::LOGGING_OPTION => $request->isLogging() ?? $this->logging,
+				static::LOGGING_OPTION_NAME => $request->isLogging() ?? $this->logging,
 			]);
 		}
 		// Catch a 4xx and a 5xx error
@@ -170,21 +173,5 @@ class HttpApiAdapter implements Debuggable, Loggable
 	public function withoutLogging(): static
 	{
 		return $this->withLogging(false);
-	}
-
-	/**
-	 * Wrap the log middleware so a silenced request skips it instead of reaching it.
-	 */
-	protected static function conditionalLogging(LogMiddleware $middleware): Closure
-	{
-		return static function (callable $handler) use ($middleware): Closure {
-			$logged = $middleware($handler);
-
-			return static function (RequestInterface $request, array $options) use ($handler, $logged): PromiseInterface {
-				return ($options[static::LOGGING_OPTION] ?? true)
-					? $logged($request, $options)
-					: $handler($request, $options);
-			};
-		};
 	}
 }

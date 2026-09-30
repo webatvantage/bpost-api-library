@@ -2,6 +2,10 @@
 
 namespace Webatvantage\Bpost\Api\Tests;
 
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request as PsrRequest;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\BpostApiClient;
@@ -171,6 +175,87 @@ class LoggingTest extends TestCase
 
 		$this->assertSame('debug', $this->logger->levelOf('Guzzle HTTP request'));
 		$this->assertSame('debug', $this->logger->levelOf('Guzzle HTTP statistics'));
+	}
+
+	/**
+	 * @return array<string, array{int, bool}>
+	 */
+	public static function silencedStatuses(): array
+	{
+		return [
+			'a success is dropped' => [200, false],
+			'a redirect is dropped' => [302, false],
+			'a bpost fault is kept' => [409, true],
+			'a bpost outage is kept' => [500, true],
+		];
+	}
+
+	/**
+	 * Switching the log off quiets the calls that worked, not the ones that did not: a refusal is
+	 * the record worth having, and a caller who silenced a noisy call did not ask to lose it.
+	 */
+	#[DataProvider('silencedStatuses')]
+	public function test_a_silenced_call_still_reports_what_bpost_refused(int $status, bool $logged)
+	{
+		$adapter = $this->loggingAdapter()->withoutLogging();
+
+		$this->mockResponse($status, '<x/>');
+
+		try
+		{
+			$adapter->request(new FakeRequest(Method::GET, '/orders/ref'));
+		}
+		catch (BpostException)
+		{
+		}
+
+		$logged
+			? $this->assertNotEmpty($this->logger->records)
+			: $this->assertEmpty($this->logger->records);
+	}
+
+	/**
+	 * A transport failure never reaches a status, and counts with the refusals rather than against
+	 * them — losing a name that will not resolve is the opposite of useful.
+	 */
+	public function test_a_silenced_call_still_reports_a_transport_failure()
+	{
+		$mock = new MockHandler([
+			new ConnectException('Could not resolve host', new PsrRequest('GET', '/orders')),
+		]);
+
+		$adapter = new HttpApiAdapter(
+			baseUri: 'https://example.test',
+			httpClientOptions: ['handler' => HandlerStack::create($mock)],
+			logger: $this->logger,
+		)->withoutLogging();
+
+		try
+		{
+			$adapter->request(new FakeRequest(Method::GET, '/orders/ref'));
+		}
+		catch (BpostException)
+		{
+		}
+
+		$this->assertNotEmpty($this->logger->records);
+	}
+
+	public function test_a_refusal_is_logged_at_its_own_level_even_when_silenced()
+	{
+		$adapter = $this->loggingAdapter()->withoutLogging();
+
+		$this->mockResponse(500, '<systemException/>');
+
+		try
+		{
+			$adapter->request(new FakeRequest(Method::GET, '/orders/ref'));
+		}
+		catch (BpostException)
+		{
+		}
+
+		$this->assertSame('critical', $this->logger->levelOf('Guzzle HTTP response'));
 	}
 
 	private function loggingAdapter(): HttpApiAdapter

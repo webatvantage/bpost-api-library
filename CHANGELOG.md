@@ -50,10 +50,10 @@
   check that enforces it, so a caller building a language choice had to hardcode it and find out
   from a rejected value when it was wrong
 * `BpostApiConfig::$logHandler`, and a `logHandler:` argument on each service client, for changing
-  what a log record is made of — its levels, its truncation, one line instead of an array. The
-  middleware is still wrapped here whoever supplied the handler, so `withoutLogging()` reaches it
-  and the stack still collects one copy rather than one per service; pushing your own
-  `LogMiddleware` onto a Guzzle handler stack gets neither
+  what a log record is made of — its levels, its truncation, one line instead of an array. Whoever
+  supplies it, the handler is wrapped here, so `withoutLogging()` still reaches it and the stack
+  still collects one copy rather than one per service; pushing your own `LogMiddleware` onto a
+  Guzzle handler stack gets neither
 
 #### Changed
 
@@ -61,6 +61,11 @@
   `debug`, a 2xx is `info`, a 3xx `notice`, a 4xx `error` and a 5xx `critical`. Everything went out
   at `debug` before, so a refused order read the same as a successful one and keeping only the
   failures meant filtering on message text. A logger set to `warning` now does it
+* `withoutLogging()` quiets the calls that worked, not the ones that did not: a 4xx, a 5xx and a
+  transport failure are written whatever it is set to, while a 2xx and a 3xx are dropped. Silencing
+  a chatty call used to mean agreeing to lose the reason it failed. The decision moved into the log
+  handler because the status is what it turns on, and the status is not known until the response
+  is back — the middleware now runs for a silenced call rather than being skipped
 * Guzzle's `http_errors` is back on its default, so a 4xx and a 5xx arrive as the rejection Guzzle
   means them to be and are translated here rather than suppressed and re-derived from the status.
   No exception a caller catches has changed, and the body still reaches `ApiExceptionFactory`

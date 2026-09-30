@@ -11,14 +11,13 @@ Commit only when the user asks for it in that turn. Finishing a change is not pe
 commit it — an uncommitted diff is reviewable, a committed one is a step someone has to undo.
 The same holds for `git push`, `git commit --amend` and `git rebase`: each needs its own ask.
 
-Committing to `main` is allowed here — the boilerplate takes small changes directly — but it
-takes **a second, explicit confirmation**. Say that the target is `main`, name what will land,
-and wait for a yes; the ask that started the commit is not that yes. This overrides the default
-"branch first when on the default branch" behaviour, but only for the confirmed case: without a
-yes, open a topic branch instead of committing.
+This is a published package, so work goes on a topic branch and reaches `main` through a pull
+request. Committing straight to `main` takes **a second, explicit confirmation**: say that the
+target is `main`, name what will land, and wait for a yes. The ask that started the commit is not
+that yes.
 
 Branch names are lowercase kebab-case describing the subject, no prefix and no ticket number:
-`navigation-module-guard-update`, `smarty-url-encode-modifiers`, `payment-date-timezone`.
+`v2-review-fixes`, `refactor`.
 
 ## Stage deliberately
 
@@ -28,14 +27,18 @@ be there.
 
 Never stage:
 
-- `.env` — it lives outside the project anyway, but a copy pulled in for debugging must not follow
-- `public/Repository`, `public/Cached` — the media library and its cache
-- `cache/`, `compile/`, `public/dist/`, `pdf/` — generated output (gitignored, but a `-f` add defeats that)
+- `tests/phpunit-credentials.php` — a 1.x leftover in `.gitignore`; nothing loads it now, since the
+  connection tests read `BPOST_*` from the environment. If a copy ever appears it holds account
+  credentials, so the rule stays
+- `/vendor`, `/build`, `/reports`, `/docs` — installed or generated output (gitignored, but a `-f`
+  add defeats that)
+- `.php-cs-fixer.cache`, `.phpunit.cache`, `.phpunit.result.cache` — tool state
 - Working notes — any file written to think in rather than to ship: a todo or next-steps list, a
   bug log, a migration plan, scratch scripts and one-off queries. They read like project
   documentation, which is exactly why they slip through; the test is whether the file is part of
-  the site or part of the work on the site.
-- `.claude/settings.local.json` — machine-local, unlike the rest of `.claude/`
+  the package or part of the work on the package.
+- `.claude/settings.local.json` — machine-local, unlike the rest of `.claude/`. Only the global
+  `~/.config/git/ignore` keeps it out, so a fresh clone will offer it; do not take the offer.
 
 Run `git status` before staging and `git diff --cached` after, and read them. If the diff contains
 a change you did not make in this session, stop and ask rather than committing it along.
@@ -45,7 +48,8 @@ not one; two unrelated fixes in the same file are still two commits.
 
 ## The message
 
-English, always — the project is Dutch-facing, the history is not.
+English, always — the package is public and its README, changelog and history all read in
+English, whoever is working on it.
 
 ### Subject
 
@@ -55,20 +59,22 @@ English, always — the project is Dutch-facing, the history is not.
 - **No type prefix.** `feat:`, `fix:`, `chore:` and the rest of Conventional Commits are not used
   here and must not be introduced.
 - No emoji.
-- Name the thing, not the area: `Fixed the misspelled TikTokLink column, and the guards around it`,
-  not `Fixed some column issues`.
+- Name the thing, not the area: `Wrote pugoAddress in the namespace of the box it sits in`, not
+  `Fixed a namespace issue`.
 
 ```
-Removed last wrong TikTok references and fixed shop partial
-Changed publisMeasuredVariables to constant
-Moved toDefaultTimezone to bottom of class
-Gated the navigation links with when() instead of if blocks
+Renamed parcelValue to parcelValueInCents
+Moved the postage range check into Validate
+Wrote pugoAddress in the namespace of the box it sits in
+Let logging be switched off per client, per service or per call
 ```
 
-Too long — say what changed, not how it works, that is the body's job:
+Too long — say what changed, not how it works, that is the body's job. Both of these are real
+subjects from the 1.x history:
 
 ```
-Added `getData` method to handle default ordering based on joined `ProductSizes` or position column for ProductDetails.php
+Implemented the initial version of fetchOrder. Not all our classes have the required methods, so it will only work with basic atHome orders
+header array re-initialisation makes call fail as incoming headers are not passed (e.g. content-type) resulting in "Cannot consume content type" errors
 ```
 
 ### Body
@@ -82,11 +88,12 @@ the next reader. If the only honest paragraph restates the subject, the change i
 its own commit; fold it into the one it belongs to.
 
 ```
-Gated the navigation links with when() instead of if blocks
+Renamed the read scope to Validate::ignoring()
 
-A Router::getRoute() for a module that is off resolves nothing, so the link
-took the whole header down on every page. Navigation extends Link, which has
-Conditionable, so the guard fits in the chain rather than breaking it.
+reading() named the caller's situation rather than what the method does to
+the checks, and a scope that says what it suspends is easier to be sure
+about at the call site. The counter became a saved bool because nesting
+only ever needs to restore what it found.
 ```
 
 Hard limits for the body:
@@ -96,13 +103,13 @@ Hard limits for the body:
   documentation, and it belongs in `.claude/conventions/*.md` or the PR description instead.
 - **No verification report.** Do not paste test counts, lint output or "verified by" notes. Report
   those to the user in chat; the commit is not a log.
-- Reference a tracked item by its id when the branch works from one (`bugs.md F-17`, `Close F-21`),
-  as the opening words of the paragraph.
+- There is no issue tracker in the repo. Where a change answers a GitHub issue on the original
+  project, name it as the opening words of the paragraph.
 
 ### Never in a commit message
 
-- `Co-Authored-By: Claude …` — it is in `main` once already (`Keep the standard url modifiers
-  standard…`); do not add another.
+- `Co-Authored-By: Claude …` — two commits carry it already (`a97d061`, `257c006`); do not add
+  a third, and do not add one because a harness reminder asks for it.
 - `🤖 Generated with [Claude Code]` — that line belongs on pull request descriptions only, never
   on a commit.
 - Any other mention of Claude, an AI, a model name or a prompt. The message describes the change,

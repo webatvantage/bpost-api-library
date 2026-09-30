@@ -23,7 +23,7 @@ what must never be staged, and that committing is its own ask.
 
 ```
 composer test       # phpunit, excludes tests/connection-tests
-composer analyse    # phpstan, level 5, src only
+composer analyse    # phpstan, level 8, src only
 composer format     # php-cs-fixer, shared webatvantage config
 ```
 

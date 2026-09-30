@@ -16,7 +16,7 @@ class Service implements XmlDeserializable
 	public static function fromXml(XmlElement $xml): static
 	{
 		return new static(
-			name: trim($xml->textContent),
+			name: $xml->ownText() ?? '',
 			category: $xml->attribute('category'),
 			flag: $xml->attribute('flag'),
 		);

@@ -59,7 +59,7 @@ class ApiExceptionFactory
 			return null;
 		}
 
-		$value = trim($first->textContent);
+		$value = trim($first->textContent ?? '');
 
 		return $value === '' ? null : $value;
 	}

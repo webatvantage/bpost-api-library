@@ -35,7 +35,7 @@ class Feedback implements XmlDeserializable
 
 			foreach (new XPath($document)->query(sprintf('descendant-or-self::*[local-name()="%s"]', $name), $xml) as $node)
 			{
-				$value = trim($node->textContent);
+				$value = trim($node->textContent ?? '');
 
 				if ($value !== '')
 				{

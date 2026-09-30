@@ -116,20 +116,21 @@ class XmlElement extends Element
 	}
 
 	/**
+	 * This element's own trimmed text, or null when it carries none.
+	 */
+	public function ownText(): ?string
+	{
+		$value = trim($this->textContent ?? '');
+
+		return $value === '' ? null : $value;
+	}
+
+	/**
 	 * The trimmed text of the first child element with one of these local names.
 	 */
 	public function text(string ...$localNames): ?string
 	{
-		$child = $this->child(...$localNames);
-
-		if ($child === null)
-		{
-			return null;
-		}
-
-		$value = trim($child->textContent);
-
-		return $value === '' ? null : $value;
+		return $this->child(...$localNames)?->ownText();
 	}
 
 	/**

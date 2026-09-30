@@ -23,12 +23,12 @@ class Barcode implements XmlDeserializable
 		if ($barcode !== null)
 		{
 			return new static(
-				barcode: trim($barcode->textContent),
+				barcode: $barcode->ownText() ?? '',
 				reference: $xml->text('reference'),
 			);
 		}
 
-		return new static(trim($xml->textContent));
+		return new static($xml->ownText() ?? '');
 	}
 
 	public function isReturnLabel(): bool

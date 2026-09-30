@@ -112,7 +112,7 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 		$reducedMobilityZone = $xml->child('reducedMobilityZone');
 
 		$unregistered->reducedMobilityZone = isset($reducedMobilityZone)
-			&& strtoupper(trim($reducedMobilityZone->textContent)) !== 'N';
+			&& strtoupper($reducedMobilityZone->ownText() ?? '') !== 'N';
 
 		return $unregistered;
 	}

@@ -46,9 +46,10 @@ later at the HTTP layer.
 ### Logging
 
 Pass a PSR-3 logger and every request and response is written to it. You can then narrow that down
-at three levels: the whole client, one service, or one call.
+at four levels: the whole client, one service, one resource, or one call.
 
 ```php
+// The config from Usage above, and any PSR-3 logger.
 $bpost = new BpostApiClient($config, logger: $logger);
 
 // Everything, including services you have not reached yet.
@@ -57,28 +58,40 @@ $bpost->withoutLogging();
 // One service.
 $bpost->shm()->withoutLogging();
 
-// One call. A resource is built fresh each time, so this reaches nothing else.
+// One resource. It is built fresh each time, so this reaches nothing else.
 $bpost->shm()->orders()->withoutLogging()->get('order-123');
 
-// Or on a request you were narrowing anyway.
+// One call, on a request you were narrowing anyway.
 $bpost->geo()->servicePoints()->nearest(zone: '1000')->withoutLogging()->get();
 ```
 
 Each of these has a `withLogging(bool $logging = true)` counterpart, so a single noisy call can be
 logged while the rest of the client stays quiet. The narrowest setting wins.
 
-Records carry the severity of what bpost answered, so keeping only the failures is a matter of
-where your own logger's threshold sits rather than anything to switch on here:
+Switching it off quiets the calls that worked, not the ones that did not. What bpost refused is
+written whatever the setting, because silencing a chatty call is not the same as agreeing to lose
+the reason it failed:
 
-| record | level |
-|---|---|
-| the request, and the transfer statistics | `debug` |
-| a 2xx response | `info` |
-| a 3xx response | `notice` |
-| a 4xx response — a refused order, a bad barcode | `error` |
-| a 5xx response — bpost is having trouble | `critical` |
+| answer                                 | logging on | logging off      |
+|----------------------------------------|------------|------------------|
+| 2xx, 3xx                               | logged     | nothing          |
+| 4xx, 5xx                               | logged     | **still logged** |
+| no response at all — DNS, TLS, timeout | logged     | **still logged** |
 
-A logger set to `warning` therefore keeps the refusals and drops the rest.
+That switch is about noise, and it is per call. Severity is the other axis, and it is the same for
+every call: records carry the level of what bpost answered, so your own logger's threshold decides
+how much of the detail survives.
+
+| record                                          | level      |
+|-------------------------------------------------|------------|
+| the request, and the transfer statistics        | `debug`    |
+| a 2xx response                                  | `info`     |
+| a 3xx response                                  | `notice`   |
+| a 4xx response — a refused order, a bad barcode | `error`    |
+| a 5xx response — bpost is having trouble        | `critical` |
+
+A logger set to `warning` therefore keeps the refusals and drops the rest — across the board,
+where `withoutLogging()` does it for the one call you point it at.
 
 To change what a record is made of — the levels, the truncation size, one line instead of an
 array — pass your own handler on the config. It reaches every service:
@@ -106,14 +119,14 @@ When bpost refuses a document, the body is usually the only thing that says why.
 hands you the PSR-7 request and response themselves, at the same four levels:
 
 ```php
-$seen = function (RequestInterface $request, ResponseInterface $response) {
+$debug = function (RequestInterface $request, ResponseInterface $response) {
     echo (string) $request->getBody(), (string) $response->getBody();
 };
 
-$bpost->withDebug($seen);                                  // every service
-$bpost->shm()->withDebug($seen);                           // one service
-$bpost->shm()->orders()->withDebug($seen)->get('order-1'); // one resource
-$bpost->geo()->servicePoints()->all()->withDebug($seen)->get();
+$bpost->withDebug($debug);                                  // every service
+$bpost->shm()->withDebug($debug);                           // one service
+$bpost->shm()->orders()->withDebug($debug)->get('order-1'); // one resource
+$bpost->geo()->servicePoints()->all()->withDebug($debug)->get();
 ```
 
 Pass `null` to clear it. The callback runs whether or not the response was an error, and before

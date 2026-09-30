@@ -41,14 +41,18 @@ class ServicePoint implements XmlDeserializable
 		public readonly OpeningHours $openingHours = new OpeningHours(),
 		public readonly Attributes $attributes = new Attributes(),
 		public readonly ?float $distance = null,
-		public private(set) ?string $pageUrl = null,
+		public readonly ?string $pageUrl = null,
 	) {}
 
+	/**
+	 * A copy of this point carrying bpost's details page for it.
+	 *
+	 * A nearest-points search answers the URL beside the record rather than inside it, so the
+	 * point has to be read before the URL can be built from its id and type.
+	 */
 	public function withPageUrl(?string $pageUrl): static
 	{
-		$this->pageUrl = $pageUrl;
-
-		return $this;
+		return clone($this, ['pageUrl' => $pageUrl]);
 	}
 
 	/**

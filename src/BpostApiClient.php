@@ -2,7 +2,12 @@
 
 namespace Webatvantage\Bpost\Api;
 
+use Closure;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Webatvantage\Bpost\Api\Contracts\Debuggable;
+use Webatvantage\Bpost\Api\Contracts\Loggable;
 use Webatvantage\Bpost\Api\Exceptions\MissingConfigurationException;
 use Webatvantage\Bpost\Api\Geo\GeoApiClient;
 use Webatvantage\Bpost\Api\Parcel\ParcelApiClient;
@@ -11,7 +16,7 @@ use Webatvantage\Bpost\Api\Shm\ShmApiClient;
 /**
  * One entry point for the bpost services.
  */
-class BpostApiClient
+class BpostApiClient implements Debuggable, Loggable
 {
 	private ?ShmApiClient $shm = null;
 
@@ -20,6 +25,9 @@ class BpostApiClient
 	private ?ParcelApiClient $parcel = null;
 
 	private bool $logging = true;
+
+	/** @var (Closure(RequestInterface, ResponseInterface): void)|null */
+	private ?Closure $debugCallback = null;
 
 	/**
 	 * @param array<string, mixed> $httpClientOptions
@@ -38,7 +46,8 @@ class BpostApiClient
 		}
 
 		return $this->shm ??= new ShmApiClient($this->config->shm, $this->httpClientOptions, $this->logger)
-			->withLogging($this->logging);
+			->withLogging($this->logging)
+			->withDebug($this->debugCallback);
 	}
 
 	public function geo(): GeoApiClient
@@ -49,7 +58,8 @@ class BpostApiClient
 		}
 
 		return $this->geo ??= new GeoApiClient($this->config->geo, $this->httpClientOptions, $this->logger)
-			->withLogging($this->logging);
+			->withLogging($this->logging)
+			->withDebug($this->debugCallback);
 	}
 
 	public function parcel(): ParcelApiClient
@@ -60,7 +70,8 @@ class BpostApiClient
 		}
 
 		return $this->parcel ??= new ParcelApiClient($this->config->parcel, $this->httpClientOptions, $this->logger)
-			->withLogging($this->logging);
+			->withLogging($this->logging)
+			->withDebug($this->debugCallback);
 	}
 
 	/**
@@ -82,5 +93,25 @@ class BpostApiClient
 	public function withoutLogging(): static
 	{
 		return $this->withLogging(false);
+	}
+
+	/**
+	 * Hand every request and response of every service to a callback.
+	 *
+	 * This reaches the domain clients you already took hold of as well as the ones you have not.
+	 *
+	 * @param (Closure(RequestInterface $request, ResponseInterface $response): void)|null $callback
+	 *
+	 * @return static
+	 */
+	public function withDebug(?Closure $callback): static
+	{
+		$this->debugCallback = $callback;
+
+		$this->shm?->withDebug($callback);
+		$this->geo?->withDebug($callback);
+		$this->parcel?->withDebug($callback);
+
+		return $this;
 	}
 }

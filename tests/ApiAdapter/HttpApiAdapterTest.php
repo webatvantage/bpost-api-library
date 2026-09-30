@@ -42,7 +42,7 @@ class HttpApiAdapterTest extends TestCase
 		$this->mockResponse(400, '<businessException><message>Invalid weight</message></businessException>');
 
 		$seen = [];
-		$adapter = $this->adapter()->setDebugCallback(function (RequestInterface $request, ResponseInterface $response) use (&$seen) {
+		$adapter = $this->adapter()->withDebug(function (RequestInterface $request, ResponseInterface $response) use (&$seen) {
 			$seen = [$request, $response, (string)$response->getBody()];
 		});
 

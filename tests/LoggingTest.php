@@ -33,7 +33,7 @@ class LoggingTest extends TestCase
 		$this->assertNotEmpty($this->logger->records);
 
 		$this->logger->records = [];
-		$adapter->setLogging(false);
+		$adapter->withLogging(false);
 
 		$this->mockResponse(200, '<orderInfo/>');
 		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-2'));
@@ -50,7 +50,7 @@ class LoggingTest extends TestCase
 
 		$this->assertEmpty($this->logger->records);
 
-		$adapter->setLogging(false);
+		$adapter->withLogging(false);
 
 		$this->mockResponse(200, '<orderInfo/>');
 		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-2')->withLogging());

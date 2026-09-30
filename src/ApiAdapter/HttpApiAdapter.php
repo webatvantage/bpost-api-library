@@ -11,13 +11,15 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Webatvantage\Bpost\Api\Contracts\Debuggable;
+use Webatvantage\Bpost\Api\Contracts\Loggable;
 use Webatvantage\Bpost\Api\Contracts\Request;
 use Webatvantage\Bpost\Api\Exceptions\TransporterException;
 use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
 use Webatvantage\Bpost\Api\Support\XmlDocument;
 use Webatvantage\Bpost\Api\Support\XmlElement;
 
-class HttpApiAdapter
+class HttpApiAdapter implements Debuggable, Loggable
 {
 	/** Guzzle request option carrying the decision for the request being sent. */
 	private const string LOGGING_OPTION = 'bpost_logging';
@@ -91,10 +93,11 @@ class HttpApiAdapter
 
 		$contents = (string)$response->getBody();
 		$statusCode = $response->getStatusCode();
+		$debugCallback = $request->debugCallback ?? $this->debugCallback;
 
-		if (isset($this->debugCallback))
+		if ($debugCallback !== null)
 		{
-			($this->debugCallback)($psrRequest, $response);
+			$debugCallback($psrRequest, $response);
 		}
 
 		if ($statusCode < 200 || $statusCode > 299)
@@ -122,11 +125,15 @@ class HttpApiAdapter
 	}
 
 	/**
+	 * Hand every request and response this client sends to a callback.
+	 *
+	 * A single call or a single resource can name its own instead, which wins over this one.
+	 *
 	 * @param (Closure(RequestInterface $request, ResponseInterface $response): void)|null $callback
 	 *
 	 * @return static
 	 */
-	public function setDebugCallback(?Closure $callback): static
+	public function withDebug(?Closure $callback): static
 	{
 		$this->debugCallback = $callback;
 
@@ -138,11 +145,16 @@ class HttpApiAdapter
 		return $this->logging;
 	}
 
-	public function setLogging(bool $logging): static
+	public function withLogging(bool $logging = true): static
 	{
 		$this->logging = $logging;
 
 		return $this;
+	}
+
+	public function withoutLogging(): static
+	{
+		return $this->withLogging(false);
 	}
 
 	/**

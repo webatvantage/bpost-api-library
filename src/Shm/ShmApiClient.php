@@ -2,8 +2,13 @@
 
 namespace Webatvantage\Bpost\Api\Shm;
 
+use Closure;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
+use Webatvantage\Bpost\Api\Contracts\Debuggable;
+use Webatvantage\Bpost\Api\Contracts\Loggable;
 use Webatvantage\Bpost\Api\Shm\Resources\LabelResource;
 use Webatvantage\Bpost\Api\Shm\Resources\OrderResource;
 use Webatvantage\Bpost\Api\Shm\Resources\ProductConfigurationResource;
@@ -11,7 +16,7 @@ use Webatvantage\Bpost\Api\Shm\Resources\ProductConfigurationResource;
 /**
  * The bpost Shipping Manager: orders, labels and what this account may sell.
  */
-readonly class ShmApiClient
+readonly class ShmApiClient implements Debuggable, Loggable
 {
 	private HttpApiAdapter $apiAdapter;
 
@@ -36,7 +41,7 @@ readonly class ShmApiClient
 	 */
 	public function withLogging(bool $logging = true): static
 	{
-		$this->apiAdapter->setLogging($logging);
+		$this->apiAdapter->withLogging($logging);
 
 		return $this;
 	}
@@ -44,6 +49,20 @@ readonly class ShmApiClient
 	public function withoutLogging(): static
 	{
 		return $this->withLogging(false);
+	}
+
+	/**
+	 * Hand every request and response this client sends to a callback.
+	 *
+	 * @param (Closure(RequestInterface $request, ResponseInterface $response): void)|null $callback
+	 *
+	 * @return static
+	 */
+	public function withDebug(?Closure $callback): static
+	{
+		$this->apiAdapter->withDebug($callback);
+
+		return $this;
 	}
 
 	public function orders(): OrderResource

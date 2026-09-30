@@ -2,15 +2,20 @@
 
 namespace Webatvantage\Bpost\Api\Parcel;
 
+use Closure;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
+use Webatvantage\Bpost\Api\Contracts\Debuggable;
+use Webatvantage\Bpost\Api\Contracts\Loggable;
 use Webatvantage\Bpost\Api\Parcel\Resources\AnnouncementResource;
 use Webatvantage\Bpost\Api\Parcel\Resources\TrackingResource;
 
 /**
  * bpost's trackedmail services: announcing a parcel, and following it afterwards.
  */
-readonly class ParcelApiClient
+readonly class ParcelApiClient implements Debuggable, Loggable
 {
 	private HttpApiAdapter $apiAdapter;
 
@@ -35,7 +40,7 @@ readonly class ParcelApiClient
 	 */
 	public function withLogging(bool $logging = true): static
 	{
-		$this->apiAdapter->setLogging($logging);
+		$this->apiAdapter->withLogging($logging);
 
 		return $this;
 	}
@@ -43,6 +48,20 @@ readonly class ParcelApiClient
 	public function withoutLogging(): static
 	{
 		return $this->withLogging(false);
+	}
+
+	/**
+	 * Hand every request and response this client sends to a callback.
+	 *
+	 * @param (Closure(RequestInterface $request, ResponseInterface $response): void)|null $callback
+	 *
+	 * @return static
+	 */
+	public function withDebug(?Closure $callback): static
+	{
+		$this->apiAdapter->withDebug($callback);
+
+		return $this;
 	}
 
 	public function announcements(): AnnouncementResource

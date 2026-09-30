@@ -3,8 +3,10 @@
 namespace Webatvantage\Bpost\Api\Contracts;
 
 use BackedEnum;
+use Closure;
 use GuzzleHttp\Psr7\Request as PsrRequest;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Traits\Conditionable;
 
@@ -14,11 +16,14 @@ use Webatvantage\Bpost\Api\Traits\Conditionable;
  * Accept and Content-Type live on the request rather than on the adapter: bpost versions each
  * operation's media type separately, so two calls to the same service routinely disagree.
  */
-abstract class Request
+abstract class Request implements Debuggable, Loggable
 {
 	use Conditionable;
 
 	private ?bool $logging = null;
+
+	/** @var (Closure(RequestInterface, ResponseInterface): void)|null */
+	public private(set) ?Closure $debugCallback = null;
 
 	/**
 	 * @param array<string, mixed> $parameters
@@ -98,6 +103,20 @@ abstract class Request
 	public function isLogging(): ?bool
 	{
 		return $this->logging;
+	}
+
+	/**
+	 * Hand this one call's request and response to a callback, whatever the client is set to.
+	 *
+	 * @param (Closure(RequestInterface $request, ResponseInterface $response): void)|null $callback
+	 *
+	 * @return static
+	 */
+	public function withDebug(?Closure $callback): static
+	{
+		$this->debugCallback = $callback;
+
+		return $this;
 	}
 
 	/**

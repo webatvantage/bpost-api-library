@@ -2,12 +2,16 @@
 
 namespace Webatvantage\Bpost\Api\Tests\ApiAdapter;
 
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Enums\Method;
+use Webatvantage\Bpost\Api\Exceptions\ApiException;
 use Webatvantage\Bpost\Api\Exceptions\BusinessException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidResponseException;
 use Webatvantage\Bpost\Api\Exceptions\SystemException;
@@ -141,6 +145,72 @@ class HttpApiAdapterTest extends TestCase
 		$this->expectExceptionMessage('bpost answered HTTP 404 with an empty body.');
 
 		$this->adapter()->request(new FakeRequest(Method::GET, '/orders/nope'));
+	}
+
+	/**
+	 * @return array<string, array{int, string, class-string}>
+	 */
+	public static function refusals(): array
+	{
+		return [
+			'a client error' => [409, '<businessException><message>Cancelled</message></businessException>', ClientException::class],
+			'a server error' => [500, '<systemException><message>token f35c0f13</message></systemException>', ServerException::class],
+		];
+	}
+
+	/**
+	 * Guzzle's own exception names the method and the URI, which the bpost fault document does not,
+	 * so it is worth keeping underneath rather than discarding once the body has been read.
+	 *
+	 * @param class-string $cause
+	 */
+	#[DataProvider('refusals')]
+	public function test_a_refused_response_keeps_the_guzzle_exception_as_its_cause(int $status, string $body, string $cause)
+	{
+		$this->mockResponse($status, $body);
+
+		try
+		{
+			$this->adapter()->request(new FakeRequest(Method::POST, '/orders/ref'));
+			$this->fail('Expected the refusal to be raised.');
+		}
+		catch (ApiException $exception)
+		{
+			$this->assertInstanceOf($cause, $exception->getPrevious());
+		}
+	}
+
+	/**
+	 * Guzzle only rejects from 400 up, so there is no exception underneath a 3xx to keep — the
+	 * range check raised this one on its own.
+	 */
+	public function test_a_status_guzzle_does_not_reject_has_nothing_underneath_it()
+	{
+		$this->mockResponse(302, '');
+
+		try
+		{
+			$this->adapter()->request(new FakeRequest(Method::GET, '/orders/ref'));
+			$this->fail('Expected the redirect to be refused.');
+		}
+		catch (ApiException $exception)
+		{
+			$this->assertNull($exception->getPrevious());
+		}
+	}
+
+	/**
+	 * Guzzle only rejects a response from 400 up, so a redirect it was not asked to follow reaches
+	 * the adapter as an ordinary return and is caught by the range check rather than by a catch.
+	 */
+	public function test_it_refuses_a_redirect_it_was_not_asked_to_follow()
+	{
+		$this->mockResponse(302, '');
+
+		$this->expectException(InvalidResponseException::class);
+		$this->expectExceptionMessage('bpost answered HTTP 302 with an empty body.');
+
+		$this->adapter()->request(new FakeRequest(Method::GET, '/orders/ref'));
 	}
 
 	public function test_it_rejects_a_successful_response_that_is_not_xml()

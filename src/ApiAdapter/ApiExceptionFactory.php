@@ -3,6 +3,7 @@
 namespace Webatvantage\Bpost\Api\ApiAdapter;
 
 use Dom\XPath;
+use Throwable;
 use Webatvantage\Bpost\Api\Exceptions\ApiException;
 use Webatvantage\Bpost\Api\Exceptions\BusinessException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidResponseException;
@@ -17,13 +18,13 @@ class ApiExceptionFactory
 {
 	protected const int MAX_BODY_LENGTH = 500;
 
-	public static function fromResponse(int $statusCode, string $body): ApiException
+	public static function fromResponse(int $statusCode, string $body, ?Throwable $previous = null): ApiException
 	{
 		$xml = XmlDocument::tryParse($body);
 
 		if ($xml === null)
 		{
-			return new InvalidResponseException(static::fallbackMessage($statusCode, $body), $statusCode, $body);
+			return new InvalidResponseException(static::fallbackMessage($statusCode, $body), $statusCode, $body, $previous);
 		}
 
 		$message = static::firstValue($xml, 'message') ?? static::fallbackMessage($statusCode, $body);
@@ -31,9 +32,9 @@ class ApiExceptionFactory
 
 		return match ($xml->localName)
 		{
-			'businessException' => new BusinessException($message, (int)($code ?? $statusCode), $body),
-			'systemException' => new SystemException($message, $statusCode, $body),
-			default => new InvalidResponseException($message, $statusCode, $body),
+			'businessException' => new BusinessException($message, (int)($code ?? $statusCode), $body, $previous),
+			'systemException' => new SystemException($message, $statusCode, $body, $previous),
+			default => new InvalidResponseException($message, $statusCode, $body, $previous),
 		};
 	}
 

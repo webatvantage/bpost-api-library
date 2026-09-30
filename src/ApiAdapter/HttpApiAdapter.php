@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\ApiAdapter;
 
 use Closure;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleLogMiddleware\Handler\LogLevelStrategy\ThresholdStrategy;
@@ -16,6 +17,7 @@ use Psr\Log\LoggerInterface;
 use Webatvantage\Bpost\Api\Contracts\Debuggable;
 use Webatvantage\Bpost\Api\Contracts\Loggable;
 use Webatvantage\Bpost\Api\Contracts\Request;
+use Webatvantage\Bpost\Api\Exceptions\BpostException;
 use Webatvantage\Bpost\Api\Exceptions\TransporterException;
 use Webatvantage\Bpost\Api\Exceptions\UnserializableResponseException;
 use Webatvantage\Bpost\Api\Support\XmlDocument;
@@ -73,44 +75,51 @@ class HttpApiAdapter implements Debuggable, Loggable
 		$this->client = new Client([
 			...$httpClientOptions,
 			'handler' => $handler,
-			'http_errors' => false,
 		]);
 	}
 
 	/**
 	 * Send a request and hand back its parsed body.
+	 *
+	 * @throws BpostException
 	 */
 	public function request(Request $request): XmlElement|string
 	{
 		$headers = [...$this->defaultHeaders, ...$request->getHeaders()];
 
+		$psrRequest = $request->toRequest($headers, $this->baseUri);
+
 		try
 		{
-			$psrRequest = $request->toRequest($headers, $this->baseUri);
 			$response = $this->client->send($psrRequest, [
 				static::LOGGING_OPTION => $request->isLogging() ?? $this->logging,
 			]);
+		}
+		// Catch a 4xx and a 5xx error
+		catch (BadResponseException $badResponseException)
+		{
+			$response = $badResponseException->getResponse();
 		}
 		catch (ClientExceptionInterface $clientException)
 		{
 			throw new TransporterException($clientException);
 		}
 
-		$contents = (string)$response->getBody();
+		$contents = mb_trim((string)$response->getBody());
 		$statusCode = $response->getStatusCode();
 		$debugCallback = $request->debugCallback ?? $this->debugCallback;
 
-		if ($debugCallback !== null)
+		if (isset($debugCallback))
 		{
 			$debugCallback($psrRequest, $response);
 		}
 
 		if ($statusCode < 200 || $statusCode > 299)
 		{
-			throw ApiExceptionFactory::fromResponse($statusCode, $contents);
+			throw ApiExceptionFactory::fromResponse($statusCode, $contents, $badResponseException ?? null);
 		}
 
-		if (!$request->expectsXml() || trim($contents) === '')
+		if (!$request->expectsXml() || $contents === '')
 		{
 			return $contents;
 		}

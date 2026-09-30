@@ -56,6 +56,11 @@
   `debug`, a 2xx is `info`, a 3xx `notice`, a 4xx `error` and a 5xx `critical`. Everything went out
   at `debug` before, so a refused order read the same as a successful one and keeping only the
   failures meant filtering on message text. A logger set to `warning` now does it
+* Guzzle's `http_errors` is back on its default, so a 4xx and a 5xx arrive as the rejection Guzzle
+  means them to be and are translated here rather than suppressed and re-derived from the status.
+  No exception a caller catches has changed, and the body still reaches `ApiExceptionFactory`
+  intact; `BadResponseException` is caught ahead of the PSR-18 interface it also satisfies, which
+  would otherwise have turned every bpost fault into a `TransporterException`
 * Every `emailAddress` is checked with `filter_var` when set, not only for the documented length.
   bpost answers a malformed address by accepting the order and then never sending the message, so
   a typo used to surface as a customer asking where their parcel was. Two consequences worth

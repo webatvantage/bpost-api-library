@@ -25,15 +25,13 @@ class Price implements XmlDeserializable
 
 	public static function fromXml(XmlElement $xml): static
 	{
-		$attribute = static fn (string $name): ?int => (int)$xml->attribute($name) ?: null;
-
 		return new static(
 			$xml->attribute('countryIso2Code'),
-			$attribute('priceLessThan2'),
-			$attribute('price2To5'),
-			$attribute('price5To10'),
-			$attribute('price10To20'),
-			$attribute('price20To30'),
+			$xml->integerAttribute('priceLessThan2'),
+			$xml->integerAttribute('price2To5'),
+			$xml->integerAttribute('price5To10'),
+			$xml->integerAttribute('price10To20'),
+			$xml->integerAttribute('price20To30'),
 		);
 	}
 

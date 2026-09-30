@@ -5,6 +5,7 @@ namespace Webatvantage\Bpost\Api\Tests\Shm\Requests;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Enums\Weekday;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\AtHome;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Box\International;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\CashOnDelivery;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\AutomaticSecondPresentation;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Flags\SaturdayDelivery;
@@ -13,16 +14,17 @@ use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Insured;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Options\Messaging;
 use Webatvantage\Bpost\Api\Shm\Enums\BoxStatus;
 use Webatvantage\Bpost\Api\Shm\Enums\InsuranceAmount;
+use Webatvantage\Bpost\Api\Shm\Enums\InsuranceType;
 use Webatvantage\Bpost\Api\Shm\Enums\MessagingType;
 use Webatvantage\Bpost\Api\Shm\Enums\Product;
 use Webatvantage\Bpost\Api\Shm\ShmApiClient;
 use Webatvantage\Bpost\Api\Tests\Shm\ShmTestCase;
 
 /**
- * Reads bpost's own Retrieve Order Information response end to end.
+ * Reads Retrieve Order Information responses end to end.
  *
- * This is the only test that exercises deserialisation against a real document rather than a
- * hand-written fragment, so it is what notices if the response shape drifts.
+ * These are the only tests that exercise deserialisation against whole documents rather than
+ * hand-written fragments, so they are what notice if the response shape drifts.
  */
 class FetchOrderResponseTest extends ShmTestCase
 {
@@ -33,6 +35,15 @@ class FetchOrderResponseTest extends ShmTestCase
 		return new ShmApiClient($this->config(), ['handler' => $this->handlerStack()])
 			->orders()
 			->get('bpack 24h B2B - Ins(El)+iR+iND+iD');
+	}
+
+	private function fetchDeliveredAbroad()
+	{
+		$this->mockResponse(200, $this->fixture('retrieve-order-at-intl-home.xml'));
+
+		return new ShmApiClient($this->config(), ['handler' => $this->handlerStack()])
+			->orders()
+			->get('202600007_2605211404');
 	}
 
 	public function test_it_reads_the_order_envelope()
@@ -121,6 +132,33 @@ class FetchOrderResponseTest extends ShmTestCase
 		$saturday = array_filter($options, fn ($option) => $option instanceof SaturdayDelivery);
 
 		$this->assertCount(1, $saturday);
+	}
+
+	/**
+	 * bpost answers an order delivered abroad in the v3 namespaces and under a name it does not
+	 * accept on the way in, so nothing about this document matches what the manual documents.
+	 */
+	public function test_it_reads_an_order_delivered_abroad()
+	{
+		$box = $this->fetchDeliveredAbroad()->boxes[0];
+
+		$this->assertSame('CD121033378BE', $box->barcode);
+		$this->assertSame(BoxStatus::Announced, $box->status);
+		$this->assertInstanceOf(International::class, $box->deliveryBox);
+		$this->assertSame(Product::BpackWorldBusiness, $box->deliveryBox->product);
+		$this->assertSame(2000, $box->deliveryBox->weight);
+		$this->assertSame('RECEIVER NAME', $box->deliveryBox->receiver?->name);
+		$this->assertSame('DE', $box->deliveryBox->receiver?->address?->countryCode);
+	}
+
+	public function test_it_reads_the_options_of_an_order_delivered_abroad()
+	{
+		$options = $this->fetchDeliveredAbroad()->boxes[0]->deliveryBox->options;
+
+		$this->assertCount(2, $options);
+		$this->assertInstanceOf(Insured::class, $options[0]);
+		$this->assertSame(InsuranceType::Basic, $options[0]->type);
+		$this->assertInstanceOf(Signed::class, $options[1]);
 	}
 
 	public function test_no_cash_on_delivery_is_invented()

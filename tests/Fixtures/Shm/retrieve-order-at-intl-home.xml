@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  A live answer to Retrieve Order Information for an order delivered abroad, with the
+  account number and the names replaced. bpost documents no example of one, and it
+  differs from the v5 create-order shape twice over: the element is <atIntlHome>, which
+  the manual never mentions and which bpost refuses on the way in, and everything is in
+  the v3 namespaces the live API answers with.
+-->
+<orderInfo xmlns="http://schema.post.be/shm/deepintegration/v3/"
+	xmlns:ns2="http://schema.post.be/shm/deepintegration/v3/common"
+	xmlns:ns3="http://schema.post.be/shm/deepintegration/v3/national"
+	xmlns:ns4="http://schema.post.be/shm/deepintegration/v3/international">
+	<accountId>{accountID}</accountId>
+	<reference>202600007_2605211404</reference>
+	<costCenter>webshop</costCenter>
+	<orderLine>
+		<text>Poloshirt - beige</text>
+		<nbOfItems>1</nbOfItems>
+	</orderLine>
+	<box>
+		<sender>
+			<ns2:name>SENDER NAME</ns2:name>
+			<ns2:company>SENDER COMPANY</ns2:company>
+			<ns2:address>
+				<ns2:streetName>MUNT</ns2:streetName>
+				<ns2:number>1</ns2:number>
+				<ns2:box>A</ns2:box>
+				<ns2:postalCode>1000</ns2:postalCode>
+				<ns2:locality>Brussel</ns2:locality>
+				<ns2:countryCode>BE</ns2:countryCode>
+			</ns2:address>
+			<ns2:emailAddress>sender@mail.be</ns2:emailAddress>
+		</sender>
+		<internationalBox>
+			<ns4:atIntlHome>
+				<ns4:product>bpack World Business</ns4:product>
+				<ns4:options>
+					<ns2:insured>
+						<ns2:additionalInsurance value="1"/>
+					</ns2:insured>
+					<ns2:signed/>
+				</ns4:options>
+				<ns4:receiver>
+					<ns2:name>RECEIVER NAME</ns2:name>
+					<ns2:company>RECEIVER COMPANY</ns2:company>
+					<ns2:address>
+						<ns2:streetName>Hauptstrasse</ns2:streetName>
+						<ns2:number>31a</ns2:number>
+						<ns2:postalCode>88909</ns2:postalCode>
+						<ns2:locality>Berlin</ns2:locality>
+						<ns2:countryCode>DE</ns2:countryCode>
+					</ns2:address>
+					<ns2:emailAddress>receiver@mail.de</ns2:emailAddress>
+					<ns2:phoneNumber>32093284310</ns2:phoneNumber>
+				</ns4:receiver>
+				<ns4:parcelWeight>2000</ns4:parcelWeight>
+			</ns4:atIntlHome>
+		</internationalBox>
+		<additionalCustomerReference>+PHP8.5</additionalCustomerReference>
+		<barcode>CD121033378BE</barcode>
+		<status>ANNOUNCED</status>
+	</box>
+</orderInfo>

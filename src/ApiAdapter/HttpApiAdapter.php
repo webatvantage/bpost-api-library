@@ -6,6 +6,8 @@ use Closure;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise\PromiseInterface;
+use GuzzleLogMiddleware\Handler\LogLevelStrategy\ThresholdStrategy;
+use GuzzleLogMiddleware\Handler\MultiRecordArrayHandler;
 use GuzzleLogMiddleware\LogMiddleware;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
@@ -60,7 +62,12 @@ class HttpApiAdapter implements Debuggable, Loggable
 			// One set of client options is shared by every service, so the caller's own stack
 			// would collect a copy of the middleware per service.
 			$handler = clone $handler;
-			$handler->push(static::conditionalLogging(new LogMiddleware(logger: $logger, logStatistics: true)));
+			$handler->push(static::conditionalLogging(new LogMiddleware(
+				logger: $logger,
+				// Levels by status range, so a logger set above debug keeps only the failures.
+				handler: new MultiRecordArrayHandler(new ThresholdStrategy()),
+				logStatistics: true,
+			)));
 		}
 
 		$this->client = new Client([

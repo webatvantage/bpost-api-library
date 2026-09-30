@@ -67,6 +67,19 @@ $bpost->geo()->servicePoints()->nearest(zone: '1000')->withoutLogging()->get();
 Each of these has a `withLogging(bool $logging = true)` counterpart, so a single noisy call can be
 logged while the rest of the client stays quiet. The narrowest setting wins.
 
+Records carry the severity of what bpost answered, so keeping only the failures is a matter of
+where your own logger's threshold sits rather than anything to switch on here:
+
+| record | level |
+|---|---|
+| the request, and the transfer statistics | `debug` |
+| a 2xx response | `info` |
+| a 3xx response | `notice` |
+| a 4xx response — a refused order, a bad barcode | `error` |
+| a 5xx response — bpost is having trouble | `critical` |
+
+A logger set to `warning` therefore keeps the refusals and drops the rest.
+
 ### Debugging
 
 When bpost refuses a document, the body is usually the only thing that says why. `withDebug()`

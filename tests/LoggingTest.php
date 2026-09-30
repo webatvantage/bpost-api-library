@@ -2,10 +2,12 @@
 
 namespace Webatvantage\Bpost\Api\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\BpostApiClient;
 use Webatvantage\Bpost\Api\BpostApiConfig;
 use Webatvantage\Bpost\Api\Enums\Method;
+use Webatvantage\Bpost\Api\Exceptions\BpostException;
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
 use Webatvantage\Bpost\Api\Parcel\ParcelApiConfig;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
@@ -113,6 +115,62 @@ class LoggingTest extends TestCase
 		$client->shm()->orders()->get('ref-1');
 
 		$this->assertCount($withOneService, $this->logger->records);
+	}
+
+	/**
+	 * @return array<string, array{int, string}>
+	 */
+	public static function statusLevels(): array
+	{
+		return [
+			'a success' => [200, 'info'],
+			'a bpost fault' => [409, 'error'],
+			'a bpost outage' => [500, 'critical'],
+		];
+	}
+
+	/**
+	 * The level carries the severity so a consumer's own logger threshold can keep the failures
+	 * and drop the rest; without one every record went out at debug and read the same.
+	 */
+	#[DataProvider('statusLevels')]
+	public function test_a_response_is_logged_at_the_level_its_status_deserves(int $status, string $level)
+	{
+		$adapter = $this->loggingAdapter();
+
+		$this->mockResponse($status, '<orderInfo/>');
+
+		try
+		{
+			$adapter->request(new FakeRequest(Method::GET, '/orders/ref'));
+		}
+		catch (BpostException)
+		{
+		}
+
+		$this->assertSame($level, $this->logger->levelOf('Guzzle HTTP response'));
+	}
+
+	/**
+	 * The request and the statistics stay below the failures, so a logger set to warning keeps
+	 * only what went wrong.
+	 */
+	public function test_the_request_and_statistics_stay_at_debug()
+	{
+		$adapter = $this->loggingAdapter();
+
+		$this->mockResponse(500, '<systemException/>');
+
+		try
+		{
+			$adapter->request(new FakeRequest(Method::GET, '/orders/ref'));
+		}
+		catch (BpostException)
+		{
+		}
+
+		$this->assertSame('debug', $this->logger->levelOf('Guzzle HTTP request'));
+		$this->assertSame('debug', $this->logger->levelOf('Guzzle HTTP statistics'));
 	}
 
 	private function loggingAdapter(): HttpApiAdapter

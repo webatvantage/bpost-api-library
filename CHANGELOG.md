@@ -52,6 +52,10 @@
 
 #### Changed
 
+* Log records carry the severity of the response: the request and the transfer statistics stay at
+  `debug`, a 2xx is `info`, a 3xx `notice`, a 4xx `error` and a 5xx `critical`. Everything went out
+  at `debug` before, so a refused order read the same as a successful one and keeping only the
+  failures meant filtering on message text. A logger set to `warning` now does it
 * Every `emailAddress` is checked with `filter_var` when set, not only for the documented length.
   bpost answers a malformed address by accepting the order and then never sending the message, so
   a typo used to surface as a customer asking where their parcel was. Two consequences worth

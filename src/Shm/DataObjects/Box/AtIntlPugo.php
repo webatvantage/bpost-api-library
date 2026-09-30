@@ -91,10 +91,7 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 		$element->appendText('pugoId', $this->pugoId, $namespace);
 		$element->appendText('pugoName', $this->pugoName, $namespace);
 
-		if ($this->pugoAddress !== null)
-		{
-			$this->pugoAddress->toXml($element);
-		}
+		$this->pugoAddress?->toXml($element, $namespace);
 
 		$element->appendText('receiverName', $this->receiverName, $namespace);
 		$element->appendText('receiverCompany', $this->receiverCompany, $namespace);

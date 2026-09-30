@@ -87,7 +87,25 @@ class BoxTest extends ShmTestCase
 		$this->assertXmlContains('<international:atIntlPugo>', $xml);
 		$this->assertXmlContains('<international:product>bpack@bpost international</international:product>', $xml);
 		$this->assertXmlContains('<international:pugoId>163372</international:pugoId>', $xml);
-		$this->assertXmlContains('<pugoAddress>', $xml);
+		$this->assertXmlContains('<international:pugoAddress>', $xml);
+	}
+
+	/**
+	 * The manual's atIntlPugo example (B.3.2.2.2) writes <international:pugoAddress>, where the
+	 * atBpost examples write the same element unprefixed. The address takes its namespace from the
+	 * box it appears in, not from its own class.
+	 */
+	public function test_a_pugo_address_is_written_in_the_namespace_of_the_box_it_sits_in()
+	{
+		$address = new PugoAddress()->streetName('Turnhoutsebaan')->number('468')->locality('Wijnegem');
+
+		$national = $this->serialise(new AtBpost()->weight(2000)->pugo('207500', 'WIJNEGEM', $address)->toXml(...));
+		$international = $this->serialise(new AtIntlPugo()->weight(2000)->pugo('163372', 'PARIS', $address)->toXml(...));
+
+		$this->assertXmlContains('<pugoAddress>', $national);
+		$this->assertStringNotContainsString('<international:pugoAddress>', $national);
+
+		$this->assertXmlContains('<international:pugoAddress>', $international);
 	}
 
 	public function test_an_international_pick_up_box_reads_back_its_receiver_name()

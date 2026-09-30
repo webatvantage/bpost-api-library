@@ -17,6 +17,10 @@ use Webatvantage\Bpost\Api\Support\XmlElement;
  *
  * The element itself is named by the subclass — a pick-up point's address is <pugoAddress>, a
  * locker's is <parcelsDepotAddress> — but the children are always in the common namespace.
+ *
+ * The same element sits in a different namespace depending on the box it appears in: a pugoAddress
+ * is unprefixed inside atBpost and international: inside atIntlPugo, so the caller's namespace
+ * wins over TAG_NAMESPACE where one is given.
  */
 class Address implements XmlDeserializable, XmlSerializable
 {
@@ -104,7 +108,7 @@ class Address implements XmlDeserializable, XmlSerializable
 	 */
 	public function toXml(XmlElement $parent, ?XmlNamespace $namespace = null): XmlElement
 	{
-		$address = $parent->appendElement(static::TAG_NAME, static::TAG_NAMESPACE);
+		$address = $parent->appendElement(static::TAG_NAME, $namespace ?? static::TAG_NAMESPACE);
 
 		$address->appendText('streetName', $this->streetName, ShmNamespace::Common);
 		$address->appendText('number', $this->number, ShmNamespace::Common);

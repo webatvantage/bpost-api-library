@@ -308,7 +308,14 @@ foreach ($points as $point) {
 
 The Geolocator only offers `NL` and `FR`; `Language` carries `EN` and `DE` for the Shipping
 Manager's messaging, and passing either here throws `InvalidValueException` rather than being
-ignored on bpost's side.
+ignored on bpost's side. `Language::forGeolocator()` returns the set, so a language choice in your
+own code can be built from it rather than hardcoded:
+
+```php
+foreach (Language::forGeolocator() as $language) {
+    $language->value;   // 'NL', 'FR'
+}
+```
 
 #### One point's details
 

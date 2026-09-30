@@ -26,6 +26,15 @@ class HasLanguageParameterTest extends GeoTestCase
 		return ['EN' => [Language::EN], 'DE' => [Language::DE]];
 	}
 
+	/**
+	 * The set is public so a caller can build a language choice from it rather than hardcoding one,
+	 * which means adding to it is a change consumers see.
+	 */
+	public function test_the_enum_names_the_set_the_geolocator_takes()
+	{
+		$this->assertSame([Language::NL, Language::FR], Language::forGeolocator());
+	}
+
 	#[DataProvider('availableLanguages')]
 	public function test_a_search_takes_the_two_languages_the_geolocator_documents(Language $language)
 	{

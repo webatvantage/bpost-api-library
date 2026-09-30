@@ -42,6 +42,9 @@
 * `Contracts\Loggable` and `Contracts\Debuggable`, implemented at each of those levels. The names
   had drifted apart once already, and an interface makes that a load-time error rather than
   something to notice in review
+* `Language::forGeolocator()`, the two of the four that service takes. The set was buried in the
+  check that enforces it, so a caller building a language choice had to hardcode it and find out
+  from a rejected value when it was wrong
 
 #### Changed
 

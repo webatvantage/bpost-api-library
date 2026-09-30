@@ -26,12 +26,11 @@ trait HasLanguageParameter
 	 */
 	protected static function assertAvailable(Language $language): Language
 	{
-		if (!in_array($language, [Language::NL, Language::FR], true))
+		$available = Language::forGeolocator();
+
+		if (in_array($language, $available, true) === false)
 		{
-			throw new InvalidValueException('Language', $language->value, [
-				Language::NL->value,
-				Language::FR->value,
-			]);
+			throw new InvalidValueException('Language', $language->value, array_column($available, 'value'));
 		}
 
 		return $language;

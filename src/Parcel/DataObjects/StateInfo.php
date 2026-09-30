@@ -27,9 +27,9 @@ class StateInfo implements XmlDeserializable
 	public static function fromXml(XmlElement $xml): static
 	{
 		return new static(
-			$xml->dateTime('time'),
-			$xml->text('stateCode'),
-			$xml->text('stateDescription'),
+			time: $xml->dateTime('time'),
+			stateCode: $xml->text('stateCode'),
+			stateDescription: $xml->text('stateDescription'),
 		);
 	}
 }

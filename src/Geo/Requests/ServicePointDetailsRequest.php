@@ -39,13 +39,14 @@ class ServicePointDetailsRequest extends GeoRequest
 
 	/**
 	 * @throws UnexpectedValueException
+	 * @throws LocatorException
 	 */
 	public function get(): ServicePoint
 	{
 		$xml = $this->send();
 
 		$entry = $xml->child('Poi');
-		$record = isset($entry) ? $entry->child('Record') : null;
+		$record = $entry?->child('Record');
 
 		if ($entry === null || $record === null)
 		{
@@ -59,9 +60,8 @@ class ServicePointDetailsRequest extends GeoRequest
 		$page = $entry->child('Page');
 
 		return ServicePoint::fromXml(
-			$record,
-			null,
-			isset($page) ? $page->attribute('ServiceRef') : null,
+			xml: $record,
+			pageUrl: $page?->attribute('ServiceRef'),
 		);
 	}
 }

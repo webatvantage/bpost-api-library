@@ -11,7 +11,9 @@ abstract class Resource implements Debuggable, Loggable
 {
 	private ?bool $logging = null;
 
-	/** @var (Closure(RequestInterface, ResponseInterface): void)|null */
+	/**
+	 * @var (Closure(RequestInterface, ResponseInterface): void)|null
+	 */
 	public private(set) ?Closure $debugCallback = null;
 
 	public function __construct(protected readonly HttpApiAdapter $apiAdapter) {}

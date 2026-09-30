@@ -120,7 +120,7 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 		$party->addressDepartment = $xml->text('addressDepartment');
 		$party->addressContactName = $xml->text('addressContactName');
 		$party->addressPlace = $xml->text('addressPlace');
-		$party->address = $address !== null ? Address::fromXml($address) : null;
+		$party->address = isset($address) ? Address::fromXml($address) : null;
 		$party->contactDetail = isset($contactDetail) ? ContactDetail::fromXml($contactDetail) : null;
 
 		return $party;

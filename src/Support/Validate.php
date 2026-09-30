@@ -145,7 +145,7 @@ class Validate
 	{
 		$value = strtoupper($value);
 
-		if (self::$reading === 0 && mb_strlen($value) !== 2)
+		if (self::$reading === 0 && preg_match('/^[A-Z]{2}$/', $value) !== 1)
 		{
 			throw new InvalidValueException($name, $value, ['a two-letter ISO country code']);
 		}

@@ -47,8 +47,7 @@ class ServicePoint implements XmlDeserializable
 	/**
 	 * A copy of this point carrying bpost's details page for it.
 	 *
-	 * A nearest-points search answers the URL beside the record rather than inside it, so the
-	 * point has to be read before the URL can be built from its id and type.
+	 * A nearest-points search answers the URL beside the record rather than inside it.
 	 */
 	public function withPageUrl(?string $pageUrl): static
 	{

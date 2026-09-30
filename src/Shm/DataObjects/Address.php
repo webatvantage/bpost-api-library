@@ -18,9 +18,8 @@ use Webatvantage\Bpost\Api\Support\XmlElement;
  * The element itself is named by the subclass — a pick-up point's address is <pugoAddress>, a
  * locker's is <parcelsDepotAddress> — but the children are always in the common namespace.
  *
- * The same element sits in a different namespace depending on the box it appears in: a pugoAddress
- * is unprefixed inside atBpost and international: inside atIntlPugo, so the caller's namespace
- * wins over TAG_NAMESPACE where one is given.
+ * The same element sits in a different namespace depending on the box it appears in: pugoAddress
+ * is unprefixed inside atBpost and international: inside atIntlPugo.
  */
 class Address implements XmlDeserializable, XmlSerializable
 {

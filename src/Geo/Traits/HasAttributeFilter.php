@@ -8,8 +8,8 @@ use Webatvantage\Bpost\Api\Geo\Enums\LockerType;
 /**
  * The AttributeFilter parameter, which a search and an all-points download both take.
  *
- * Only lockers in Belgium carry the attributes it filters on, and both filters can be applied at
- * once, which is why it accumulates rather than overwriting — bpost expects the key repeated.
+ * Only lockers in Belgium carry the attributes it filters on. Both filters can be applied at once,
+ * which bpost reads as the key repeated rather than as one combined value.
  *
  * @phpstan-require-extends Request
  */

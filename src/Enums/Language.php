@@ -6,8 +6,7 @@ namespace Webatvantage\Bpost\Api\Enums;
  * Every language bpost accepts anywhere.
  *
  * Each service takes a subset: Shipping Manager messaging allows all four, the Geolocator allows
- * NL and FR only. The subsets are named here so a caller can offer the right set; enforcing one
- * is still the domain's job.
+ * NL and FR only.
  */
 enum Language: string
 {

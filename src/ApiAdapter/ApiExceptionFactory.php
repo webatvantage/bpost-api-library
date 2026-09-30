@@ -51,7 +51,7 @@ class ApiExceptionFactory
 			return null;
 		}
 
-		$found = new XPath($document)->query(sprintf('//*[local-name()="%s"]', $localName), $xml);
+		$found = new XPath($document)->query(sprintf('descendant-or-self::*[local-name()="%s"]', $localName), $xml);
 		$first = $found->item(0);
 
 		if ($first === null)

@@ -87,10 +87,7 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 		$customer->appendText('name', $this->name, ShmNamespace::Common);
 		$customer->appendText('company', $this->company, ShmNamespace::Common);
 
-		if ($this->address !== null)
-		{
-			$this->address->toXml($customer);
-		}
+		$this->address?->toXml($customer);
 
 		$customer->appendText('emailAddress', $this->emailAddress, ShmNamespace::Common);
 		$customer->appendText('phoneNumber', $this->phoneNumber, ShmNamespace::Common);

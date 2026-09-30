@@ -17,7 +17,7 @@ class ItemDetail implements XmlDeserializable
 		$weightInGrams = $xml->text('weightInGrams');
 
 		return new static(
-			$weightInGrams === null ? null : (int)$weightInGrams,
+			isset($weightInGrams) ? (int)$weightInGrams : null,
 			$xml->text('type'),
 		);
 	}

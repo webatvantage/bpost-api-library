@@ -117,15 +117,8 @@ class At247 extends NationalBox implements XmlDeserializable
 		$element->appendText('parcelsDepotId', $this->parcelsDepotId, $namespace);
 		$element->appendText('parcelsDepotName', $this->parcelsDepotName, $namespace);
 
-		if ($this->parcelsDepotAddress !== null)
-		{
-			$this->parcelsDepotAddress->toXml($element, $namespace);
-		}
-
-		if ($this->unregistered !== null)
-		{
-			$this->unregistered->toXml($element, $namespace);
-		}
+		$this->parcelsDepotAddress?->toXml($element, $namespace);
+		$this->unregistered?->toXml($element, $namespace);
 
 		$element->appendText('receiverName', $this->receiverName, $namespace);
 		$element->appendText('receiverCompany', $this->receiverCompany, $namespace);

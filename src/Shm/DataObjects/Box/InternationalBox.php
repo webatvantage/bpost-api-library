@@ -65,17 +65,11 @@ abstract class InternationalBox extends DeliveryBox
 
 		$this->appendOptions($element);
 
-		if ($this->receiver !== null)
-		{
-			$this->receiver->toXml($element, $namespace);
-		}
+		$this->receiver?->toXml($element, $namespace);
 
 		$element->appendText('parcelWeight', $this->weight, $namespace);
 
-		if ($this->customsInfo !== null)
-		{
-			$this->customsInfo->toXml($element);
-		}
+		$this->customsInfo?->toXml($element);
 	}
 
 	/**

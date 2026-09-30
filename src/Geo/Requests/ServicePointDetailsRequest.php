@@ -45,7 +45,7 @@ class ServicePointDetailsRequest extends GeoRequest
 		$xml = $this->send();
 
 		$entry = $xml->child('Poi');
-		$record = $entry === null ? null : $entry->child('Record');
+		$record = isset($entry) ? $entry->child('Record') : null;
 
 		if ($entry === null || $record === null)
 		{
@@ -61,7 +61,7 @@ class ServicePointDetailsRequest extends GeoRequest
 		return ServicePoint::fromXml(
 			$record,
 			null,
-			$page === null ? null : $page->attribute('ServiceRef'),
+			isset($page) ? $page->attribute('ServiceRef') : null,
 		);
 	}
 }

@@ -77,7 +77,7 @@ class ServicePoint implements XmlDeserializable
 
 		return new static(
 			id: $xml->text('Id', 'ID') ?? '',
-			type: $typeCode === null ? null : PointType::tryFrom((int)$typeCode),
+			type: isset($typeCode) ? PointType::tryFrom((int)$typeCode) : null,
 			name: $xml->text('Name', 'OFFICE'),
 			street: $xml->text('Street', 'STREET'),
 			number: $xml->text('Number', 'NR'),
@@ -102,11 +102,11 @@ class ServicePoint implements XmlDeserializable
 
 	private static function float(?string $value): ?float
 	{
-		return $value === null ? null : (float)$value;
+		return isset($value) ? (float)$value : null;
 	}
 
 	private static function int(?string $value): ?int
 	{
-		return $value === null ? null : (int)$value;
+		return isset($value) ? (int)$value : null;
 	}
 }

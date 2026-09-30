@@ -84,15 +84,9 @@ class Box implements XmlDeserializable, XmlSerializable
 	{
 		$box = $parent->appendElement('box', $namespace);
 
-		if ($this->sender !== null)
-		{
-			$this->sender->toXml($box, $namespace);
-		}
+		$this->sender?->toXml($box, $namespace);
 
-		if ($this->deliveryBox !== null)
-		{
-			$this->deliveryBox->toXml($box, $namespace);
-		}
+		$this->deliveryBox?->toXml($box, $namespace);
 
 		$box->appendText('remark', $this->remark, $namespace);
 

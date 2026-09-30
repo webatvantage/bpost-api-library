@@ -121,7 +121,7 @@ class NearestServicePointsRequest extends GeoRequest
 			}
 
 			$distance = $entry->text('Distance');
-			$point = ServicePoint::fromXml($record, $distance === null ? null : (float)$distance);
+			$point = ServicePoint::fromXml($record, isset($distance) ? (float)$distance : null);
 
 			$points[] = $point->withPageUrl($this->pageUrl($point));
 		}

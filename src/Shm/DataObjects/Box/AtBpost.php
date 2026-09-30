@@ -143,10 +143,7 @@ class AtBpost extends NationalBox implements XmlDeserializable
 		$element->appendText('pugoId', $this->pugoId, $namespace);
 		$element->appendText('pugoName', $this->pugoName, $namespace);
 
-		if ($this->pugoAddress !== null)
-		{
-			$this->pugoAddress->toXml($element, $namespace);
-		}
+		$this->pugoAddress?->toXml($element, $namespace);
 
 		$element->appendText('receiverName', $this->receiverName, $namespace);
 		$element->appendText('receiverCompany', $this->receiverCompany, $namespace);

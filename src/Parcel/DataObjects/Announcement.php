@@ -228,10 +228,7 @@ class Announcement
 			$namespace,
 		);
 
-		if ($this->international !== null)
-		{
-			$this->international->toXml($announcement, $namespace);
-		}
+		$this->international?->toXml($announcement, $namespace);
 
 		$method = $announcement->appendElement('deliveryMethod', $namespace);
 		$method->appendElement($this->deliveryMethod->value, ParcelNamespace::Common);
@@ -246,10 +243,7 @@ class Announcement
 			}
 		}
 
-		if ($this->dimensions !== null)
-		{
-			$this->dimensions->toXml($announcement, $namespace);
-		}
+		$this->dimensions?->toXml($announcement, $namespace);
 
 		return $announcement;
 	}

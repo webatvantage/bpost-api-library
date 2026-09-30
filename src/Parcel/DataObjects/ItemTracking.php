@@ -84,6 +84,6 @@ class ItemTracking implements XmlDeserializable
 	 */
 	public function trackingUrl(): ?string
 	{
-		return $this->trackingId === null ? null : 'https://track.bpost.be/id/' . $this->trackingId;
+		return isset($this->trackingId) ? 'https://track.bpost.be/id/' . $this->trackingId : null;
 	}
 }

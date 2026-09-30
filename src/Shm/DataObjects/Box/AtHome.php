@@ -128,10 +128,7 @@ class AtHome extends NationalBox implements XmlDeserializable
 
 		$element->appendText('desiredDeliveryPlace', $this->desiredDeliveryPlace, $namespace);
 
-		if ($this->receiver !== null)
-		{
-			$this->receiver->toXml($element, $namespace);
-		}
+		$this->receiver?->toXml($element, $namespace);
 
 		$element->appendText('requestedDeliveryDate', $this->requestedDeliveryDate, $namespace);
 

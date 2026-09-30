@@ -167,7 +167,7 @@ class XmlElement extends Element
 	{
 		$value = $this->attribute($name);
 
-		return $value === null ? null : (int)$value;
+		return isset($value) ? (int)$value : null;
 	}
 
 	private static function stringify(string|int|float|bool $value): string

@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise\PromiseInterface;
+use GuzzleLogMiddleware\Handler\HandlerInterface;
 use GuzzleLogMiddleware\Handler\LogLevelStrategy\ThresholdStrategy;
 use GuzzleLogMiddleware\Handler\MultiRecordArrayHandler;
 use GuzzleLogMiddleware\LogMiddleware;
@@ -42,6 +43,8 @@ class HttpApiAdapter implements Debuggable, Loggable
 	 * @param array<string, string> $defaultHeaders
 	 * @param array<string, mixed> $httpClientOptions
 	 * @param LoggerInterface|null $logger
+	 * @param HandlerInterface|null $logHandler What a log record is made of, defaulting to the
+	 *                                          array shape with a level per status range
 	 * @param (Closure(RequestInterface $request, ResponseInterface $response): void)|null $debugCallback
 	 * @param bool $logging
 	 */
@@ -50,6 +53,7 @@ class HttpApiAdapter implements Debuggable, Loggable
 		private readonly array $defaultHeaders = [],
 		array $httpClientOptions = [],
 		?LoggerInterface $logger = null,
+		?HandlerInterface $logHandler = null,
 		?Closure $debugCallback = null,
 		bool $logging = true,
 	) {
@@ -64,10 +68,12 @@ class HttpApiAdapter implements Debuggable, Loggable
 			// One set of client options is shared by every service, so the caller's own stack
 			// would collect a copy of the middleware per service.
 			$handler = clone $handler;
+			// Wrapped here whoever supplied it, so withoutLogging() still silences a handler the
+			// caller brought and the stack still collects one copy rather than one per service.
 			$handler->push(static::conditionalLogging(new LogMiddleware(
 				logger: $logger,
 				// Levels by status range, so a logger set above debug keeps only the failures.
-				handler: new MultiRecordArrayHandler(new ThresholdStrategy()),
+				handler: $logHandler ?? new MultiRecordArrayHandler(new ThresholdStrategy()),
 				logStatistics: true,
 			)));
 		}

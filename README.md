@@ -80,6 +80,26 @@ where your own logger's threshold sits rather than anything to switch on here:
 
 A logger set to `warning` therefore keeps the refusals and drops the rest.
 
+To change what a record is made of — the levels, the truncation size, one line instead of an
+array — pass your own handler on the config. It reaches every service:
+
+```php
+use GuzzleLogMiddleware\Handler\StringHandler;
+use GuzzleLogMiddleware\Handler\LogLevelStrategy\FixedStrategy;
+
+$bpost = new BpostApiClient(
+    new BpostApiConfig(
+        shm: new ShmApiConfig(accountId: '123456', passphrase: '...'),
+        logHandler: new StringHandler(new FixedStrategy('info')),
+    ),
+    logger: $logger,
+);
+```
+
+Pass it to a service client directly as `logHandler:` if you construct one yourself. Either way
+the middleware is still wrapped, so `withoutLogging()` reaches a handler you brought — which it
+would not if you pushed your own `LogMiddleware` onto a Guzzle handler stack instead.
+
 ### Debugging
 
 When bpost refuses a document, the body is usually the only thing that says why. `withDebug()`

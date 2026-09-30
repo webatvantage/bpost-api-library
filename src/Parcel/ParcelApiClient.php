@@ -3,6 +3,7 @@
 namespace Webatvantage\Bpost\Api\Parcel;
 
 use Closure;
+use GuzzleLogMiddleware\Handler\HandlerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -26,12 +27,14 @@ readonly class ParcelApiClient implements Debuggable, Loggable
 		private ParcelApiConfig $config,
 		array $httpClientOptions = [],
 		?LoggerInterface $logger = null,
+		?HandlerInterface $logHandler = null,
 	) {
 		$this->apiAdapter = new HttpApiAdapter(
 			baseUri: $config->baseUri,
 			defaultHeaders: ['Authorization' => $config->authorizationHeader()],
 			httpClientOptions: $httpClientOptions,
 			logger: $logger,
+			logHandler: $logHandler,
 		);
 	}
 

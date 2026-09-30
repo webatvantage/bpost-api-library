@@ -45,7 +45,12 @@ class BpostApiClient implements Debuggable, Loggable
 			throw MissingConfigurationException::forDomain('shm');
 		}
 
-		return $this->shm ??= new ShmApiClient($this->config->shm, $this->httpClientOptions, $this->logger)
+		return $this->shm ??= new ShmApiClient(
+			config: $this->config->shm,
+			httpClientOptions: $this->httpClientOptions,
+			logger: $this->logger,
+			logHandler: $this->config->logHandler,
+		)
 			->withLogging($this->logging)
 			->withDebug($this->debugCallback);
 	}
@@ -57,7 +62,12 @@ class BpostApiClient implements Debuggable, Loggable
 			throw MissingConfigurationException::forDomain('geo');
 		}
 
-		return $this->geo ??= new GeoApiClient($this->config->geo, $this->httpClientOptions, $this->logger)
+		return $this->geo ??= new GeoApiClient(
+			config: $this->config->geo,
+			httpClientOptions: $this->httpClientOptions,
+			logger: $this->logger,
+			logHandler: $this->config->logHandler,
+		)
 			->withLogging($this->logging)
 			->withDebug($this->debugCallback);
 	}
@@ -69,7 +79,12 @@ class BpostApiClient implements Debuggable, Loggable
 			throw MissingConfigurationException::forDomain('parcel');
 		}
 
-		return $this->parcel ??= new ParcelApiClient($this->config->parcel, $this->httpClientOptions, $this->logger)
+		return $this->parcel ??= new ParcelApiClient(
+			config: $this->config->parcel,
+			httpClientOptions: $this->httpClientOptions,
+			logger: $this->logger,
+			logHandler: $this->config->logHandler,
+		)
 			->withLogging($this->logging)
 			->withDebug($this->debugCallback);
 	}

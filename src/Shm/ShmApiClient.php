@@ -3,6 +3,7 @@
 namespace Webatvantage\Bpost\Api\Shm;
 
 use Closure;
+use GuzzleLogMiddleware\Handler\HandlerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -27,12 +28,14 @@ readonly class ShmApiClient implements Debuggable, Loggable
 		private ShmApiConfig $config,
 		array $httpClientOptions = [],
 		?LoggerInterface $logger = null,
+		?HandlerInterface $logHandler = null,
 	) {
 		$this->apiAdapter = new HttpApiAdapter(
 			baseUri: $config->baseUri,
 			defaultHeaders: ['Authorization' => $config->authorizationHeader()],
 			httpClientOptions: $httpClientOptions,
 			logger: $logger,
+			logHandler: $logHandler,
 		);
 	}
 

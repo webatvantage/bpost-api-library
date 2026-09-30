@@ -49,6 +49,11 @@
 * `Language::forGeolocator()`, the two of the four that service takes. The set was buried in the
   check that enforces it, so a caller building a language choice had to hardcode it and find out
   from a rejected value when it was wrong
+* `BpostApiConfig::$logHandler`, and a `logHandler:` argument on each service client, for changing
+  what a log record is made of — its levels, its truncation, one line instead of an array. The
+  middleware is still wrapped here whoever supplied the handler, so `withoutLogging()` reaches it
+  and the stack still collects one copy rather than one per service; pushing your own
+  `LogMiddleware` onto a Guzzle handler stack gets neither
 
 #### Changed
 

@@ -3,6 +3,7 @@
 namespace Webatvantage\Bpost\Api\Geo;
 
 use Closure;
+use GuzzleLogMiddleware\Handler\HandlerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -25,6 +26,7 @@ readonly class GeoApiClient implements Debuggable, Loggable
 		private GeoApiConfig $config,
 		array $httpClientOptions = [],
 		?LoggerInterface $logger = null,
+		?HandlerInterface $logHandler = null,
 	) {
 		// Without this bpost truncates a Get All Service Points response over 10 MB.
 		$headers = ['Accept-Encoding' => 'gzip'];
@@ -40,6 +42,7 @@ readonly class GeoApiClient implements Debuggable, Loggable
 			defaultHeaders: $headers,
 			httpClientOptions: $httpClientOptions,
 			logger: $logger,
+			logHandler: $logHandler,
 		);
 	}
 

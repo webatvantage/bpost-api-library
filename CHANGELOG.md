@@ -34,6 +34,10 @@
   caller holding the original found the URL on that too. It hands back a copy now
 * `Validate::countryCode()` counted characters rather than requiring letters, so `12` passed
 * `Signed`'s docblock lost its leading asterisk on a blank line, which ended the comment early
+* Five exceptions reported `statusCode` 200 for a response they had no status for, most often a
+  2xx with an empty body where 204 is the likelier answer. They leave it unset now; a zero means
+  the library could not read a body bpost had already accepted, rather than bpost refusing the
+  request
 
 #### Added
 
@@ -60,6 +64,9 @@
   down the repository's own working notes
 * The Geolocator's two locker filters moved beside its language parameter, so a search and an
   all-points download cannot drift apart on what they send
+* Static analysis runs at PHPStan level 8. Everything between five and eight was one cause:
+  `Dom\Node::$textContent` is nullable and seven places trimmed it directly. `XmlElement` grew
+  `ownText()` for the five that hold one, which is the reader `text()` already wanted
 * `GeoApiConfig::$apiKey` is optional. `pudo.bpost.cloud` rejects a request without `x-api-key`,
   but the older `pudo.bpost.be` ignores the header, so an integration still pointed there had no
   key to pass and had to invent one. Left out, the header is not sent at all rather than sent
@@ -106,7 +113,7 @@
   bpost service (`Shm`, `Geo`, `Parcel`)
 * Minimum PHP version is now 8.5
 * Code style is now `webatvantage/php-cs-fixer-config`; static analysis runs PHPStan level 5 and
-  the suite runs on PHPUnit 13
+  the suite runs on PHPUnit 13 — level 8 since, see Unreleased
 * Geolocator host is now `pudo.bpost.cloud`, as documented, instead of `pudo.bpost.be`
 * A nearest-points search returns a flat list of `ServicePoint`; the distance is a property on the
   point rather than a parallel array key

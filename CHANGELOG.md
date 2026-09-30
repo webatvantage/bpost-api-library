@@ -24,6 +24,16 @@
   made on that resource, matching `withoutLogging()`
 * The Geolocator's `language()` refused nothing, though all four operations document `NL` or `FR`
   only and quietly ignore anything else. `EN` and `DE` are rejected, in one place rather than four
+* The readme's announcement example passed the Shipping Manager's `Sender` and `Receiver` to a
+  service that has its own, so copying it raised a `TypeError`. Every block in the file is now run
+  against the library rather than read over
+* A price band quoted as `0` came back as `null`, the same answer as a band bpost did not quote
+* `ApiExceptionFactory` and `Feedback` passed a context element to XPath and then opened with
+  `//`, which resolves from the document root regardless
+* `ServicePoint::withPageUrl()` assigned to the point it was called on and returned it, so a
+  caller holding the original found the URL on that too. It hands back a copy now
+* `Validate::countryCode()` counted characters rather than requiring letters, so `12` passed
+* `Signed`'s docblock lost its leading asterisk on a blank line, which ended the comment early
 
 #### Added
 
@@ -35,10 +45,25 @@
 
 #### Changed
 
+* Every `emailAddress` is checked with `filter_var` when set, not only for the documented length.
+  bpost answers a malformed address by accepting the order and then never sending the message, so
+  a typo used to surface as a customer asking where their parcel was. Two consequences worth
+  knowing: an empty string is now refused where it used to be accepted and silently left out of
+  the document, and `FILTER_VALIDATE_EMAIL` is stricter than RFC 5322, so an internationalised
+  domain has to be punycoded before it is set. A response is read as bpost holds it, as ever
 * `HttpApiAdapter::setLogging()` is now `withLogging()` and gained `withoutLogging()`;
   `setDebugCallback()` is now `withDebug()`. Every level of the ladder spells the pair the same way
 * `.claude/` and `composer.lock` are `export-ignore`d, so a `composer require` no longer pulls
   down the repository's own working notes
+* The Geolocator's two locker filters moved beside its language parameter, so a search and an
+  all-points download cannot drift apart on what they send
+
+#### Removed
+
+* `Enums\MediaType`, `Conditionable::unless()`, `Weekday::index()`, `Request::addHeader()`,
+  `HttpApiAdapter::isLogging()`, and `toXml()`/`fromXml()` on the Shipping Manager's `Dimensions`.
+  Nothing in the library reached any of them; `Dimensions` writes its three elements through
+  `appendTo()`, because bpost has no wrapper element for them
 
 ### 2.0.0 - 2026-09-28
 

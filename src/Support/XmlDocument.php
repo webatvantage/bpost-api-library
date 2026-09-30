@@ -40,7 +40,7 @@ class XmlDocument
 	 */
 	public static function tryParse(string $body): ?XmlElement
 	{
-		if (trim($body) === '')
+		if ($body === '')
 		{
 			return null;
 		}

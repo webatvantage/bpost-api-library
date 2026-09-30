@@ -29,7 +29,9 @@ class ProductConfiguration implements XmlDeserializable
 	}
 
 	/**
-	 * Whether an order may name this product at all.
+	 * Every product across every delivery method.
+	 *
+	 * The same product appears more than once when it is offered under several of them.
 	 *
 	 * @return array<int, Product>
 	 */
@@ -38,6 +40,9 @@ class ProductConfiguration implements XmlDeserializable
 		return array_merge(...array_map(fn (DeliveryMethod $method) => $method->products, $this->deliveryMethods));
 	}
 
+	/**
+	 * Whether an order may name this product at all.
+	 */
 	public function offers(ProductName $product): bool
 	{
 		foreach ($this->products() as $configured)

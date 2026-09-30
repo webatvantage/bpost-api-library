@@ -98,6 +98,8 @@
   `HttpApiAdapter::isLogging()`, and `toXml()`/`fromXml()` on the Shipping Manager's `Dimensions`.
   Nothing in the library reached any of them; `Dimensions` writes its three elements through
   `appendTo()`, because bpost has no wrapper element for them
+* The `debugCallback` and `logging` arguments on `HttpApiAdapter::__construct()`. Nothing passed
+  either, and `withDebug()` and `withLogging()` already reach both after the adapter is built
 
 ### 2.0.0 - 2026-09-28
 

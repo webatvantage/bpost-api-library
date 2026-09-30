@@ -33,19 +33,16 @@ class HttpApiAdapter implements Debuggable, Loggable
 	private readonly string $baseUri;
 
 	/** @var (Closure(RequestInterface, ResponseInterface): void)|null */
-	private ?Closure $debugCallback;
+	private ?Closure $debugCallback = null;
 
-	private bool $logging;
+	private bool $logging = true;
 
 	/**
 	 * @param string $baseUri
 	 * @param array<string, string> $defaultHeaders
 	 * @param array<string, mixed> $httpClientOptions
 	 * @param LoggerInterface|null $logger
-	 * @param HandlerInterface|null $logHandler What a log record is made of, defaulting to the
-	 *                                          array shape with a level per status range
-	 * @param (Closure(RequestInterface $request, ResponseInterface $response): void)|null $debugCallback
-	 * @param bool $logging
+	 * @param HandlerInterface|null $logHandler What a log record is made of, defaulting to the array shape with a level per status range
 	 */
 	public function __construct(
 		string $baseUri,
@@ -53,11 +50,7 @@ class HttpApiAdapter implements Debuggable, Loggable
 		array $httpClientOptions = [],
 		?LoggerInterface $logger = null,
 		?HandlerInterface $logHandler = null,
-		?Closure $debugCallback = null,
-		bool $logging = true,
 	) {
-		$this->debugCallback = $debugCallback;
-		$this->logging = $logging;
 		$this->baseUri = rtrim($baseUri, '/');
 
 		$handler = $httpClientOptions['handler'] ?? HandlerStack::create();

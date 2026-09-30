@@ -29,7 +29,7 @@
     "ext-dom": "*",
     "ext-libxml": "*",
     "ext-mbstring": "*",
-    "covergenius/guzzle_logger": "^2.3",
+    "covergenius/guzzle_logger": "^2.3.1",
     "guzzlehttp/guzzle": "^7.8",
     "psr/log": "^2.0 || ^3.0"
   },
@@ -39,11 +39,18 @@
     "phpstan/phpstan-deprecation-rules": "^2.0.4",
     "phpstan/phpstan-phpunit": "^2.0.13",
     "phpunit/phpunit": "^13.3",
-    "webatvantage/php-cs-fixer-config": "^1.0"
+    "webatvantage/php-cs-fixer-config": "^1.4.0"
   },
   "suggest": {
     "ext-curl": "Lets Guzzle use the cURL handler, which is faster than the stream wrapper."
   },
+  "repositories": [
+    {
+      "name": "covergenius/guzzle_logger",
+      "type": "vcs",
+      "url": "https://github.com/tomsix/guzzle-log-middleware.git"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "Webatvantage\\Bpost\\Api\\": "src/"

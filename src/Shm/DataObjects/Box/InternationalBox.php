@@ -4,8 +4,6 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
-use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
-use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Customs\CustomsInfo;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Receiver;
@@ -73,8 +71,6 @@ abstract class InternationalBox extends DeliveryBox
 	}
 
 	/**
-	 * @throws InvalidLengthException
-	 * @throws InvalidValueException
 	 * @throws UnexpectedValueException
 	 */
 	protected function readShared(XmlElement $xml): void

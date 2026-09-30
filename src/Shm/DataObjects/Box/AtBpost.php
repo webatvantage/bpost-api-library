@@ -156,7 +156,6 @@ class AtBpost extends NationalBox implements XmlDeserializable
 	/**
 	 * @throws InvalidValueException
 	 * @throws UnexpectedValueException
-	 * @throws InvalidLengthException
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{

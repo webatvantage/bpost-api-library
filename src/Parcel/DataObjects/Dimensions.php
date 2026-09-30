@@ -43,9 +43,6 @@ class Dimensions implements XmlDeserializable, XmlSerializable
 		return $element;
 	}
 
-	/**
-	 * @throws InvalidValueException
-	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		return Validate::reading(static fn (): static => new static(

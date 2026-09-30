@@ -6,10 +6,10 @@ use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Geo\DataObjects\ServicePoint;
-use Webatvantage\Bpost\Api\Geo\Enums\LockerType;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
 use Webatvantage\Bpost\Api\Geo\Exceptions\LocatorException;
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
+use Webatvantage\Bpost\Api\Geo\Traits\HasAttributeFilter;
 
 /**
  * `Function=getallservicepoints` — every point in a country, optionally narrowed by type and zip.
@@ -21,8 +21,7 @@ use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
  */
 class AllServicePointsRequest extends GeoRequest
 {
-	/** @var array<string> */
-	private array $attributeFilters = [];
+	use HasAttributeFilter;
 
 	public function __construct(HttpApiAdapter $apiAdapter, GeoApiConfig $config)
 	{
@@ -55,16 +54,6 @@ class AllServicePointsRequest extends GeoRequest
 		return $this->addParameter('Zip', $zip);
 	}
 
-	public function filterLockerType(LockerType $lockerType): static
-	{
-		return $this->addAttributeFilter('LOCKERTYPE:' . $lockerType->filterValue());
-	}
-
-	public function filterNightDelivery(bool $allowed = true): static
-	{
-		return $this->addAttributeFilter('NIGHTDELIVERY:' . ($allowed ? 'TRUE' : 'FALSE'));
-	}
-
 	/**
 	 * @return array<ServicePoint>
 	 *
@@ -84,12 +73,5 @@ class AllServicePointsRequest extends GeoRequest
 		}
 
 		return $points;
-	}
-
-	private function addAttributeFilter(string $filter): static
-	{
-		$this->attributeFilters[] = $filter;
-
-		return $this->addParameter('AttributeFilter', $this->attributeFilters);
 	}
 }

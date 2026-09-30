@@ -7,9 +7,9 @@ use Webatvantage\Bpost\Api\ApiAdapter\HttpApiAdapter;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Geo\DataObjects\ServicePoint;
-use Webatvantage\Bpost\Api\Geo\Enums\LockerType;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
+use Webatvantage\Bpost\Api\Geo\Traits\HasAttributeFilter;
 
 /**
  * `Function=search` — the pick-up points nearest a given address.
@@ -19,8 +19,7 @@ use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
  */
 class NearestServicePointsRequest extends GeoRequest
 {
-	/** @var array<string> */
-	private array $attributeFilters = [];
+	use HasAttributeFilter;
 
 	public function __construct(
 		HttpApiAdapter $apiAdapter,
@@ -89,16 +88,6 @@ class NearestServicePointsRequest extends GeoRequest
 		return $this->addParameter('Info', $include);
 	}
 
-	public function filterLockerType(LockerType $lockerType): static
-	{
-		return $this->addAttributeFilter('LOCKERTYPE:' . $lockerType->filterValue());
-	}
-
-	public function filterNightDelivery(bool $allowed = true): static
-	{
-		return $this->addAttributeFilter('NIGHTDELIVERY:' . ($allowed ? 'TRUE' : 'FALSE'));
-	}
-
 	/**
 	 * @return array<ServicePoint>
 	 *
@@ -141,12 +130,5 @@ class NearestServicePointsRequest extends GeoRequest
 
 		return new ServicePointPageRequest($this->config, $point->id, $point->type)
 			->toUrl($this->config->baseUri);
-	}
-
-	private function addAttributeFilter(string $filter): static
-	{
-		$this->attributeFilters[] = $filter;
-
-		return $this->addParameter('AttributeFilter', $this->attributeFilters);
 	}
 }

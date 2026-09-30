@@ -8,6 +8,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidPatternException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -54,10 +55,11 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * @throws InvalidLengthException
+	 * @throws InvalidPatternException
 	 */
 	public function emailAddress(string $emailAddress): static
 	{
-		$this->emailAddress = Validate::maxLength('emailAddress', $emailAddress, 50);
+		$this->emailAddress = Validate::email('emailAddress', $emailAddress, 50);
 
 		return $this;
 	}

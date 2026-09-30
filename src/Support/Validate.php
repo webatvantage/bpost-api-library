@@ -4,6 +4,7 @@ namespace Webatvantage\Bpost\Api\Support;
 
 use BackedEnum;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidPatternException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 
@@ -112,6 +113,29 @@ class Validate
 		}
 
 		return $case;
+	}
+
+	/**
+	 * An address bpost can deliver a message to, within the length the manual documents.
+	 *
+	 * bpost documents a length and no format, and answers a malformed address by accepting the
+	 * order and then never sending the notification, so a typo is invisible until a customer asks
+	 * where their parcel is. filter_var is stricter than RFC 5322 — an internationalised domain is
+	 * refused — so an address it rejects has to be corrected rather than passed through.
+	 *
+	 * @throws InvalidLengthException
+	 * @throws InvalidPatternException
+	 */
+	public static function email(string $name, string $value, int $max): string
+	{
+		self::maxLength($name, $value, $max);
+
+		if (self::$reading === 0 && filter_var($value, FILTER_VALIDATE_EMAIL) === false)
+		{
+			throw new InvalidPatternException($name, $value, 'an email address');
+		}
+
+		return $value;
 	}
 
 	/**

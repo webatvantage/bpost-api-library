@@ -7,6 +7,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidPatternException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
@@ -46,12 +47,13 @@ class Notification implements Option
 
 	/**
 	 * @throws InvalidLengthException
+	 * @throws InvalidPatternException
 	 * @throws InvalidValueException
 	 */
 	public function email(string $emailAddress): static
 	{
 		$this->assertNoChannelYet();
-		$this->emailAddress = Validate::maxLength('emailAddress', $emailAddress, 50);
+		$this->emailAddress = Validate::email('emailAddress', $emailAddress, 50);
 
 		return $this;
 	}

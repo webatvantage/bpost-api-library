@@ -8,6 +8,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Enums\Language;
 use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidPatternException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\MessagingType;
@@ -55,12 +56,13 @@ class Messaging implements Option, XmlDeserializable
 
 	/**
 	 * @throws InvalidLengthException
+	 * @throws InvalidPatternException
 	 * @throws InvalidValueException
 	 */
 	public function email(string $emailAddress): static
 	{
 		$this->assertNoChannelYet('emailAddress');
-		$this->emailAddress = Validate::maxLength('emailAddress', $emailAddress, 50);
+		$this->emailAddress = Validate::email('emailAddress', $emailAddress, 50);
 
 		return $this;
 	}

@@ -7,6 +7,7 @@ use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
+use Webatvantage\Bpost\Api\Exceptions\InvalidPatternException;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -27,10 +28,11 @@ class ContactDetail implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * @throws InvalidLengthException
+	 * @throws InvalidPatternException
 	 */
 	public function emailAddress(string $emailAddress): static
 	{
-		$this->emailAddress = Validate::maxLength('emailAddress', $emailAddress, 40);
+		$this->emailAddress = Validate::email('emailAddress', $emailAddress, 40);
 
 		return $this;
 	}

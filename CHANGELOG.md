@@ -14,7 +14,7 @@
 * Reading a response no longer applies the send-side field lengths and ranges: a retrieved order
   whose locality runs past the documented 40 characters, or a parcel content weighing less than
   the minimum a new one may declare, is reported as bpost holds it instead of throwing
-  `InvalidLengthException` at a caller with nothing to correct. `Validate::reading()` covers the
+  `InvalidLengthException` at a caller with nothing to correct. `Validate::ignoring()` covers the
   reads whose checks sit in a constructor
 * A malformed `deliveryTime` or scan `time` in a tracking response threw
   `DateMalformedStringException`, outside `BpostException`. It is an `UnexpectedValueException`

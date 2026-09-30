@@ -176,7 +176,7 @@ class AtBpost extends NationalBox implements XmlDeserializable
 		$box->requestedDeliveryDate = $xml->text('requestedDeliveryDate');
 
 		$box->shopHandlingInstruction = isset($shopHandlingInstruction)
-			? Validate::reading(static fn (): ShopHandlingInstruction => new ShopHandlingInstruction($shopHandlingInstruction))
+			? Validate::ignoring(static fn (): ShopHandlingInstruction => new ShopHandlingInstruction($shopHandlingInstruction))
 			: null;
 
 		return $box;

@@ -94,7 +94,7 @@ class Order implements XmlDeserializable
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{
-		$order = Validate::reading(static fn (): static => new static($xml->text('reference') ?? ''));
+		$order = Validate::ignoring(static fn (): static => new static($xml->text('reference') ?? ''));
 
 		$order->costCenter = $xml->text('costCenter');
 

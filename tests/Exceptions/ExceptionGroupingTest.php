@@ -87,7 +87,7 @@ class ExceptionGroupingTest extends TestCase
 
 	/**
 	 * The constructor checks cannot be stepped around by assigning afterwards, so these reads run
-	 * inside Validate::reading() instead.
+	 * inside Validate::ignoring() instead.
 	 */
 	public function test_a_retrieved_parcel_content_keeps_a_weight_below_the_sending_minimum()
 	{
@@ -134,7 +134,7 @@ class ExceptionGroupingTest extends TestCase
 	{
 		try
 		{
-			// The product is unknown, so this throws from inside the reading scope.
+			// The product is unknown, so this throws from inside the ignoring scope.
 			At247::fromXml($this->parse('<at24-7><product>bpack Imaginary</product></at24-7>'));
 		}
 		catch (UnexpectedValueException)

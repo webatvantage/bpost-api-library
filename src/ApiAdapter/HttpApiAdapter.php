@@ -57,10 +57,8 @@ class HttpApiAdapter implements Debuggable, Loggable
 
 		if ($logger !== null && $handler instanceof HandlerStack)
 		{
-			// Cloned first: one set of client options is shared by every service, so pushing onto
-			// the caller's stack would stack a second copy of the middleware per service and log
-			// each request once more for each of them. The clone copies the middleware list and
-			// keeps the same underlying transport.
+			// One set of client options is shared by every service, so the caller's own stack
+			// would collect a copy of the middleware per service.
 			$handler = clone $handler;
 			$handler->push(self::conditionalLogging(new LogMiddleware(logger: $logger, logStatistics: true)));
 		}

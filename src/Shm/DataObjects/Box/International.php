@@ -119,8 +119,6 @@ class International extends InternationalBox implements XmlDeserializable
 			return $box;
 		}
 
-		// Appended rather than added through withParcelContent(), whose ceiling of ten is a rule
-		// about what may be sent; an order bpost already holds is reported as it is.
 		foreach ($contents->childElements() as $content)
 		{
 			$box->parcelContents[] = ParcelContent::fromXml($content);

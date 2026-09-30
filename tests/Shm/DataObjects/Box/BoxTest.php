@@ -11,6 +11,7 @@ use Webatvantage\Bpost\Api\Shm\DataObjects\Box\At247;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\AtBpost;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\AtHome;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\AtIntlPugo;
+use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBoxFactory;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\Dimensions;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\International;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\Unregistered;
@@ -106,6 +107,23 @@ class BoxTest extends ShmTestCase
 		$this->assertStringNotContainsString('<international:pugoAddress>', $national);
 
 		$this->assertXmlContains('<international:pugoAddress>', $international);
+	}
+
+	/**
+	 * A retrieved order names international home delivery atIntlHome, a name bpost does not accept
+	 * on an order it is sent.
+	 */
+	public function test_a_retrieved_international_box_is_read_from_at_intl_home()
+	{
+		$box = DeliveryBoxFactory::fromXml($this->parse(
+			'<atIntlHome><product>bpack World Business</product><options><signed/></options>'
+			. '<parcelWeight>2000</parcelWeight></atIntlHome>',
+		));
+
+		$this->assertInstanceOf(International::class, $box);
+		$this->assertSame(Product::BpackWorldBusiness, $box->product);
+		$this->assertSame(2000, $box->weight);
+		$this->assertXmlContains('<international:international>', $this->serialise($box->toXml(...)));
 	}
 
 	public function test_an_international_pick_up_box_reads_back_its_receiver_name()

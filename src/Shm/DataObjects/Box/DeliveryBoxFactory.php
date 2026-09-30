@@ -25,15 +25,20 @@ class DeliveryBoxFactory
 			'atHome' => AtHome::fromXml($xml),
 			'atBpost' => AtBpost::fromXml($xml),
 			'at24-7' => At247::fromXml($xml),
-			'international' => International::fromXml($xml),
+			'international', 'atIntlHome' => International::fromXml($xml),
 			'atIntlPugo' => AtIntlPugo::fromXml($xml),
-			default => throw new UnexpectedValueException('deliveryMethod', $xml->localName, [
-				'atHome',
-				'atBpost',
-				'at24-7',
-				'international',
-				'atIntlPugo',
-			]),
+			default => throw new UnexpectedValueException(
+				name: 'deliveryMethod',
+				value: $xml->localName,
+				known: [
+					'atHome',
+					'atBpost',
+					'at24-7',
+					'international',
+					'atIntlHome',
+					'atIntlPugo',
+				],
+			),
 		};
 	}
 }

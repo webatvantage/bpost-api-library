@@ -4,6 +4,10 @@
 
 #### Fixed
 
+* Retrieving an order delivered to an address abroad threw `UnexpectedValueException` for
+  `deliveryMethod`: bpost answers with `<atIntlHome>`, a name the manual does not document and
+  that it refuses on an order sent to it. `Shm\DataObjects\Box\DeliveryBoxFactory` reads it as
+  `International`, which goes back out as `<international:international>`
 * `atIntlPugo` wrote `<pugoAddress>` in the national namespace, where manual B.3.2.2.2 has
   `<international:pugoAddress>`, so every `bpack@bpost international` order carrying a pick-up
   point address failed bpost's schema validation. `Shm\DataObjects\Address::toXml()` took a

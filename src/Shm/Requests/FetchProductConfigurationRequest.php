@@ -19,7 +19,7 @@ class FetchProductConfigurationRequest extends ShmRequest
 
 	public function __construct(HttpApiAdapter $apiAdapter, ShmApiConfig $config)
 	{
-		parent::__construct($apiAdapter, $config, Method::GET, '/productconfig', ['Accept' => self::ACCEPT]);
+		parent::__construct($apiAdapter, $config, Method::GET, '/productconfig', ['Accept' => static::ACCEPT]);
 	}
 
 	public function get(): ProductConfiguration

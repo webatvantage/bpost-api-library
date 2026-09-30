@@ -76,7 +76,7 @@ abstract class DeliveryBox implements XmlSerializable
 	 */
 	public function weight(int $weight): static
 	{
-		$max = isset($this->product) ? $this->product->maxWeight() : self::MAX_WEIGHT;
+		$max = isset($this->product) ? $this->product->maxWeight() : static::MAX_WEIGHT;
 
 		$this->weight = isset($max)
 			? Validate::between('weight', $weight, 0, $max)

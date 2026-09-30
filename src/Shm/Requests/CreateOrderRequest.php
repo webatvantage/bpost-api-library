@@ -27,7 +27,7 @@ class CreateOrderRequest extends ShmRequest
 			config: $config,
 			method: Method::POST,
 			path: '/orders',
-			headers: ['Content-Type' => self::CONTENT_TYPE],
+			headers: ['Content-Type' => static::CONTENT_TYPE],
 			body: $document->toString(),
 			expectsXml: false,
 		);

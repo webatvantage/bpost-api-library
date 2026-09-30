@@ -27,7 +27,7 @@ class FetchOrderRequest extends ShmRequest
 			config: $config,
 			method: Method::GET,
 			path: '/orders/' . rawurlencode($reference),
-			headers: ['Accept' => self::ACCEPT],
+			headers: ['Accept' => static::ACCEPT],
 		);
 	}
 

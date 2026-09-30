@@ -15,7 +15,7 @@ use Webatvantage\Bpost\Api\Support\XmlElement;
  */
 class ApiExceptionFactory
 {
-	private const int MAX_BODY_LENGTH = 500;
+	protected const int MAX_BODY_LENGTH = 500;
 
 	public static function fromResponse(int $statusCode, string $body): ApiException
 	{
@@ -23,11 +23,11 @@ class ApiExceptionFactory
 
 		if ($xml === null)
 		{
-			return new InvalidResponseException(self::fallbackMessage($statusCode, $body), $statusCode, $body);
+			return new InvalidResponseException(static::fallbackMessage($statusCode, $body), $statusCode, $body);
 		}
 
-		$message = self::firstValue($xml, 'message') ?? self::fallbackMessage($statusCode, $body);
-		$code = self::firstValue($xml, 'code');
+		$message = static::firstValue($xml, 'message') ?? static::fallbackMessage($statusCode, $body);
+		$code = static::firstValue($xml, 'code');
 
 		return match ($xml->localName)
 		{
@@ -42,7 +42,7 @@ class ApiExceptionFactory
 	 * root element, and which namespace varies between the business and system shapes, so they are
 	 * matched on local name.
 	 */
-	private static function firstValue(XmlElement $xml, string $localName): ?string
+	protected static function firstValue(XmlElement $xml, string $localName): ?string
 	{
 		$document = $xml->ownerDocument;
 
@@ -64,7 +64,7 @@ class ApiExceptionFactory
 		return $value === '' ? null : $value;
 	}
 
-	private static function fallbackMessage(int $statusCode, string $body): string
+	protected static function fallbackMessage(int $statusCode, string $body): string
 	{
 		$body = trim($body);
 
@@ -73,9 +73,9 @@ class ApiExceptionFactory
 			return sprintf('bpost answered HTTP %d with an empty body.', $statusCode);
 		}
 
-		if (mb_strlen($body) > self::MAX_BODY_LENGTH)
+		if (mb_strlen($body) > static::MAX_BODY_LENGTH)
 		{
-			$body = mb_substr($body, 0, self::MAX_BODY_LENGTH) . '…';
+			$body = mb_substr($body, 0, static::MAX_BODY_LENGTH) . '…';
 		}
 
 		return sprintf('bpost answered HTTP %d: %s', $statusCode, $body);

@@ -159,7 +159,7 @@ class AtBpost extends NationalBox implements XmlDeserializable
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{
-		$box = new static(self::readProduct($xml));
+		$box = new static(static::readProduct($xml));
 		$box->readCommon($xml);
 
 		$openingHours = $xml->child('openingHours');

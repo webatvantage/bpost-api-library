@@ -33,7 +33,7 @@ class CreateAnnouncementRequest extends Request
 			method: Method::POST,
 			resourceUri: '/services/trackedmail/announcement',
 			body: $document->toString(),
-			headers: ['Content-Type' => self::CONTENT_TYPE],
+			headers: ['Content-Type' => static::CONTENT_TYPE],
 		);
 	}
 

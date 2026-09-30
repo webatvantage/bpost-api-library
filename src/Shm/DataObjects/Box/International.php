@@ -46,12 +46,12 @@ class International extends InternationalBox implements XmlDeserializable
 	 */
 	public function withParcelContent(ParcelContent $content): static
 	{
-		if (count($this->parcelContents) >= self::MAX_PARCEL_CONTENTS)
+		if (count($this->parcelContents) >= static::MAX_PARCEL_CONTENTS)
 		{
 			throw new InvalidValueException(
 				name: 'parcelContents',
 				value: count($this->parcelContents) + 1,
-				allowed: [sprintf('1 to %d', self::MAX_PARCEL_CONTENTS)],
+				allowed: [sprintf('1 to %d', static::MAX_PARCEL_CONTENTS)],
 			);
 		}
 
@@ -109,7 +109,7 @@ class International extends InternationalBox implements XmlDeserializable
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{
-		$box = new static(self::readProduct($xml));
+		$box = new static(static::readProduct($xml));
 		$box->readShared($xml);
 
 		$contents = $xml->child('parcelContents');

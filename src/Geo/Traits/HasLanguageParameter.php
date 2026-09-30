@@ -18,13 +18,13 @@ trait HasLanguageParameter
 	 */
 	public function language(Language $language): static
 	{
-		return $this->addParameter('Language', self::assertAvailable($language));
+		return $this->addParameter('Language', static::assertAvailable($language));
 	}
 
 	/**
 	 * @throws InvalidValueException
 	 */
-	private static function assertAvailable(Language $language): Language
+	protected static function assertAvailable(Language $language): Language
 	{
 		if (!in_array($language, [Language::NL, Language::FR], true))
 		{

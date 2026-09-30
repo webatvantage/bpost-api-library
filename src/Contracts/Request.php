@@ -143,7 +143,7 @@ abstract class Request implements Debuggable, Loggable
 					continue;
 				}
 
-				$pairs[] = rawurlencode((string)$name) . '=' . rawurlencode(self::stringify($single));
+				$pairs[] = rawurlencode((string)$name) . '=' . rawurlencode(static::stringify($single));
 			}
 		}
 
@@ -161,7 +161,7 @@ abstract class Request implements Debuggable, Loggable
 	 * The Geolocator's AttributeFilter is documented that way and rejects the indexed form, which
 	 * is what Guzzle's Query::build would produce.
 	 */
-	private static function stringify(mixed $value): string
+	protected static function stringify(mixed $value): string
 	{
 		if ($value instanceof BackedEnum)
 		{

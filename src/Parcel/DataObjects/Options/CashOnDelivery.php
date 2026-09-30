@@ -32,7 +32,7 @@ class CashOnDelivery implements Option
 		public private(set) ?string $bic = null,
 		public private(set) ?string $bban = null,
 	) {
-		Validate::between('amountTotalInEuroCents', $amountTotalInEuroCents, self::MIN_AMOUNT, self::MAX_AMOUNT);
+		Validate::between('amountTotalInEuroCents', $amountTotalInEuroCents, static::MIN_AMOUNT, static::MAX_AMOUNT);
 	}
 
 	/**

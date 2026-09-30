@@ -38,7 +38,7 @@ abstract class CreateLabelRequest extends ShmRequest
 			path: $path . '/labels/' . $format->value . ($withReturnLabels ? '/withReturnLabels' : ''),
 			headers: [
 				'Accept' => $output->acceptHeader(),
-				'Content-Type' => self::CONTENT_TYPE,
+				'Content-Type' => static::CONTENT_TYPE,
 			],
 			body: $body,
 		);

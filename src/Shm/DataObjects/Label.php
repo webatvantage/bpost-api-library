@@ -41,7 +41,7 @@ class Label implements XmlDeserializable
 		return new static(
 			$barcodes,
 			$xml->text('mimeType'),
-			self::decode($xml),
+			static::decode($xml),
 			$xml->text('zplCode'),
 		);
 	}
@@ -51,7 +51,7 @@ class Label implements XmlDeserializable
 	 *
 	 * @throws UnserializableResponseException
 	 */
-	private static function decode(XmlElement $xml): ?string
+	protected static function decode(XmlElement $xml): ?string
 	{
 		$bytes = $xml->text('bytes');
 

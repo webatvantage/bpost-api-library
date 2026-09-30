@@ -23,7 +23,7 @@ use Webatvantage\Bpost\Api\Support\XmlElement;
  */
 class OpeningHours implements XmlDeserializable, XmlSerializable
 {
-	private const string RANGE = '(?:[01]\d|2[0-3]):[0-5]\d-(?:[01]\d|2[0-3]):[0-5]\d';
+	protected const string RANGE = '(?:[01]\d|2[0-3]):[0-5]\d-(?:[01]\d|2[0-3]):[0-5]\d';
 
 	/** @var array<string, string> */
 	private array $days = [];
@@ -35,7 +35,7 @@ class OpeningHours implements XmlDeserializable, XmlSerializable
 	 */
 	public function on(Weekday $weekday, string $hours): static
 	{
-		$this->days[$weekday->value] = self::assertRange($weekday, $hours);
+		$this->days[$weekday->value] = static::assertRange($weekday, $hours);
 
 		return $this;
 	}
@@ -111,10 +111,10 @@ class OpeningHours implements XmlDeserializable, XmlSerializable
 	/**
 	 * @throws InvalidValueException
 	 */
-	private static function assertRange(Weekday $weekday, string $hours): string
+	protected static function assertRange(Weekday $weekday, string $hours): string
 	{
 		$hours = trim($hours);
-		$pattern = sprintf('#^(?:%1$s|%1$s/%1$s|-|-/-|-/%1$s|%1$s/-)$#', self::RANGE);
+		$pattern = sprintf('#^(?:%1$s|%1$s/%1$s|-|-/-|-/%1$s|%1$s/-)$#', static::RANGE);
 
 		if (preg_match($pattern, $hours) !== 1)
 		{

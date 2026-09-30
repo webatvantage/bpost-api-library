@@ -141,7 +141,7 @@ class AtHome extends NationalBox implements XmlDeserializable
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{
-		$box = new static(self::readProduct($xml));
+		$box = new static(static::readProduct($xml));
 		$box->readCommon($xml);
 
 		$height = $xml->text('height');

@@ -89,10 +89,10 @@ class ServicePoint implements XmlDeserializable
 			zip: $xml->text('Zip', 'ZIP'),
 			city: $xml->text('City', 'CITY'),
 			country: $xml->text('Country', 'COUNTRY'),
-			latitude: self::float($xml->text('Latitude')),
-			longitude: self::float($xml->text('Longitude')),
-			x: self::int($xml->text('X')),
-			y: self::int($xml->text('Y')),
+			latitude: static::float($xml->text('Latitude')),
+			longitude: static::float($xml->text('Longitude')),
+			x: static::int($xml->text('X')),
+			y: static::int($xml->text('Y')),
 			closedFrom: $xml->text('ClosedFrom'),
 			closedTo: $xml->text('ClosedTo'),
 			note: $xml->text('Note', 'NOTE'),
@@ -104,12 +104,12 @@ class ServicePoint implements XmlDeserializable
 		);
 	}
 
-	private static function float(?string $value): ?float
+	protected static function float(?string $value): ?float
 	{
 		return isset($value) ? (float)$value : null;
 	}
 
-	private static function int(?string $value): ?int
+	protected static function int(?string $value): ?int
 	{
 		return isset($value) ? (int)$value : null;
 	}

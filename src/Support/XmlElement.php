@@ -53,7 +53,7 @@ class XmlElement extends Element
 
 		$element = $this->appendElement($tagName, $namespace);
 
-		$element->textContent = self::stringify($value);
+		$element->textContent = static::stringify($value);
 	}
 
 	/**
@@ -170,7 +170,7 @@ class XmlElement extends Element
 		return isset($value) ? (int)$value : null;
 	}
 
-	private static function stringify(string|int|float|bool $value): string
+	protected static function stringify(string|int|float|bool $value): string
 	{
 		if (is_bool($value))
 		{

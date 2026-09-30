@@ -22,7 +22,7 @@ use Webatvantage\Bpost\Api\Support\XmlElement;
 class HttpApiAdapter implements Debuggable, Loggable
 {
 	/** Guzzle request option carrying the decision for the request being sent. */
-	private const string LOGGING_OPTION = 'bpost_logging';
+	protected const string LOGGING_OPTION = 'bpost_logging';
 
 	private readonly Client $client;
 
@@ -60,7 +60,7 @@ class HttpApiAdapter implements Debuggable, Loggable
 			// One set of client options is shared by every service, so the caller's own stack
 			// would collect a copy of the middleware per service.
 			$handler = clone $handler;
-			$handler->push(self::conditionalLogging(new LogMiddleware(logger: $logger, logStatistics: true)));
+			$handler->push(static::conditionalLogging(new LogMiddleware(logger: $logger, logStatistics: true)));
 		}
 
 		$this->client = new Client([
@@ -81,7 +81,7 @@ class HttpApiAdapter implements Debuggable, Loggable
 		{
 			$psrRequest = $request->toRequest($headers, $this->baseUri);
 			$response = $this->client->send($psrRequest, [
-				self::LOGGING_OPTION => $request->isLogging() ?? $this->logging,
+				static::LOGGING_OPTION => $request->isLogging() ?? $this->logging,
 			]);
 		}
 		catch (ClientExceptionInterface $clientException)
@@ -153,13 +153,13 @@ class HttpApiAdapter implements Debuggable, Loggable
 	/**
 	 * Wrap the log middleware so a silenced request skips it instead of reaching it.
 	 */
-	private static function conditionalLogging(LogMiddleware $middleware): Closure
+	protected static function conditionalLogging(LogMiddleware $middleware): Closure
 	{
 		return static function (callable $handler) use ($middleware): Closure {
 			$logged = $middleware($handler);
 
 			return static function (RequestInterface $request, array $options) use ($handler, $logged): PromiseInterface {
-				return ($options[self::LOGGING_OPTION] ?? true)
+				return ($options[static::LOGGING_OPTION] ?? true)
 					? $logged($request, $options)
 					: $handler($request, $options);
 			};

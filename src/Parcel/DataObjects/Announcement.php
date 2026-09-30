@@ -67,7 +67,7 @@ class Announcement
 		public private(set) DeliveryMethod $deliveryMethod = DeliveryMethod::AtHome,
 	) {
 		Validate::maxLength('itemCode', $itemCode, 30);
-		Validate::between('weightInGrams', $weightInGrams, self::MIN_WEIGHT, self::MAX_WEIGHT);
+		Validate::between('weightInGrams', $weightInGrams, static::MIN_WEIGHT, static::MAX_WEIGHT);
 	}
 
 	/**

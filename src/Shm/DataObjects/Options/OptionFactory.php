@@ -38,14 +38,14 @@ class OptionFactory
 			'saturdayDelivery' => new SaturdayDelivery(),
 			'automaticSecondPresentation' => new AutomaticSecondPresentation(),
 			'fragile' => new Fragile(),
-			default => throw new UnexpectedValueException('option', $name, self::knownNames()),
+			default => throw new UnexpectedValueException('option', $name, static::knownNames()),
 		};
 	}
 
 	/**
 	 * @return array<int, string>
 	 */
-	private static function knownNames(): array
+	protected static function knownNames(): array
 	{
 		return [
 			...array_column(MessagingType::cases(), 'value'),

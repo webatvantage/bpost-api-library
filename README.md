@@ -67,6 +67,28 @@ $bpost->geo()->servicePoints()->nearest(zone: '1000')->withoutLogging()->get();
 Each of these has a `withLogging(bool $logging = true)` counterpart, so a single noisy call can be
 logged while the rest of the client stays quiet. The narrowest setting wins.
 
+### Debugging
+
+When bpost refuses a document, the body is usually the only thing that says why. `withDebug()`
+hands you the PSR-7 request and response themselves, at the same four levels:
+
+```php
+$seen = function (RequestInterface $request, ResponseInterface $response) {
+    echo (string) $request->getBody(), (string) $response->getBody();
+};
+
+$bpost->withDebug($seen);                                  // every service
+$bpost->shm()->withDebug($seen);                           // one service
+$bpost->shm()->orders()->withDebug($seen)->get('order-1'); // one resource
+$bpost->geo()->servicePoints()->all()->withDebug($seen)->get();
+```
+
+Pass `null` to clear it. The callback runs whether or not the response was an error, and before
+the exception is raised, so it sees the body of a refused request too.
+
+Both ladders are interfaces — `Contracts\Loggable` and `Contracts\Debuggable` — so every level
+spells them the same way.
+
 ### Shipping Manager
 
 #### Building an order
@@ -119,7 +141,10 @@ Other delivery methods take the place of `AtHome`: `AtBpost` for a pick-up point
 parcel locker, `International` for an address abroad and `AtIntlPugo` for a pick-up point abroad.
 
 Lengths the manual documents are checked when you set them, so an over-long name throws
-`InvalidLengthException` rather than coming back as a schema violation from bpost.
+`InvalidLengthException` rather than coming back as a schema violation from bpost. An email
+address is also checked for shape and throws `InvalidPatternException`, since bpost accepts a
+malformed one and then silently never sends the message. Reading is not held to either: an order
+bpost already holds comes back as it is, however far outside the documented limits it falls.
 
 #### Orders
 
@@ -176,11 +201,32 @@ $configuration->offers(Product::Bpack24hPro);   // bool
 The route for anyone printing their own labels. Announce the parcel before it reaches bpost, then
 follow it afterwards.
 
+This service has its own `Sender`, `Receiver` and `Address` — they are not the Shipping Manager's
+and cannot be swapped for them.
+
 ```php
-use Webatvantage\Bpost\Api\Parcel\DataObjects\{Announcement, Sender, Receiver, Address};
+use Webatvantage\Bpost\Api\Parcel\DataObjects\{Announcement, Sender, Receiver, Address, ContactDetail};
 use Webatvantage\Bpost\Api\Parcel\DataObjects\Options\Flags\Signature;
 
 $parcel = $bpost->parcel();
+
+$sender = new Sender()
+    ->name('bpost - bpack')
+    ->address(
+        new Address()
+            ->streetName('Muntcentrum')->houseNumber(1)
+            ->postalCode(1000)->city('Brussel')->countryCode('BE'),
+    )
+    ->contactDetail(new ContactDetail()->emailAddress('esolutions@bpost.be'));
+
+$receiver = new Receiver()
+    ->name('Alma van Appel')
+    ->address(
+        new Address()
+            ->streetName('Rue du Grand Duc')->houseNumber(13)
+            ->postalCode(1040)->city('Etterbeek')->countryCode('BE'),
+    )
+    ->contactDetail(new ContactDetail()->emailAddress('alma@example.com'));
 
 $feedback = $parcel->announcements()->create(
     new Announcement('323212345689100101119030', $sender, $receiver, weightInGrams: 250)
@@ -204,8 +250,9 @@ $tracking->trackingUrl();                      // the page to show a customer
 $tracking->pickupPoint?->name;                 // where it is waiting, if it is
 ```
 
-This service spells addresses its own way — `houseNumber`, `boxNumber` and `city`, where the
-Shipping Manager says `number`, `box` and `locality` — so it has its own `Address` class.
+It spells the address fields its own way too — `houseNumber`, `boxNumber` and `city`, where the
+Shipping Manager says `number`, `box` and `locality` — and puts the email and phone in a
+`ContactDetail` rather than on the party itself.
 
 ### Geolocator (pick-up points, parcel points and parcel lockers)
 
@@ -224,6 +271,9 @@ $geo = new GeoApiClient(new GeoApiConfig(
 #### Nearest points
 
 ```php
+use Webatvantage\Bpost\Api\Enums\Language;
+use Webatvantage\Bpost\Api\Enums\Weekday;
+
 $points = $geo->servicePoints()
     ->nearest(zone: '1000', street: 'Grand Place', number: '3')
     ->types(PointType::PostOffice, PointType::PostPoint)
@@ -238,6 +288,10 @@ foreach ($points as $point) {
     $point->openingHours->for(Weekday::Monday)?->amOpen;
 }
 ```
+
+The Geolocator only offers `NL` and `FR`; `Language` carries `EN` and `DE` for the Shipping
+Manager's messaging, and passing either here throws `InvalidValueException` rather than being
+ignored on bpost's side.
 
 #### One point's details
 

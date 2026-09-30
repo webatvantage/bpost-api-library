@@ -7,6 +7,7 @@ use Webatvantage\Bpost\Api\BpostApiClient;
 use Webatvantage\Bpost\Api\BpostApiConfig;
 use Webatvantage\Bpost\Api\Enums\Method;
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
+use Webatvantage\Bpost\Api\Parcel\ParcelApiConfig;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
 use Webatvantage\Bpost\Api\Tests\Doubles\FakeRequest;
 use Webatvantage\Bpost\Api\Tests\Doubles\SpyLogger;
@@ -88,6 +89,32 @@ class LoggingTest extends TestCase
 		$this->assertEmpty($this->logger->records);
 	}
 
+	/**
+	 * One set of client options is shared by every service, so the log middleware used to be
+	 * pushed onto the caller's own handler stack once per service — three services meant every
+	 * request was written to the log two and a bit times over.
+	 */
+	public function test_reaching_more_services_does_not_log_a_call_more_than_once()
+	{
+		$order = '<orderInfo><reference>ref-1</reference></orderInfo>';
+
+		$client = $this->client();
+		$this->mockResponse(200, $order);
+		$client->shm()->orders()->get('ref-1');
+
+		$withOneService = count($this->logger->records);
+		$this->assertNotSame(0, $withOneService);
+
+		$client->geo();
+		$client->parcel();
+
+		$this->logger->records = [];
+		$this->mockResponse(200, $order);
+		$client->shm()->orders()->get('ref-1');
+
+		$this->assertCount($withOneService, $this->logger->records);
+	}
+
 	private function loggingAdapter(): HttpApiAdapter
 	{
 		return new HttpApiAdapter(
@@ -103,6 +130,7 @@ class LoggingTest extends TestCase
 			new BpostApiConfig(
 				shm: new ShmApiConfig(accountId: '123456', passphrase: 'passphrase'),
 				geo: new GeoApiConfig(partner: '999999', apiKey: 'key'),
+				parcel: new ParcelApiConfig(accountId: '123456', password: 'password'),
 			),
 			['handler' => $this->handlerStack()],
 			$this->logger,

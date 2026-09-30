@@ -139,7 +139,6 @@ class AtHome extends NationalBox implements XmlDeserializable
 	}
 
 	/**
-	 * @throws InvalidLengthException
 	 * @throws InvalidValueException
 	 * @throws UnexpectedValueException
 	 */
@@ -158,32 +157,12 @@ class AtHome extends NationalBox implements XmlDeserializable
 		}
 
 		$openingHours = $xml->child('openingHours');
-
-		if ($openingHours !== null)
-		{
-			$box->openingHours = OpeningHours::fromXml($openingHours);
-		}
-
-		$desiredDeliveryPlace = $xml->text('desiredDeliveryPlace');
-
-		if ($desiredDeliveryPlace !== null)
-		{
-			$box->desiredDeliveryPlace($desiredDeliveryPlace);
-		}
-
 		$receiver = $xml->child('receiver');
 
-		if ($receiver !== null)
-		{
-			$box->receiver(Receiver::fromXml($receiver));
-		}
-
-		$requestedDeliveryDate = $xml->text('requestedDeliveryDate');
-
-		if ($requestedDeliveryDate !== null)
-		{
-			$box->requestedDeliveryDate = $requestedDeliveryDate;
-		}
+		$box->openingHours = isset($openingHours) ? OpeningHours::fromXml($openingHours) : null;
+		$box->desiredDeliveryPlace = $xml->text('desiredDeliveryPlace');
+		$box->receiver = isset($receiver) ? Receiver::fromXml($receiver) : null;
+		$box->requestedDeliveryDate = $xml->text('requestedDeliveryDate');
 
 		return $box;
 	}

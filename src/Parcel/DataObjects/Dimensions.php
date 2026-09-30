@@ -43,8 +43,15 @@ class Dimensions implements XmlDeserializable, XmlSerializable
 		return $element;
 	}
 
+	/**
+	 * @throws InvalidValueException
+	 */
 	public static function fromXml(XmlElement $xml): static
 	{
-		return new static((int)$xml->text('widthInMm'), (int)$xml->text('heightInMm'), (int)$xml->text('lengthInMm'));
+		return Validate::reading(static fn (): static => new static(
+			(int)$xml->text('widthInMm'),
+			(int)$xml->text('heightInMm'),
+			(int)$xml->text('lengthInMm'),
+		));
 	}
 }

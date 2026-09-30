@@ -12,15 +12,45 @@ use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
  *
  * Checked here rather than left to bpost because the API answers a rejected field with a schema
  * violation that does not say which value was at fault.
+ *
+ * These are rules about what may be *sent*. A record bpost already holds is reported as it is,
+ * however far outside them it falls, so a fromXml() that cannot avoid a constructor's checks runs
+ * inside reading() instead. Note enum() is not suspended: a case this library does not know is a
+ * fact about the response, not a rule about the request.
  */
 class Validate
 {
+	private static int $reading = 0;
+
+	/**
+	 * Build a data object from a bpost response without the send-side constraints.
+	 *
+	 * @template TRead
+	 *
+	 * @param callable(): TRead $read
+	 *
+	 * @return TRead
+	 */
+	public static function reading(callable $read): mixed
+	{
+		self::$reading++;
+
+		try
+		{
+			return $read();
+		}
+		finally
+		{
+			self::$reading--;
+		}
+	}
+
 	/**
 	 * @throws InvalidLengthException
 	 */
 	public static function maxLength(string $name, string $value, int $max): string
 	{
-		if (mb_strlen($value) > $max)
+		if (self::$reading === 0 && mb_strlen($value) > $max)
 		{
 			throw new InvalidLengthException($name, mb_strlen($value), $max);
 		}
@@ -39,7 +69,7 @@ class Validate
 	 */
 	public static function between(string $name, int|float $value, int|float $min, int|float $max): int|float
 	{
-		if ($value < $min || $value > $max)
+		if (self::$reading === 0 && ($value < $min || $value > $max))
 		{
 			throw new InvalidValueException($name, $value, [sprintf('%s to %s', $min, $max)]);
 		}
@@ -52,7 +82,7 @@ class Validate
 	 */
 	public static function atLeast(string $name, int $value, int $min): int
 	{
-		if ($value < $min)
+		if (self::$reading === 0 && $value < $min)
 		{
 			throw new InvalidValueException($name, $value, [sprintf('%d or more', $min)]);
 		}
@@ -91,7 +121,7 @@ class Validate
 	{
 		$value = strtoupper($value);
 
-		if (mb_strlen($value) !== 2)
+		if (self::$reading === 0 && mb_strlen($value) !== 2)
 		{
 			throw new InvalidValueException($name, $value, ['a two-letter ISO country code']);
 		}

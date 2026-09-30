@@ -7,7 +7,6 @@ use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
-use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Parcel\Enums\ParcelNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -104,50 +103,25 @@ abstract class Party implements XmlDeserializable, XmlSerializable
 		$party->appendText('addressContactName', $this->addressContactName, ParcelNamespace::Common);
 		$party->appendText('addressPlace', $this->addressPlace, ParcelNamespace::Common);
 
-		if ($this->address !== null)
-		{
-			$this->address->toXml($party);
-		}
+		$this->address?->toXml($party);
 
-		if ($this->contactDetail !== null)
-		{
-			$this->contactDetail->toXml($party);
-		}
+		$this->contactDetail?->toXml($party);
 
 		return $party;
 	}
 
-	/**
-	 * @throws InvalidLengthException
-	 * @throws InvalidValueException
-	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$party = new static();
-
-		foreach (['name', 'addressDepartment', 'addressContactName', 'addressPlace'] as $field)
-		{
-			$value = $xml->text($field);
-
-			if ($value !== null)
-			{
-				$party->{$field}($value);
-			}
-		}
-
 		$address = $xml->child('address');
-
-		if ($address !== null)
-		{
-			$party->address(Address::fromXml($address));
-		}
-
 		$contactDetail = $xml->child('contactDetail');
 
-		if ($contactDetail !== null)
-		{
-			$party->contactDetail(ContactDetail::fromXml($contactDetail));
-		}
+		$party->name = $xml->text('name');
+		$party->addressDepartment = $xml->text('addressDepartment');
+		$party->addressContactName = $xml->text('addressContactName');
+		$party->addressPlace = $xml->text('addressPlace');
+		$party->address = $address !== null ? Address::fromXml($address) : null;
+		$party->contactDetail = isset($contactDetail) ? ContactDetail::fromXml($contactDetail) : null;
 
 		return $party;
 	}

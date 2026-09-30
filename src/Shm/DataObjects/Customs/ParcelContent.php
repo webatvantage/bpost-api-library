@@ -65,13 +65,13 @@ class ParcelContent implements XmlDeserializable, XmlSerializable
 
 	public static function fromXml(XmlElement $xml): static
 	{
-		return new static(
+		return Validate::reading(static fn (): static => new static(
 			(int)$xml->text('numberOfItemType'),
 			(int)$xml->text('valueOfItem'),
 			$xml->text('itemDescription') ?? '',
 			(int)$xml->text('nettoWeight'),
 			$xml->text('hsTariffCode') ?? '',
 			$xml->text('originOfGoods') ?? '',
-		);
+		));
 	}
 }

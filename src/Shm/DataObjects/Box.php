@@ -7,7 +7,6 @@ use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
-use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBox;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Box\DeliveryBoxFactory;
@@ -104,20 +103,14 @@ class Box implements XmlDeserializable, XmlSerializable
 	}
 
 	/**
-	 * @throws InvalidLengthException
-	 * @throws InvalidValueException
 	 * @throws UnexpectedValueException
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static();
-
 		$sender = $xml->child('sender');
 
-		if ($sender !== null)
-		{
-			$box->sender(Sender::fromXml($sender));
-		}
+		$box->sender = isset($sender) ? Sender::fromXml($sender) : null;
 
 		// Either wrapper holds one delivery method; which namespace it claims does not matter.
 		foreach (['nationalBox', 'internationalBox'] as $wrapper)
@@ -135,33 +128,14 @@ class Box implements XmlDeserializable, XmlSerializable
 			}
 		}
 
-		$remark = $xml->text('remark');
-
-		if ($remark !== null)
-		{
-			$box->remark($remark);
-		}
-
-		$additionalCustomerReference = $xml->text('additionalCustomerReference');
-
-		if ($additionalCustomerReference !== null)
-		{
-			$box->additionalCustomerReference($additionalCustomerReference);
-		}
+		$box->remark = $xml->text('remark');
+		$box->additionalCustomerReference = $xml->text('additionalCustomerReference');
 
 		$barcode = $xml->text('barcode');
-
-		if ($barcode !== null)
-		{
-			$box->barcode = strtoupper($barcode);
-		}
-
 		$status = $xml->text('status');
 
-		if ($status !== null)
-		{
-			$box->status = BoxStatus::tryFrom(strtoupper($status));
-		}
+		$box->barcode = isset($barcode) ? strtoupper($barcode) : null;
+		$box->status = isset($status) ? BoxStatus::tryFrom(strtoupper($status)) : null;
 
 		return $box;
 	}

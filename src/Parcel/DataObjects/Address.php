@@ -105,23 +105,16 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $address;
 	}
 
-	/**
-	 * @throws InvalidLengthException
-	 * @throws InvalidValueException
-	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$address = new static();
 
-		foreach (['streetName', 'houseNumber', 'boxNumber', 'postalCode', 'city', 'countryCode'] as $field)
-		{
-			$value = $xml->text($field);
-
-			if ($value !== null)
-			{
-				$address->{$field}($value);
-			}
-		}
+		$address->streetName = $xml->text('streetName');
+		$address->houseNumber = $xml->text('houseNumber');
+		$address->boxNumber = $xml->text('boxNumber');
+		$address->postalCode = $xml->text('postalCode');
+		$address->city = $xml->text('city');
+		$address->countryCode = strtoupper($xml->text('countryCode') ?? $address->countryCode);
 
 		return $address;
 	}

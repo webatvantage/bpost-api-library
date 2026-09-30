@@ -7,7 +7,6 @@ use Webatvantage\Bpost\Api\Contracts\XmlNamespace;
 use Webatvantage\Bpost\Api\Contracts\XmlSerializable;
 use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
-use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
 use Webatvantage\Bpost\Api\Support\XmlElement;
@@ -101,48 +100,17 @@ abstract class Customer implements XmlDeserializable, XmlSerializable
 
 	/**
 	 * @param XmlElement $xml The customer element's children, already in the common namespace
-	 *
-	 * @throws InvalidLengthException
-	 * @throws InvalidValueException
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$customer = new static();
-
-		$name = $xml->child('name');
-
-		if ($name !== null)
-		{
-			$customer->name(trim($name->textContent));
-		}
-
-		$company = $xml->child('company');
-
-		if ($company !== null)
-		{
-			$customer->company(trim($company->textContent));
-		}
-
 		$address = $xml->child('address');
 
-		if ($address !== null)
-		{
-			$customer->address(Address::fromXml($address));
-		}
-
-		$emailAddress = $xml->child('emailAddress');
-
-		if ($emailAddress !== null)
-		{
-			$customer->emailAddress(trim($emailAddress->textContent));
-		}
-
-		$phoneNumber = $xml->child('phoneNumber');
-
-		if ($phoneNumber !== null)
-		{
-			$customer->phoneNumber(trim($phoneNumber->textContent));
-		}
+		$customer->name = $xml->text('name');
+		$customer->company = $xml->text('company');
+		$customer->address = isset($address) ? Address::fromXml($address) : null;
+		$customer->emailAddress = $xml->text('emailAddress');
+		$customer->phoneNumber = $xml->text('phoneNumber');
 
 		return $customer;
 	}

@@ -120,55 +120,16 @@ class Address implements XmlDeserializable, XmlSerializable
 		return $address;
 	}
 
-	/**
-	 * @throws InvalidLengthException
-	 * @throws InvalidValueException
-	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$address = new static();
 
-		$streetName = $xml->child('streetName');
-
-		if ($streetName !== null)
-		{
-			$address->streetName(trim($streetName->textContent));
-		}
-
-		$number = $xml->child('number');
-
-		if ($number !== null)
-		{
-			$address->number(trim($number->textContent));
-		}
-
-		$box = $xml->text('box');
-
-		if ($box !== null)
-		{
-			$address->box($box);
-		}
-
-		$postalCode = $xml->child('postalCode');
-
-		if ($postalCode !== null)
-		{
-			$address->postalCode(trim($postalCode->textContent));
-		}
-
-		$locality = $xml->child('locality');
-
-		if ($locality !== null)
-		{
-			$address->locality(trim($locality->textContent));
-		}
-
-		$countryCode = $xml->child('countryCode');
-
-		if ($countryCode !== null)
-		{
-			$address->countryCode(trim($countryCode->textContent));
-		}
+		$address->streetName = $xml->text('streetName');
+		$address->number = $xml->text('number');
+		$address->box = $xml->text('box');
+		$address->postalCode = $xml->text('postalCode');
+		$address->locality = $xml->text('locality');
+		$address->countryCode = strtoupper($xml->text('countryCode') ?? $address->countryCode);
 
 		return $address;
 	}

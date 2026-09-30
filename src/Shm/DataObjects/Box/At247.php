@@ -135,52 +135,24 @@ class At247 extends NationalBox implements XmlDeserializable
 	}
 
 	/**
-	 * @throws InvalidLengthException
-	 * @throws InvalidValueException
 	 * @throws UnexpectedValueException
+	 * @throws InvalidValueException
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$box = new static(self::readProduct($xml));
 		$box->readCommon($xml);
 
-		$box->parcelsDepotId = $xml->text('parcelsDepotId');
-		$box->parcelsDepotName = $xml->text('parcelsDepotName');
-
 		$parcelsDepotAddress = $xml->child('parcelsDepotAddress');
-
-		if ($parcelsDepotAddress !== null)
-		{
-			$box->parcelsDepotAddress = ParcelsDepotAddress::fromXml($parcelsDepotAddress);
-		}
-
 		$unregistered = $xml->child('unregistered');
 
-		if ($unregistered !== null)
-		{
-			$box->unregistered = Unregistered::fromXml($unregistered);
-		}
-
-		$receiverName = $xml->text('receiverName');
-
-		if ($receiverName !== null)
-		{
-			$box->receiverName($receiverName);
-		}
-
-		$receiverCompany = $xml->text('receiverCompany');
-
-		if ($receiverCompany !== null)
-		{
-			$box->receiverCompany($receiverCompany);
-		}
-
-		$requestedDeliveryDate = $xml->text('requestedDeliveryDate');
-
-		if ($requestedDeliveryDate !== null)
-		{
-			$box->requestedDeliveryDate = $requestedDeliveryDate;
-		}
+		$box->parcelsDepotId = $xml->text('parcelsDepotId');
+		$box->parcelsDepotName = $xml->text('parcelsDepotName');
+		$box->parcelsDepotAddress = isset($parcelsDepotAddress) ? ParcelsDepotAddress::fromXml($parcelsDepotAddress) : null;
+		$box->unregistered = isset($unregistered) ? Unregistered::fromXml($unregistered) : null;
+		$box->receiverName = $xml->text('receiverName');
+		$box->receiverCompany = $xml->text('receiverCompany');
+		$box->requestedDeliveryDate = $xml->text('requestedDeliveryDate');
 
 		return $box;
 	}

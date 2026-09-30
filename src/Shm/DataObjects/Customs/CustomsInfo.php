@@ -103,8 +103,6 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 	}
 
 	/**
-	 * @throws InvalidLengthException
-	 * @throws InvalidValueException
 	 * @throws UnexpectedValueException
 	 */
 	public static function fromXml(XmlElement $xml): static
@@ -120,26 +118,14 @@ class CustomsInfo implements XmlDeserializable, XmlSerializable
 			($xml->text('privateAddress') ?? '') === 'true',
 		);
 
-		$contentDescription = $xml->text('contentDescription');
-
-		if ($contentDescription !== null)
-		{
-			$info->contentDescription($contentDescription);
-		}
-
 		$currency = $xml->text('currency');
-
-		if ($currency !== null)
-		{
-			$info->currency(Validate::enum('currency', Currency::class, strtoupper($currency)));
-		}
-
 		$postagePaid = $xml->text('amtPostagePaidByAddresse');
 
-		if ($postagePaid !== null)
-		{
-			$info->amtPostagePaidByAddresse((float)$postagePaid);
-		}
+		$info->contentDescription = $xml->text('contentDescription');
+		$info->currency = isset($currency)
+			? Validate::enum('currency', Currency::class, strtoupper($currency))
+			: null;
+		$info->amtPostagePaidByAddresse = isset($postagePaid) ? (float)$postagePaid : null;
 
 		return $info;
 	}

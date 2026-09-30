@@ -92,44 +92,25 @@ class Unregistered implements XmlDeserializable, XmlSerializable
 	}
 
 	/**
-	 * @throws InvalidLengthException
 	 * @throws UnexpectedValueException
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$unregistered = new static();
-
 		$language = $xml->text('language');
 
-		if ($language !== null)
-		{
-			$unregistered->language(
-				Validate::enum('language', Language::class, strtoupper($language)),
-			);
-		}
-
-		$mobilePhone = $xml->text('mobilePhone');
-
-		if ($mobilePhone !== null)
-		{
-			$unregistered->mobilePhone($mobilePhone);
-		}
-
-		$emailAddress = $xml->text('emailAddress');
-
-		if ($emailAddress !== null)
-		{
-			$unregistered->emailAddress($emailAddress);
-		}
+		$unregistered->language = isset($language)
+			? Validate::enum('language', Language::class, strtoupper($language))
+			: null;
+		$unregistered->mobilePhone = $xml->text('mobilePhone');
+		$unregistered->emailAddress = $xml->text('emailAddress');
 
 		// Present at all means yes. v3.3 spelled it as a Y/N value, so a literal "N" is honoured
 		// too for anyone replaying an older response.
 		$reducedMobilityZone = $xml->child('reducedMobilityZone');
 
-		if ($reducedMobilityZone !== null)
-		{
-			$unregistered->reducedMobilityZone(strtoupper(trim($reducedMobilityZone->textContent)) !== 'N');
-		}
+		$unregistered->reducedMobilityZone = isset($reducedMobilityZone)
+			&& strtoupper(trim($reducedMobilityZone->textContent)) !== 'N';
 
 		return $unregistered;
 	}

@@ -157,9 +157,9 @@ class AtBpost extends NationalBox implements XmlDeserializable
 	}
 
 	/**
-	 * @throws InvalidLengthException
 	 * @throws InvalidValueException
 	 * @throws UnexpectedValueException
+	 * @throws InvalidLengthException
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{
@@ -167,56 +167,21 @@ class AtBpost extends NationalBox implements XmlDeserializable
 		$box->readCommon($xml);
 
 		$openingHours = $xml->child('openingHours');
-
-		if ($openingHours !== null)
-		{
-			$box->openingHours = OpeningHours::fromXml($openingHours);
-		}
-
-		$desiredDeliveryPlace = $xml->text('desiredDeliveryPlace');
-
-		if ($desiredDeliveryPlace !== null)
-		{
-			$box->desiredDeliveryPlace($desiredDeliveryPlace);
-		}
-
-		$box->pugoId = $xml->text('pugoId');
-		$box->pugoName = $xml->text('pugoName');
-
 		$pugoAddress = $xml->child('pugoAddress');
-
-		if ($pugoAddress !== null)
-		{
-			$box->pugoAddress = PugoAddress::fromXml($pugoAddress);
-		}
-
-		$receiverName = $xml->text('receiverName');
-
-		if ($receiverName !== null)
-		{
-			$box->receiverName($receiverName);
-		}
-
-		$receiverCompany = $xml->text('receiverCompany');
-
-		if ($receiverCompany !== null)
-		{
-			$box->receiverCompany($receiverCompany);
-		}
-
 		$shopHandlingInstruction = $xml->text('shopHandlingInstruction');
 
-		if ($shopHandlingInstruction !== null)
-		{
-			$box->shopHandlingInstruction($shopHandlingInstruction);
-		}
+		$box->openingHours = isset($openingHours) ? OpeningHours::fromXml($openingHours) : null;
+		$box->desiredDeliveryPlace = $xml->text('desiredDeliveryPlace');
+		$box->pugoId = $xml->text('pugoId');
+		$box->pugoName = $xml->text('pugoName');
+		$box->pugoAddress = isset($pugoAddress) ? PugoAddress::fromXml($pugoAddress) : null;
+		$box->receiverName = $xml->text('receiverName');
+		$box->receiverCompany = $xml->text('receiverCompany');
+		$box->requestedDeliveryDate = $xml->text('requestedDeliveryDate');
 
-		$requestedDeliveryDate = $xml->text('requestedDeliveryDate');
-
-		if ($requestedDeliveryDate !== null)
-		{
-			$box->requestedDeliveryDate = $requestedDeliveryDate;
-		}
+		$box->shopHandlingInstruction = isset($shopHandlingInstruction)
+			? Validate::reading(static fn (): ShopHandlingInstruction => new ShopHandlingInstruction($shopHandlingInstruction))
+			: null;
 
 		return $box;
 	}

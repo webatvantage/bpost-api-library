@@ -74,22 +74,13 @@ class ContactDetail implements XmlDeserializable, XmlSerializable
 		return $detail;
 	}
 
-	/**
-	 * @throws InvalidLengthException
-	 */
 	public static function fromXml(XmlElement $xml): static
 	{
 		$detail = new static();
 
-		foreach (['emailAddress', 'telephoneNumber', 'mobilePhone'] as $field)
-		{
-			$value = $xml->text($field);
-
-			if ($value !== null)
-			{
-				$detail->{$field}($value);
-			}
-		}
+		$detail->emailAddress = $xml->text('emailAddress');
+		$detail->telephoneNumber = $xml->text('telephoneNumber');
+		$detail->mobilePhone = $xml->text('mobilePhone');
 
 		return $detail;
 	}

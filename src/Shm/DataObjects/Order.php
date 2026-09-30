@@ -5,7 +5,6 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects;
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
-use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\Enums\ShmNamespace;
 use Webatvantage\Bpost\Api\Support\Validate;
@@ -91,20 +90,13 @@ class Order implements XmlDeserializable
 	}
 
 	/**
-	 * @throws InvalidLengthException
-	 * @throws InvalidValueException
 	 * @throws UnexpectedValueException
 	 */
 	public static function fromXml(XmlElement $xml): static
 	{
-		$order = new static($xml->text('reference') ?? '');
+		$order = Validate::reading(static fn (): static => new static($xml->text('reference') ?? ''));
 
-		$costCenter = $xml->text('costCenter');
-
-		if ($costCenter !== null)
-		{
-			$order->costCenter($costCenter);
-		}
+		$order->costCenter = $xml->text('costCenter');
 
 		foreach ($xml->children('orderLine') as $line)
 		{

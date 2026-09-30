@@ -4,7 +4,6 @@ namespace Webatvantage\Bpost\Api\Shm\DataObjects\Box;
 
 use Webatvantage\Bpost\Api\Contracts\XmlDeserializable;
 use Webatvantage\Bpost\Api\Exceptions\InvalidArgumentException;
-use Webatvantage\Bpost\Api\Exceptions\InvalidLengthException;
 use Webatvantage\Bpost\Api\Exceptions\InvalidValueException;
 use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Shm\DataObjects\Customs\ParcelContent;
@@ -105,7 +104,6 @@ class International extends InternationalBox implements XmlDeserializable
 	}
 
 	/**
-	 * @throws InvalidLengthException
 	 * @throws InvalidValueException
 	 * @throws UnexpectedValueException
 	 */
@@ -121,9 +119,11 @@ class International extends InternationalBox implements XmlDeserializable
 			return $box;
 		}
 
+		// Appended rather than added through withParcelContent(), whose ceiling of ten is a rule
+		// about what may be sent; an order bpost already holds is reported as it is.
 		foreach ($contents->childElements() as $content)
 		{
-			$box->withParcelContent(ParcelContent::fromXml($content));
+			$box->parcelContents[] = ParcelContent::fromXml($content);
 		}
 
 		return $box;

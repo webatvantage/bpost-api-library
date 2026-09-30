@@ -100,7 +100,6 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 	}
 
 	/**
-	 * @throws InvalidLengthException
 	 * @throws InvalidValueException
 	 * @throws UnexpectedValueException
 	 */
@@ -109,29 +108,13 @@ class AtIntlPugo extends InternationalBox implements XmlDeserializable
 		$box = new static();
 		$box->readShared($xml);
 
-		$box->pugoId = $xml->text('pugoId');
-		$box->pugoName = $xml->text('pugoName');
-
 		$pugoAddress = $xml->child('pugoAddress');
 
-		if ($pugoAddress !== null)
-		{
-			$box->pugoAddress = PugoAddress::fromXml($pugoAddress);
-		}
-
-		$receiverName = $xml->text('receiverName');
-
-		if ($receiverName !== null)
-		{
-			$box->receiverName($receiverName);
-		}
-
-		$receiverCompany = $xml->text('receiverCompany');
-
-		if ($receiverCompany !== null)
-		{
-			$box->receiverCompany($receiverCompany);
-		}
+		$box->pugoId = $xml->text('pugoId');
+		$box->pugoName = $xml->text('pugoName');
+		$box->pugoAddress = isset($pugoAddress) ? PugoAddress::fromXml($pugoAddress) : null;
+		$box->receiverName = $xml->text('receiverName');
+		$box->receiverCompany = $xml->text('receiverCompany');
 
 		return $box;
 	}

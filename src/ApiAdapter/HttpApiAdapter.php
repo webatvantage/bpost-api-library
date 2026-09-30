@@ -74,7 +74,7 @@ class HttpApiAdapter implements Debuggable, Loggable
 				logger: $logger,
 				// Levels by status range, so a logger set above debug keeps only the failures.
 				handler: new ConditionalLogHandler(
-					handler:$logHandler ?? new MultiRecordArrayHandler(new ThresholdStrategy()),
+					handler: $logHandler ?? new MultiRecordArrayHandler(new ThresholdStrategy()),
 					loggingOptionName: static::LOGGING_OPTION_NAME,
 				),
 				logStatistics: true,

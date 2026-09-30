@@ -43,98 +43,6 @@ $bpost->geo()->servicePoints()->nearest(zone: '1000')->get();
 Reaching a service you did not configure throws `MissingConfigurationException` rather than failing
 later at the HTTP layer.
 
-### Logging
-
-Pass a PSR-3 logger and every request and response is written to it. You can then narrow that down
-at four levels: the whole client, one service, one resource, or one call.
-
-```php
-// The config from Usage above, and any PSR-3 logger.
-$bpost = new BpostApiClient($config, logger: $logger);
-
-// Everything, including services you have not reached yet.
-$bpost->withoutLogging();
-
-// One service.
-$bpost->shm()->withoutLogging();
-
-// One resource. It is built fresh each time, so this reaches nothing else.
-$bpost->shm()->orders()->withoutLogging()->get('order-123');
-
-// One call, on a request you were narrowing anyway.
-$bpost->geo()->servicePoints()->nearest(zone: '1000')->withoutLogging()->get();
-```
-
-Each of these has a `withLogging(bool $logging = true)` counterpart, so a single noisy call can be
-logged while the rest of the client stays quiet. The narrowest setting wins.
-
-Switching it off quiets the calls that worked, not the ones that did not. What bpost refused is
-written whatever the setting, because silencing a chatty call is not the same as agreeing to lose
-the reason it failed:
-
-| answer                                 | logging on | logging off      |
-|----------------------------------------|------------|------------------|
-| 2xx, 3xx                               | logged     | nothing          |
-| 4xx, 5xx                               | logged     | **still logged** |
-| no response at all — DNS, TLS, timeout | logged     | **still logged** |
-
-That switch is about noise, and it is per call. Severity is the other axis, and it is the same for
-every call: records carry the level of what bpost answered, so your own logger's threshold decides
-how much of the detail survives.
-
-| record                                          | level      |
-|-------------------------------------------------|------------|
-| the request, and the transfer statistics        | `debug`    |
-| a 2xx response                                  | `info`     |
-| a 3xx response                                  | `notice`   |
-| a 4xx response — a refused order, a bad barcode | `error`    |
-| a 5xx response — bpost is having trouble        | `critical` |
-
-A logger set to `warning` therefore keeps the refusals and drops the rest — across the board,
-where `withoutLogging()` does it for the one call you point it at.
-
-To change what a record is made of — the levels, the truncation size, one line instead of an
-array — pass your own handler on the config. It reaches every service:
-
-```php
-use GuzzleLogMiddleware\Handler\StringHandler;
-use GuzzleLogMiddleware\Handler\LogLevelStrategy\FixedStrategy;
-
-$bpost = new BpostApiClient(
-    new BpostApiConfig(
-        shm: new ShmApiConfig(accountId: '123456', passphrase: '...'),
-        logHandler: new StringHandler(new FixedStrategy('info')),
-    ),
-    logger: $logger,
-);
-```
-
-Pass it to a service client directly as `logHandler:` if you construct one yourself. Either way
-the middleware is still wrapped, so `withoutLogging()` reaches a handler you brought — which it
-would not if you pushed your own `LogMiddleware` onto a Guzzle handler stack instead.
-
-### Debugging
-
-When bpost refuses a document, the body is usually the only thing that says why. `withDebug()`
-hands you the PSR-7 request and response themselves, at the same four levels:
-
-```php
-$debug = function (RequestInterface $request, ResponseInterface $response) {
-    echo (string) $request->getBody(), (string) $response->getBody();
-};
-
-$bpost->withDebug($debug);                                  // every service
-$bpost->shm()->withDebug($debug);                           // one service
-$bpost->shm()->orders()->withDebug($debug)->get('order-1'); // one resource
-$bpost->geo()->servicePoints()->all()->withDebug($debug)->get();
-```
-
-Pass `null` to clear it. The callback runs whether or not the response was an error, and before
-the exception is raised, so it sees the body of a refused request too.
-
-Both ladders are interfaces — `Contracts\Loggable` and `Contracts\Debuggable` — so every level
-spells them the same way.
-
 ### Shipping Manager
 
 #### Building an order
@@ -384,6 +292,98 @@ $points = $geo->servicePoints()
 ```php
 $url = $geo->servicePoints()->pageUrl('220000', PointType::PostOffice);
 ```
+
+### Logging
+
+Pass a PSR-3 logger and every request and response is written to it. You can then narrow that down
+at four levels: the whole client, one service, one resource, or one call.
+
+```php
+// The config from Usage above, and any PSR-3 logger.
+$bpost = new BpostApiClient($config, logger: $logger);
+
+// Everything, including services you have not reached yet.
+$bpost->withoutLogging();
+
+// One service.
+$bpost->shm()->withoutLogging();
+
+// One resource. It is built fresh each time, so this reaches nothing else.
+$bpost->shm()->orders()->withoutLogging()->get('order-123');
+
+// One call, on a request you were narrowing anyway.
+$bpost->geo()->servicePoints()->nearest(zone: '1000')->withoutLogging()->get();
+```
+
+Each of these has a `withLogging(bool $logging = true)` counterpart, so a single noisy call can be
+logged while the rest of the client stays quiet. The narrowest setting wins.
+
+Switching it off quiets the calls that worked, not the ones that did not. What bpost refused is
+written whatever the setting, because silencing a chatty call is not the same as agreeing to lose
+the reason it failed:
+
+| answer                                 | logging on | logging off      |
+|----------------------------------------|------------|------------------|
+| 2xx, 3xx                               | logged     | nothing          |
+| 4xx, 5xx                               | logged     | **still logged** |
+| no response at all — DNS, TLS, timeout | logged     | **still logged** |
+
+That switch is about noise, and it is per call. Severity is the other axis, and it is the same for
+every call: records carry the level of what bpost answered, so your own logger's threshold decides
+how much of the detail survives.
+
+| record                                          | level      |
+|-------------------------------------------------|------------|
+| the request, and the transfer statistics        | `debug`    |
+| a 2xx response                                  | `info`     |
+| a 3xx response                                  | `notice`   |
+| a 4xx response — a refused order, a bad barcode | `error`    |
+| a 5xx response — bpost is having trouble        | `critical` |
+
+A logger set to `warning` therefore keeps the refusals and drops the rest — across the board,
+where `withoutLogging()` does it for the one call you point it at.
+
+To change what a record is made of — the levels, the truncation size, one line instead of an
+array — pass your own handler on the config. It reaches every service:
+
+```php
+use GuzzleLogMiddleware\Handler\StringHandler;
+use GuzzleLogMiddleware\Handler\LogLevelStrategy\FixedStrategy;
+
+$bpost = new BpostApiClient(
+    new BpostApiConfig(
+        shm: new ShmApiConfig(accountId: '123456', passphrase: '...'),
+        logHandler: new StringHandler(new FixedStrategy('info')),
+    ),
+    logger: $logger,
+);
+```
+
+Pass it to a service client directly as `logHandler:` if you construct one yourself. Either way
+the middleware is still wrapped, so `withoutLogging()` reaches a handler you brought — which it
+would not if you pushed your own `LogMiddleware` onto a Guzzle handler stack instead.
+
+### Debugging
+
+When bpost refuses a document, the body is usually the only thing that says why. `withDebug()`
+hands you the PSR-7 request and response themselves, at the same four levels:
+
+```php
+$debug = function (RequestInterface $request, ResponseInterface $response) {
+    echo (string) $request->getBody(), (string) $response->getBody();
+};
+
+$bpost->withDebug($debug);                                  // every service
+$bpost->shm()->withDebug($debug);                           // one service
+$bpost->shm()->orders()->withDebug($debug)->get('order-1'); // one resource
+$bpost->geo()->servicePoints()->all()->withDebug($debug)->get();
+```
+
+Pass `null` to clear it. The callback runs whether or not the response was an error, and before
+the exception is raised, so it sees the body of a refused request too.
+
+Both ladders are interfaces — `Contracts\Loggable` and `Contracts\Debuggable` — so every level
+spells them the same way.
 
 ## Contributing
 

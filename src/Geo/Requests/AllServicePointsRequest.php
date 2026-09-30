@@ -8,6 +8,7 @@ use Webatvantage\Bpost\Api\Exceptions\UnexpectedValueException;
 use Webatvantage\Bpost\Api\Geo\DataObjects\ServicePoint;
 use Webatvantage\Bpost\Api\Geo\Enums\LockerType;
 use Webatvantage\Bpost\Api\Geo\Enums\PointType;
+use Webatvantage\Bpost\Api\Geo\Exceptions\LocatorException;
 use Webatvantage\Bpost\Api\Geo\GeoApiConfig;
 
 /**
@@ -68,6 +69,7 @@ class AllServicePointsRequest extends GeoRequest
 	 * @return array<ServicePoint>
 	 *
 	 * @throws UnexpectedValueException
+	 * @throws LocatorException
 	 */
 	public function get(): array
 	{

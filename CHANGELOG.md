@@ -57,6 +57,11 @@
   down the repository's own working notes
 * The Geolocator's two locker filters moved beside its language parameter, so a search and an
   all-points download cannot drift apart on what they send
+* `GeoApiConfig::$apiKey` is optional. `pudo.bpost.cloud` rejects a request without `x-api-key`,
+  but the older `pudo.bpost.be` ignores the header, so an integration still pointed there had no
+  key to pass and had to invent one. Left out, the header is not sent at all rather than sent
+  empty; on the default host that turns a missing key into a rejected request rather than a
+  missing argument
 
 #### Removed
 

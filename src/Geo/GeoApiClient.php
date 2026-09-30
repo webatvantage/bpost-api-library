@@ -26,14 +26,18 @@ readonly class GeoApiClient implements Debuggable, Loggable
 		array $httpClientOptions = [],
 		?LoggerInterface $logger = null,
 	) {
+		// Without this bpost truncates a Get All Service Points response over 10 MB.
+		$headers = ['Accept-Encoding' => 'gzip'];
+
+		if (isset($config->apiKey))
+		{
+			// Mandatory on the pudo.bpost.cloud domain since manual section B.4.1.0.
+			$headers['x-api-key'] = $config->apiKey;
+		}
+
 		$this->apiAdapter = new HttpApiAdapter(
 			baseUri: $config->baseUri,
-			defaultHeaders: [
-				// Mandatory on the pudo.bpost.cloud domain since manual section B.4.1.0.
-				'x-api-key' => $config->apiKey,
-				// Without this bpost truncates a Get All Service Points response over 10 MB.
-				'Accept-Encoding' => 'gzip',
-			],
+			defaultHeaders: $headers,
 			httpClientOptions: $httpClientOptions,
 			logger: $logger,
 		);

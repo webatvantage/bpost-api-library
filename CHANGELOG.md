@@ -9,6 +9,10 @@
   as the socket stayed open. Both are defaults under the client options, so naming `timeout` or
   `connect_timeout` yourself still wins — worth doing for a bulk label call, which returns a
   large PDF and is not safe to retry once bpost has consumed the barcodes
+* TLS verification goes through `composer/ca-bundle` rather than whatever CA store the host
+  happens to carry, which on a thin container is nothing. `SSL_CERT_FILE`, `SSL_CERT_DIR` and
+  `openssl.cafile` are honoured ahead of the bundle it vendors, so a host behind an intercepting
+  proxy or with a privately added root keeps working
 
 ### 2.0.0-beta.1 - 2026-10-01
 

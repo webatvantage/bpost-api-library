@@ -79,7 +79,7 @@ class HttpApiAdapter implements Debuggable, Loggable
 		}
 
 		$this->client = new Client([
-			RequestOptions::VERIFY => CaBundle::getBundledCaBundlePath(),
+			RequestOptions::VERIFY => CaBundle::getSystemCaRootBundlePath(),
 			RequestOptions::TIMEOUT => static::DEFAULT_TIMEOUT,
 			RequestOptions::CONNECT_TIMEOUT => static::DEFAULT_CONNECT_TIMEOUT,
 			...$httpClientOptions,

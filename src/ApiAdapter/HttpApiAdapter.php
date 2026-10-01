@@ -3,9 +3,11 @@
 namespace Webatvantage\Bpost\Api\ApiAdapter;
 
 use Closure;
+use Composer\CaBundle\CaBundle;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\RequestOptions;
 use GuzzleLogMiddleware\Handler\HandlerInterface;
 use GuzzleLogMiddleware\Handler\LogLevelStrategy\ThresholdStrategy;
 use GuzzleLogMiddleware\Handler\MultiRecordArrayHandler;
@@ -26,6 +28,16 @@ use Webatvantage\Bpost\Api\Support\XmlElement;
 
 class HttpApiAdapter implements Debuggable, Loggable
 {
+	/**
+	 * Default response timeout (in seconds).
+	 */
+	public const int DEFAULT_TIMEOUT = 10;
+
+	/**
+	 * Default connect timeout (in seconds).
+	 */
+	public const int DEFAULT_CONNECT_TIMEOUT = 2;
+
 	private readonly Client $client;
 
 	private readonly string $baseUri;
@@ -67,6 +79,9 @@ class HttpApiAdapter implements Debuggable, Loggable
 		}
 
 		$this->client = new Client([
+			RequestOptions::VERIFY => CaBundle::getBundledCaBundlePath(),
+			RequestOptions::TIMEOUT => static::DEFAULT_TIMEOUT,
+			RequestOptions::CONNECT_TIMEOUT => static::DEFAULT_CONNECT_TIMEOUT,
 			...$httpClientOptions,
 			'handler' => $handler,
 		]);

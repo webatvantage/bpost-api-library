@@ -89,8 +89,8 @@
   levels — the whole client, one service, one resource, one call. The mark rides along as a request
   option for a log handler to read; a logger handed to the client still receives every call until
   one of your handlers says otherwise, and the levels below are what a threshold filters on
-* Which calls reach the log is the consumer's decision, taken in a log handler. README shows the
-  handler that keeps what was asked for and nothing else; the response reaches a handler too, so
+* Which calls reach the log is the consumer's decision, taken in a log handler of your own. It
+  reads the mark off `$options` and keeps what was asked for; the response reaches it too, so
   keeping every refusal whatever the call asked for is one more condition in the same place
 * Guzzle's `http_errors` is back on its default, so a 4xx and a 5xx arrive as the rejection Guzzle
   means them to be and are translated here rather than suppressed and re-derived from the status.
@@ -105,8 +105,6 @@
   domain has to be punycoded before it is set. A response is read as bpost holds it, as ever
 * `HttpApiAdapter::setLogging()` is now `withLogging()` and gained `withoutLogging()`;
   `setDebugCallback()` is now `withDebug()`. Every level of the ladder spells the pair the same way
-* `.claude/` and `composer.lock` are `export-ignore`d, so a `composer require` no longer pulls
-  down the repository's own working notes
 * The Geolocator's two locker filters moved beside its language parameter, so a search and an
   all-points download cannot drift apart on what they send
 * Static analysis runs at PHPStan level 8. Everything between five and eight was one cause:

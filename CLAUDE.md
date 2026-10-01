@@ -16,8 +16,9 @@ one that covers what you are about to write:
 - `.claude/conventions/comments.md` — a comment earns its place with a fact about bpost, not about
   this code. The usual offender is the design note.
 
-Commit and pull-request wording is the `git-commit` skill in `.claude/git-commit/`. It also says
-what must never be staged, and that committing is its own ask.
+Commit and pull-request wording is the `git-commit` skill in `.claude/skills/git-commit/`. It also
+says what must never be staged, and that committing is its own ask. Cutting a release is the
+`github-release` skill beside it.
 
 ## Commands
 

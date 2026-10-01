@@ -35,10 +35,14 @@
   check that enforces it, so a caller building a language choice had to hardcode it and find out
   from a rejected value when it was wrong
 * `BpostApiConfig::$logHandler`, and a `logHandler:` argument on each service client, for changing
-  what a log record is made of — its levels, its truncation, one line instead of an array. Whoever
-  supplies it, the handler is wrapped here, so `withoutLogging()` still reaches it and the stack
-  still collects one copy rather than one per service; pushing your own `LogMiddleware` onto a
-  Guzzle handler stack gets neither
+  what a log record is made of — its levels, its truncation, one line instead of an array, and
+  which calls are worth a record at all. The middleware goes onto a copy of the handler stack, so
+  the client options shared between services collect one copy rather than one per service; pushing
+  your own `LogMiddleware` onto a Guzzle handler stack gets neither
+* `BpostApiConfig::LOGGING_OPTION_NAME`, the Guzzle request option every call carries its
+  `withLogging()` choice in. A handler of your own reads it off `$options` and decides from there;
+  nothing in the library acts on it, because the status a decision usually turns on is not known
+  until the response is back, and the handler is where it is known
 
 #### Changed
 
@@ -67,15 +71,13 @@
   `debug`, a 2xx is `info`, a 3xx `notice`, a 4xx `error` and a 5xx `critical`. Everything went out
   at `debug` before, so a refused order read the same as a successful one and keeping only the
   failures meant filtering on message text. A logger set to `warning` now does it
-* A supplied logger is not switched on. `withLogging()` is what asks for the calls that worked, at
-  any of the four levels; what bpost refused arrives either way. Handing the client a logger used
-  to mean every request and response went to it, which is a great deal of writing for an
-  integration that only wanted to hear about the failures
-* `withoutLogging()` quiets the calls that worked, not the ones that did not: a 4xx, a 5xx and a
-  transport failure are written whatever it is set to, while a 2xx and a 3xx are dropped. Silencing
-  a chatty call used to mean agreeing to lose the reason it failed. The decision moved into the log
-  handler because the status is what it turns on, and the status is not known until the response
-  is back — the middleware now runs for a silenced call rather than being skipped
+* `withLogging()` and `withoutLogging()` mark a call rather than silencing it, at any of the four
+  levels — the whole client, one service, one resource, one call. The mark rides along as a request
+  option for a log handler to read; a logger handed to the client still receives every call until
+  one of your handlers says otherwise, and the levels below are what a threshold filters on
+* Which calls reach the log is the consumer's decision, taken in a log handler. README shows the
+  handler that keeps what was asked for plus every refusal, which is the shape most integrations
+  want: silencing a chatty call should not mean agreeing to lose the reason it failed
 * Guzzle's `http_errors` is back on its default, so a 4xx and a 5xx arrive as the rejection Guzzle
   means them to be and are translated here rather than suppressed and re-derived from the status.
   No exception a caller catches has changed, and the body still reaches `ApiExceptionFactory`

@@ -17,87 +17,43 @@ use Webatvantage\Bpost\Api\Parcel\ParcelApiConfig;
 use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
 use Webatvantage\Bpost\Api\Tests\Doubles\FakeRequest;
 use Webatvantage\Bpost\Api\Tests\Doubles\SpyLogger;
+use Webatvantage\Bpost\Api\Tests\Doubles\SpyLogHandler;
 
 class LoggingTest extends TestCase
 {
 	private SpyLogger $logger;
+
+	private SpyLogHandler $logHandler;
 
 	protected function setUp(): void
 	{
 		parent::setUp();
 
 		$this->logger = new SpyLogger();
+		$this->logHandler = new SpyLogHandler();
 	}
 
-	public function test_a_logger_stays_quiet_until_it_is_switched_on()
+	public function test_a_logger_is_written_to_from_the_first_call()
 	{
 		$adapter = $this->loggingAdapter();
 
 		$this->mockResponse(200, '<orderInfo/>');
 		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-1'));
 
-		$this->assertEmpty($this->logger->records);
-
-		$adapter->withLogging();
-
-		$this->mockResponse(200, '<orderInfo/>');
-		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-2'));
-
 		$this->assertNotEmpty($this->logger->records);
 	}
 
-	public function test_a_request_overrules_the_client_either_way()
+	public function test_a_client_without_a_logger_writes_nothing()
 	{
-		$adapter = $this->loggingAdapter()->withLogging();
+		$adapter = new HttpApiAdapter(
+			baseUri: 'https://example.test',
+			httpClientOptions: ['handler' => $this->handlerStack()],
+		);
 
 		$this->mockResponse(200, '<orderInfo/>');
-		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-1')->withoutLogging());
+		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-1'));
 
 		$this->assertEmpty($this->logger->records);
-
-		$adapter->withLogging(false);
-
-		$this->mockResponse(200, '<orderInfo/>');
-		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-2')->withLogging());
-
-		$this->assertNotEmpty($this->logger->records);
-	}
-
-	public function test_a_resource_logs_only_the_calls_made_on_it()
-	{
-		$client = $this->client();
-
-		$this->mockResponse(200, '<orderInfo><reference>ref-1</reference></orderInfo>');
-		$client->shm()->orders()->withLogging()->get('ref-1');
-
-		$this->assertNotEmpty($this->logger->records);
-
-		$this->logger->records = [];
-
-		$this->mockResponse(200, '<orderInfo><reference>ref-2</reference></orderInfo>');
-		$client->shm()->orders()->get('ref-2');
-
-		$this->assertEmpty($this->logger->records);
-	}
-
-	public function test_switching_the_whole_client_on_reaches_the_services_built_before_and_after()
-	{
-		$client = $this->client();
-		$shm = $client->shm();
-
-		$client->withLogging();
-
-		$this->mockResponse(200, '<orderInfo><reference>ref-1</reference></orderInfo>');
-		$shm->orders()->get('ref-1');
-
-		$this->assertNotEmpty($this->logger->records);
-
-		$this->logger->records = [];
-
-		$this->mockResponse(200, '<Poi/>');
-		$client->geo()->servicePoints()->nearest(zone: '1000')->get();
-
-		$this->assertNotEmpty($this->logger->records);
 	}
 
 	/**
@@ -109,21 +65,21 @@ class LoggingTest extends TestCase
 	{
 		$order = '<orderInfo><reference>ref-1</reference></orderInfo>';
 
-		$client = $this->client()->withLogging();
+		$client = $this->client();
 		$this->mockResponse(200, $order);
 		$client->shm()->orders()->get('ref-1');
 
-		$withOneService = count($this->logger->records);
+		$withOneService = count($this->logHandler->choices);
 		$this->assertNotSame(0, $withOneService);
 
 		$client->geo();
 		$client->parcel();
 
-		$this->logger->records = [];
+		$this->logHandler->choices = [];
 		$this->mockResponse(200, $order);
 		$client->shm()->orders()->get('ref-1');
 
-		$this->assertCount($withOneService, $this->logger->records);
+		$this->assertCount($withOneService, $this->logHandler->choices);
 	}
 
 	/**
@@ -145,7 +101,7 @@ class LoggingTest extends TestCase
 	#[DataProvider('statusLevels')]
 	public function test_a_response_is_logged_at_the_level_its_status_deserves(int $status, string $level)
 	{
-		$adapter = $this->loggingAdapter()->withLogging();
+		$adapter = $this->loggingAdapter();
 
 		$this->mockResponse($status, '<orderInfo/>');
 
@@ -183,47 +139,10 @@ class LoggingTest extends TestCase
 	}
 
 	/**
-	 * @return array<string, array{int, bool}>
+	 * A transport failure never reaches a status, and losing a name that will not resolve is the
+	 * opposite of useful.
 	 */
-	public static function silencedStatuses(): array
-	{
-		return [
-			'a success is dropped' => [200, false],
-			'a redirect is dropped' => [302, false],
-			'a bpost fault is kept' => [409, true],
-			'a bpost outage is kept' => [500, true],
-		];
-	}
-
-	/**
-	 * Switching the log off quiets the calls that worked, not the ones that did not: a refusal is
-	 * the record worth having, and a caller who silenced a noisy call did not ask to lose it.
-	 */
-	#[DataProvider('silencedStatuses')]
-	public function test_a_silenced_call_still_reports_what_bpost_refused(int $status, bool $logged)
-	{
-		$adapter = $this->loggingAdapter()->withoutLogging();
-
-		$this->mockResponse($status, '<x/>');
-
-		try
-		{
-			$adapter->request(new FakeRequest(Method::GET, '/orders/ref'));
-		}
-		catch (BpostException)
-		{
-		}
-
-		$logged
-			? $this->assertNotEmpty($this->logger->records)
-			: $this->assertEmpty($this->logger->records);
-	}
-
-	/**
-	 * A transport failure never reaches a status, and counts with the refusals rather than against
-	 * them — losing a name that will not resolve is the opposite of useful.
-	 */
-	public function test_a_silenced_call_still_reports_a_transport_failure()
+	public function test_a_transport_failure_is_logged()
 	{
 		$mock = new MockHandler([
 			new ConnectException('Could not resolve host', new PsrRequest('GET', '/orders')),
@@ -233,7 +152,7 @@ class LoggingTest extends TestCase
 			baseUri: 'https://example.test',
 			httpClientOptions: ['handler' => HandlerStack::create($mock)],
 			logger: $this->logger,
-		)->withoutLogging();
+		);
 
 		try
 		{
@@ -246,21 +165,71 @@ class LoggingTest extends TestCase
 		$this->assertNotEmpty($this->logger->records);
 	}
 
-	public function test_a_refusal_is_logged_at_its_own_level_even_when_silenced()
+	public function test_a_call_carries_what_the_client_was_told()
 	{
-		$adapter = $this->loggingAdapter()->withoutLogging();
+		$adapter = $this->spyingAdapter();
 
-		$this->mockResponse(500, '<systemException/>');
+		$this->mockResponse(200, '<orderInfo/>');
+		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-1'));
 
-		try
-		{
-			$adapter->request(new FakeRequest(Method::GET, '/orders/ref'));
-		}
-		catch (BpostException)
-		{
-		}
+		$this->assertFalse($this->logHandler->lastChoice());
 
-		$this->assertSame('critical', $this->logger->levelOf('Guzzle HTTP response'));
+		$adapter->withLogging();
+
+		$this->mockResponse(200, '<orderInfo/>');
+		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-2'));
+
+		$this->assertTrue($this->logHandler->lastChoice());
+	}
+
+	public function test_a_request_overrules_the_client_either_way()
+	{
+		$adapter = $this->spyingAdapter()->withLogging();
+
+		$this->mockResponse(200, '<orderInfo/>');
+		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-1')->withoutLogging());
+
+		$this->assertFalse($this->logHandler->lastChoice());
+
+		$adapter->withLogging(false);
+
+		$this->mockResponse(200, '<orderInfo/>');
+		$adapter->request(new FakeRequest(Method::GET, '/orders/ref-2')->withLogging());
+
+		$this->assertTrue($this->logHandler->lastChoice());
+	}
+
+	public function test_a_resource_reaches_only_the_calls_made_on_it()
+	{
+		$client = $this->client();
+
+		$this->mockResponse(200, '<orderInfo><reference>ref-1</reference></orderInfo>');
+		$client->shm()->orders()->withLogging()->get('ref-1');
+
+		$this->assertTrue($this->logHandler->lastChoice());
+
+		$this->mockResponse(200, '<orderInfo><reference>ref-2</reference></orderInfo>');
+		$client->shm()->orders()->get('ref-2');
+
+		$this->assertFalse($this->logHandler->lastChoice());
+	}
+
+	public function test_switching_the_whole_client_on_reaches_the_services_built_before_and_after()
+	{
+		$client = $this->client();
+		$shm = $client->shm();
+
+		$client->withLogging();
+
+		$this->mockResponse(200, '<orderInfo><reference>ref-1</reference></orderInfo>');
+		$shm->orders()->get('ref-1');
+
+		$this->assertTrue($this->logHandler->lastChoice());
+
+		$this->mockResponse(200, '<Poi/>');
+		$client->geo()->servicePoints()->nearest(zone: '1000')->get();
+
+		$this->assertTrue($this->logHandler->lastChoice());
 	}
 
 	private function loggingAdapter(): HttpApiAdapter
@@ -272,6 +241,16 @@ class LoggingTest extends TestCase
 		);
 	}
 
+	private function spyingAdapter(): HttpApiAdapter
+	{
+		return new HttpApiAdapter(
+			baseUri: 'https://example.test',
+			httpClientOptions: ['handler' => $this->handlerStack()],
+			logger: $this->logger,
+			logHandler: $this->logHandler,
+		);
+	}
+
 	private function client(): BpostApiClient
 	{
 		return new BpostApiClient(
@@ -279,6 +258,7 @@ class LoggingTest extends TestCase
 				shm: new ShmApiConfig(accountId: '123456', passphrase: 'passphrase'),
 				geo: new GeoApiConfig(partner: '999999', apiKey: 'key'),
 				parcel: new ParcelApiConfig(accountId: '123456', password: 'password'),
+				logHandler: $this->logHandler,
 			),
 			['handler' => $this->handlerStack()],
 			$this->logger,

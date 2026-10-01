@@ -16,10 +16,13 @@ use Webatvantage\Bpost\Api\Shm\ShmApiConfig;
  */
 readonly class BpostApiConfig
 {
+	/** The Guzzle request option a call's logging choice travels in, for a log handler of your own to read. */
+	public const string LOGGING_OPTION_NAME = 'bpost_logging';
+
 	/**
-	 * @param HandlerInterface|null $logHandler What a log record is made of, for every service.
-	 *                                          Left out, records are the array shape with a level
-	 *                                          per status range
+	 * @param HandlerInterface|null $logHandler What a log record is made of, for every service, and
+	 *                                          which calls are worth one. Left out, records are the
+	 *                                          array shape with a level per status range
 	 */
 	public function __construct(
 		public ?ShmApiConfig $shm = null,

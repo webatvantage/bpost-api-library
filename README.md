@@ -295,14 +295,34 @@ $url = $geo->servicePoints()->pageUrl('220000', PointType::PostOffice);
 
 ### Logging
 
-Pass a PSR-3 logger and what bpost refused is written to it. The calls that worked are not, until
-you ask for them — and you can ask at four levels: the whole client, one service, one resource, or
-one call.
+Pass a PSR-3 logger and every call this client makes is written to it, request and response alike.
 
 ```php
 // The config from Usage above, and any PSR-3 logger.
 $bpost = new BpostApiClient($config, logger: $logger);
+```
 
+Records carry the level of what bpost answered, so your own logger's threshold decides how much of
+the detail survives.
+
+| record                                          | level      |
+|-------------------------------------------------|------------|
+| the request, and the transfer statistics        | `debug`    |
+| a 2xx response                                  | `info`     |
+| a 3xx response                                  | `notice`   |
+| a 4xx response — a refused order, a bad barcode | `error`    |
+| a 5xx response — bpost is having trouble        | `critical` |
+
+A logger set to `warning` therefore keeps what bpost refused — a 4xx, a 5xx, and a call that never
+reached a status at all — and drops the rest.
+
+#### Marking the calls worth a record
+
+Severity is one axis and it is the same for every call. Noise is the other, and it is per call:
+`withLogging()` and `withoutLogging()` mark the calls you want at four levels — the whole client,
+one service, one resource, or one call. The narrowest setting wins.
+
+```php
 // Everything, including services you have not reached yet.
 $bpost->withLogging();
 
@@ -316,35 +336,47 @@ $bpost->shm()->orders()->withLogging()->get('order-123');
 $bpost->geo()->servicePoints()->nearest(zone: '1000')->withLogging()->get();
 ```
 
-Each of these has a `withoutLogging()` counterpart, so a single noisy call can be dropped while the
-rest of the client keeps writing. The narrowest setting wins.
+The mark travels with the request as the `BpostApiConfig::LOGGING_OPTION_NAME` Guzzle option, and
+nothing here acts on it: a handler is where a record is made, so a handler is where you decide
+whether to make one. Read it off `$options` in one of your own, which is also where the status is
+known — a refusal is usually worth keeping whatever the call asked for:
 
-The switch only ever covers the calls that worked. What bpost refused is written either way, because
-not wanting the chatter is not the same as agreeing to lose the reason a call failed:
+```php
+use GuzzleHttp\TransferStats;
+use GuzzleLogMiddleware\Handler\HandlerInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
+use Throwable;
+use Webatvantage\Bpost\Api\BpostApiConfig;
 
-| answer                                 | default          | after `withLogging()` |
-|----------------------------------------|------------------|-----------------------|
-| 2xx, 3xx                               | nothing          | logged                |
-| 4xx, 5xx                               | **still logged** | logged                |
-| no response at all — DNS, TLS, timeout | **still logged** | logged                |
+readonly class LogWhatWasAskedFor implements HandlerInterface
+{
+    public function __construct(private HandlerInterface $handler) {}
 
-That switch is about noise, and it is per call. Severity is the other axis, and it is the same for
-every call: records carry the level of what bpost answered, so your own logger's threshold decides
-how much of the detail survives.
+    public function log(
+        LoggerInterface $logger,
+        RequestInterface $request,
+        ?ResponseInterface $response = null,
+        ?Throwable $exception = null,
+        ?TransferStats $stats = null,
+        array $options = [],
+    ): void {
+        $asked = $options[BpostApiConfig::LOGGING_OPTION_NAME] ?? true;
+        $failed = $response === null || $response->getStatusCode() >= 400;
 
-| record                                          | level      |
-|-------------------------------------------------|------------|
-| the request, and the transfer statistics        | `debug`    |
-| a 2xx response                                  | `info`     |
-| a 3xx response                                  | `notice`   |
-| a 4xx response — a refused order, a bad barcode | `error`    |
-| a 5xx response — bpost is having trouble        | `critical` |
+        if ($asked === true || $failed)
+        {
+            $this->handler->log($logger, $request, $response, $exception, $stats, $options);
+        }
+    }
+}
+```
 
-A logger set to `warning` therefore drops the request and the successes across the board, where
-`withoutLogging()` does it for the one call you point it at.
+#### Your own handler
 
-To change what a record is made of — the levels, the truncation size, one line instead of an
-array — pass your own handler on the config. It reaches every service:
+A handler is also what a record is made of — its levels, its truncation, one line instead of an
+array. Pass yours on the config and it reaches every service:
 
 ```php
 use GuzzleLogMiddleware\Handler\StringHandler;
@@ -359,9 +391,10 @@ $bpost = new BpostApiClient(
 );
 ```
 
-Pass it to a service client directly as `logHandler:` if you construct one yourself. Either way
-the middleware is still wrapped, so the switch reaches a handler you brought — which it would not
-if you pushed your own `LogMiddleware` onto a Guzzle handler stack instead.
+Pass it to a service client directly as `logHandler:` if you construct one yourself. Either way the
+middleware is pushed onto a copy of the handler stack, so the client options you share between
+services collect one copy rather than one per service — which is what pushing your own
+`LogMiddleware` onto a Guzzle handler stack would cost you.
 
 ### Debugging
 

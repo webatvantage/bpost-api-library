@@ -14,6 +14,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Webatvantage\Bpost\Api\BpostApiConfig;
 use Webatvantage\Bpost\Api\Contracts\Debuggable;
 use Webatvantage\Bpost\Api\Contracts\Loggable;
 use Webatvantage\Bpost\Api\Contracts\Request;
@@ -25,9 +26,6 @@ use Webatvantage\Bpost\Api\Support\XmlElement;
 
 class HttpApiAdapter implements Debuggable, Loggable
 {
-	/** Guzzle request option carrying the decision for the request being sent. */
-	protected const string LOGGING_OPTION_NAME = 'bpost_logging';
-
 	private readonly Client $client;
 
 	private readonly string $baseUri;
@@ -60,16 +58,10 @@ class HttpApiAdapter implements Debuggable, Loggable
 			// One set of client options is shared by every service, so the caller's own stack
 			// would collect a copy of the middleware per service.
 			$handler = clone $handler;
-			// The middleware runs even for a silenced call, because what reaches the log is decided
-			// on the status and the handler is where that is known. Whoever supplied the handler,
-			// it is wrapped here, so a silenced call still drops a record it brought.
 			$handler->push(new LogMiddleware(
 				logger: $logger,
 				// Levels by status range, so a logger set above debug keeps only the failures.
-				handler: new ConditionalLogHandler(
-					handler: $logHandler ?? new MultiRecordArrayHandler(new ThresholdStrategy()),
-					loggingOptionName: static::LOGGING_OPTION_NAME,
-				),
+				handler: $logHandler ?? new MultiRecordArrayHandler(new ThresholdStrategy()),
 				logStatistics: true,
 			), 'logger');
 		}
@@ -94,7 +86,7 @@ class HttpApiAdapter implements Debuggable, Loggable
 		try
 		{
 			$response = $this->client->send($psrRequest, [
-				static::LOGGING_OPTION_NAME => $request->isLogging() ?? $this->logging,
+				BpostApiConfig::LOGGING_OPTION_NAME => $request->isLogging() ?? $this->logging,
 			]);
 		}
 		// Catch a 4xx and a 5xx error

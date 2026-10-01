@@ -1,50 +1,31 @@
 # Changelog
 
-### Unreleased
-
-#### Fixed
-
-* Retrieving an order delivered to an address abroad threw `UnexpectedValueException` for
-  `deliveryMethod`: bpost answers with `<atIntlHome>`, a name the manual does not document and
-  that it refuses on an order sent to it. `Shm\DataObjects\Box\DeliveryBoxFactory` reads it as
-  `International`, which goes back out as `<international:international>`
-* `atIntlPugo` wrote `<pugoAddress>` in the national namespace, where manual B.3.2.2.2 has
-  `<international:pugoAddress>`, so every `bpack@bpost international` order carrying a pick-up
-  point address failed bpost's schema validation. `Shm\DataObjects\Address::toXml()` took a
-  namespace and ignored it; it now uses the one it is given and falls back to its own
-* Passing a `handler` in `$httpClientOptions` had the log middleware pushed onto that stack once
-  per service, so a client reaching all three bpost services wrote every request to the log three
-  times over. The stack is cloned before the middleware goes on
-* Reading a response no longer applies the send-side field lengths and ranges: a retrieved order
-  whose locality runs past the documented 40 characters, or a parcel content weighing less than
-  the minimum a new one may declare, is reported as bpost holds it instead of throwing
-  `InvalidLengthException` at a caller with nothing to correct. `Validate::ignoring()` covers the
-  reads whose checks sit in a constructor
-* A malformed `deliveryTime` or scan `time` in a tracking response threw
-  `DateMalformedStringException`, outside `BpostException`. It is an `UnexpectedValueException`
-  now, and dates are read through the new `XmlElement::dateTime()`
-* `Resource::debug()` set its callback on the shared adapter, where it stayed for the life of the
-  client and fired for every later call on every other resource. It now reaches only the calls
-  made on that resource, matching `withoutLogging()`
-* The Geolocator's `language()` refused nothing, though all four operations document `NL` or `FR`
-  only and quietly ignore anything else. `EN` and `DE` are rejected, in one place rather than four
-* The readme's announcement example passed the Shipping Manager's `Sender` and `Receiver` to a
-  service that has its own, so copying it raised a `TypeError`. Every block in the file is now run
-  against the library rather than read over
-* A price band quoted as `0` came back as `null`, the same answer as a band bpost did not quote
-* `ApiExceptionFactory` and `Feedback` passed a context element to XPath and then opened with
-  `//`, which resolves from the document root regardless
-* `ServicePoint::withPageUrl()` assigned to the point it was called on and returned it, so a
-  caller holding the original found the URL on that too. It hands back a copy now
-* `Validate::countryCode()` counted characters rather than requiring letters, so `12` passed
-* `Signed`'s docblock lost its leading asterisk on a blank line, which ended the comment early
-* Five exceptions reported `statusCode` 200 for a response they had no status for, most often a
-  2xx with an empty body where 204 is the likelier answer. They leave it unset now; a zero means
-  the library could not read a body bpost had already accepted, rather than bpost refusing the
-  request
+### 2.0.0-beta.1 - 2026-10-01
 
 #### Added
 
+* Guzzle-based `HttpApiAdapter` shared by every bpost service, replacing the two hand-rolled cURL
+  blocks and the `ApiCaller` wrapper
+* `MIGRATION.md`, a 1.x to 2.0 upgrade guide
+* `BpostApiClient`, one entry point handing out a client per bpost service
+* Geolocator: `x-api-key` and `Accept-Encoding: gzip` headers, both required by manual B.4.1.0
+* Geolocator: the mandatory `DD`, `CheckDate` and `CheckOpen` parameters on a nearest-points
+  search, and the optional `Info`, `CheckList`, `IncludeBoxNumber`, `IncludeAttributes` and
+  `AttributeFilter`
+* Geolocator: `PointType::ParcelPoint` (type 16), which was missing entirely
+* Geolocator: `ServicePoint` now reads `Country`, `BoxNumber` and the locker `Attributes`
+* Shipping Manager: the `bpack XL` product, its mandatory `Dimensions`, and the `fragile` option
+* Shipping Manager: ZPL label output, alongside PDF and PNG
+* The Announcement API (`POST .../trackedmail/announcement`), which the library never implemented.
+  This is the route for anyone printing their own labels: the barcode already exists, and the
+  announcement supplies what would otherwise have come with an order
+* The Tracking API (`GET .../trackedmail/item/{barcode}/trackingInfo`), likewise never implemented
+* Shipping Manager: `RETURNED` as a customs shipment type
+* Shipping Manager: the field lengths the manual documents are checked when set, rather than by
+  bpost on send — sender and receiver name and company, remark, order reference, cost centre, and
+  the 30 kg ceiling that `isValidWeight()` defined but no box ever called. bpack XL and bpack
+  Pallet are exempt: they are the products that carry more, and the manual's own bpack XL example
+  sends 100 kg
 * `withDebug()` on `BpostApiClient` and on each service client, completing the same levels logging
   already had: the whole client, one service, one resource or one call
 * `Contracts\Loggable` and `Contracts\Debuggable`, implemented at each of those levels. The names
@@ -61,6 +42,27 @@
 
 #### Changed
 
+* Root namespace is now `Webatvantage\Bpost\Api\`; the library is split into one namespace per
+  bpost service (`Shm`, `Geo`, `Parcel`)
+* Minimum PHP version is now 8.5
+* Code style is now `webatvantage/php-cs-fixer-config`; static analysis runs PHPStan level 5 and
+  the suite runs on PHPUnit 13 — level 8 since, see below
+* Geolocator host is now `pudo.bpost.cloud`, as documented, instead of `pudo.bpost.be`
+* A nearest-points search returns a flat list of `ServicePoint`; the distance is a property on the
+  point rather than a parallel array key
+* Setters drop their `set` prefix and return `$this`; values are read as properties rather than
+  through getters
+* `getPossibleXValues()` arrays are replaced by enums throughout
+* `ext-curl` is a suggestion rather than a requirement: the library no longer calls cURL itself and
+  Guzzle works on the stream handler without it
+* XML goes through `Support\XmlDocument` and `Support\XmlElement` on both sides, in place of
+  `DOMDocument` for writing and `SimpleXMLElement` for reading. `XmlSerializable::toXml()` writes
+  into the element it is given rather than returning a loose one, `XmlDeserializable::fromXml()`
+  takes an `XmlElement`, and `HttpApiAdapter::request()` returns `XmlElement|string`
+* Namespaces are enum cases — `Shm\Enums\ShmNamespace`, `Parcel\Enums\ParcelNamespace` — carrying
+  the URI and the prefix together, in place of the prefix strings and namespace constants on the old
+  `Xml` helpers. What goes on the wire is unchanged: a generated order is byte-identical, down to
+  the order its namespace declarations are written in
 * Log records carry the severity of the response: the request and the transfer statistics stay at
   `debug`, a 2xx is `info`, a 3xx `notice`, a 4xx `error` and a 5xx `critical`. Everything went out
   at `debug` before, so a refused order read the same as a successful one and keeping only the
@@ -102,66 +104,6 @@
 
 #### Removed
 
-* `Enums\MediaType`, `Conditionable::unless()`, `Weekday::index()`, `Request::addHeader()`,
-  `HttpApiAdapter::isLogging()`, and `toXml()`/`fromXml()` on the Shipping Manager's `Dimensions`.
-  Nothing in the library reached any of them; `Dimensions` writes its three elements through
-  `appendTo()`, because bpost has no wrapper element for them
-* The `debugCallback` and `logging` arguments on `HttpApiAdapter::__construct()`. Nothing passed
-  either, and `withDebug()` and `withLogging()` already reach both after the adapter is built
-
-### 2.0.0 - 2026-09-28
-
-#### Added
-
-* Guzzle-based `HttpApiAdapter` shared by every bpost service, replacing the two hand-rolled cURL
-  blocks and the `ApiCaller` wrapper
-* `MIGRATION.md`, a 1.x to 2.0 upgrade guide
-* `BpostApiClient`, one entry point handing out a client per bpost service
-* Geolocator: `x-api-key` and `Accept-Encoding: gzip` headers, both required by manual B.4.1.0
-* Geolocator: the mandatory `DD`, `CheckDate` and `CheckOpen` parameters on a nearest-points
-  search, and the optional `Info`, `CheckList`, `IncludeBoxNumber`, `IncludeAttributes` and
-  `AttributeFilter`
-* Geolocator: `PointType::ParcelPoint` (type 16), which was missing entirely
-* Geolocator: `ServicePoint` now reads `Country`, `BoxNumber` and the locker `Attributes`
-* Shipping Manager: the `bpack XL` product, its mandatory `Dimensions`, and the `fragile` option
-* Shipping Manager: ZPL label output, alongside PDF and PNG
-* The Announcement API (`POST .../trackedmail/announcement`), which the library never implemented.
-  This is the route for anyone printing their own labels: the barcode already exists, and the
-  announcement supplies what would otherwise have come with an order
-* The Tracking API (`GET .../trackedmail/item/{barcode}/trackingInfo`), likewise never implemented
-* Shipping Manager: `RETURNED` as a customs shipment type
-* Shipping Manager: the field lengths the manual documents are checked when set, rather than by
-  bpost on send — sender and receiver name and company, remark, order reference, cost centre, and
-  the 30 kg ceiling that `isValidWeight()` defined but no box ever called. bpack XL and bpack
-  Pallet are exempt: they are the products that carry more, and the manual's own bpack XL example
-  sends 100 kg
-
-#### Changed
-
-* Root namespace is now `Webatvantage\Bpost\Api\`; the library is split into one namespace per
-  bpost service (`Shm`, `Geo`, `Parcel`)
-* Minimum PHP version is now 8.5
-* Code style is now `webatvantage/php-cs-fixer-config`; static analysis runs PHPStan level 5 and
-  the suite runs on PHPUnit 13 — level 8 since, see Unreleased
-* Geolocator host is now `pudo.bpost.cloud`, as documented, instead of `pudo.bpost.be`
-* A nearest-points search returns a flat list of `ServicePoint`; the distance is a property on the
-  point rather than a parallel array key
-* Setters drop their `set` prefix and return `$this`; values are read as properties rather than
-  through getters
-* `getPossibleXValues()` arrays are replaced by enums throughout
-* `ext-curl` is a suggestion rather than a requirement: the library no longer calls cURL itself and
-  Guzzle works on the stream handler without it
-* XML goes through `Support\XmlDocument` and `Support\XmlElement` on both sides, in place of
-  `DOMDocument` for writing and `SimpleXMLElement` for reading. `XmlSerializable::toXml()` writes
-  into the element it is given rather than returning a loose one, `XmlDeserializable::fromXml()`
-  takes an `XmlElement`, and `HttpApiAdapter::request()` returns `XmlElement|string`
-* Namespaces are enum cases — `Shm\Enums\ShmNamespace`, `Parcel\Enums\ParcelNamespace` — carrying
-  the URI and the prefix together, in place of the prefix strings and namespace constants on the old
-  `Xml` helpers. What goes on the wire is unchanged: a generated order is byte-identical, down to
-  the order its namespace declarations are written in
-
-#### Removed
-
 * `ext-SimpleXML` is no longer required
 * `Support\Xml`, `Shm\Support\Xml` and `Parcel\Support\Xml`, replaced by `Support\XmlDocument`,
   `Support\XmlElement` and the two namespace enums
@@ -179,6 +121,12 @@
 * `ProductConfiguration\Visibility`, unreferenced and contradicting the values on `DeliveryMethod`
 * `BpostOnAppointment`, which appears nowhere in the v3.3.35 manual
 * The eight insurance bands above 5 000 EUR, which the library's own validation had always rejected
+* `Enums\MediaType`, `Conditionable::unless()`, `Weekday::index()`, `Request::addHeader()`,
+  `HttpApiAdapter::isLogging()`, and `toXml()`/`fromXml()` on the Shipping Manager's `Dimensions`.
+  Nothing in the library reached any of them; `Dimensions` writes its three elements through
+  `appendTo()`, because bpost has no wrapper element for them
+* The `debugCallback` and `logging` arguments on `HttpApiAdapter::__construct()`. Nothing passed
+  either, and `withDebug()` and `withLogging()` already reach both after the adapter is built
 
 #### Fixed
 
@@ -203,6 +151,44 @@
   generated `+PHP8.2` suffix
 * `Price::forWeight()` reports an overweight parcel in grams, the unit it was given; 1.x compared
   grams and then reported them as kilograms
+* Retrieving an order delivered to an address abroad threw `UnexpectedValueException` for
+  `deliveryMethod`: bpost answers with `<atIntlHome>`, a name the manual does not document and
+  that it refuses on an order sent to it. `Shm\DataObjects\Box\DeliveryBoxFactory` reads it as
+  `International`, which goes back out as `<international:international>`
+* `atIntlPugo` wrote `<pugoAddress>` in the national namespace, where manual B.3.2.2.2 has
+  `<international:pugoAddress>`, so every `bpack@bpost international` order carrying a pick-up
+  point address failed bpost's schema validation. `Shm\DataObjects\Address::toXml()` took a
+  namespace and ignored it; it now uses the one it is given and falls back to its own
+* Passing a `handler` in `$httpClientOptions` had the log middleware pushed onto that stack once
+  per service, so a client reaching all three bpost services wrote every request to the log three
+  times over. The stack is cloned before the middleware goes on
+* Reading a response no longer applies the send-side field lengths and ranges: a retrieved order
+  whose locality runs past the documented 40 characters, or a parcel content weighing less than
+  the minimum a new one may declare, is reported as bpost holds it instead of throwing
+  `InvalidLengthException` at a caller with nothing to correct. `Validate::ignoring()` covers the
+  reads whose checks sit in a constructor
+* A malformed `deliveryTime` or scan `time` in a tracking response threw
+  `DateMalformedStringException`, outside `BpostException`. It is an `UnexpectedValueException`
+  now, and dates are read through the new `XmlElement::dateTime()`
+* `Resource::debug()` set its callback on the shared adapter, where it stayed for the life of the
+  client and fired for every later call on every other resource. It now reaches only the calls
+  made on that resource, matching `withoutLogging()`
+* The Geolocator's `language()` refused nothing, though all four operations document `NL` or `FR`
+  only and quietly ignore anything else. `EN` and `DE` are rejected, in one place rather than four
+* The readme's announcement example passed the Shipping Manager's `Sender` and `Receiver` to a
+  service that has its own, so copying it raised a `TypeError`. Every block in the file is now run
+  against the library rather than read over
+* A price band quoted as `0` came back as `null`, the same answer as a band bpost did not quote
+* `ApiExceptionFactory` and `Feedback` passed a context element to XPath and then opened with
+  `//`, which resolves from the document root regardless
+* `ServicePoint::withPageUrl()` assigned to the point it was called on and returned it, so a
+  caller holding the original found the URL on that too. It hands back a copy now
+* `Validate::countryCode()` counted characters rather than requiring letters, so `12` passed
+* `Signed`'s docblock lost its leading asterisk on a blank line, which ended the comment early
+* Five exceptions reported `statusCode` 200 for a response they had no status for, most often a
+  2xx with an empty body where 204 is the likelier answer. They leave it unset now; a zero means
+  the library could not read a body bpost had already accepted, rather than bpost refusing the
+  request
 
 ### 1.1.1 - 2026-09-08
 

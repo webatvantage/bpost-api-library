@@ -52,7 +52,9 @@ class HttpApiAdapter implements Debuggable, Loggable
 	 * @param array<string, string> $defaultHeaders
 	 * @param array<string, mixed> $httpClientOptions
 	 * @param LoggerInterface|null $logger
-	 * @param HandlerInterface|null $logHandler What a log record is made of, defaulting to the array shape with a level per status range
+	 * @param HandlerInterface|null $logHandler What a log record is made of, and which calls are
+	 *                                          worth one. Left out, records are the array shape
+	 *                                          with a level per status range
 	 */
 	public function __construct(
 		string $baseUri,

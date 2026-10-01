@@ -3,7 +3,7 @@
 namespace Webatvantage\Bpost\Api\Contracts;
 
 /**
- * Something whose calls can be kept out of the log.
+ * Something whose calls carry a logging choice, sent as a request option for a log handler to read.
  */
 interface Loggable
 {

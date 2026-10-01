@@ -338,8 +338,9 @@ $bpost->geo()->servicePoints()->nearest(zone: '1000')->withLogging()->get();
 
 The mark travels with the request as the `BpostApiConfig::LOGGING_OPTION_NAME` Guzzle option, and
 nothing here acts on it: a handler is where a record is made, so a handler is where you decide
-whether to make one. Read it off `$options` in one of your own, which is also where the status is
-known — a refusal is usually worth keeping whatever the call asked for:
+whether to make one. Read it off `$options` in one of your own and keep the calls that asked for a
+record. The response is there too, so keeping every refusal whatever the call asked for is the same
+handler with one more condition:
 
 ```php
 use GuzzleHttp\TransferStats;
@@ -350,7 +351,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 use Webatvantage\Bpost\Api\BpostApiConfig;
 
-readonly class LogWhatWasAskedFor implements HandlerInterface
+readonly class LoggableHandler implements HandlerInterface
 {
     public function __construct(private HandlerInterface $handler) {}
 
@@ -362,10 +363,9 @@ readonly class LogWhatWasAskedFor implements HandlerInterface
         ?TransferStats $stats = null,
         array $options = [],
     ): void {
-        $asked = $options[BpostApiConfig::LOGGING_OPTION_NAME] ?? true;
-        $failed = $response === null || $response->getStatusCode() >= 400;
+        $shouldBeLogged = $options[BpostApiConfig::LOGGING_OPTION_NAME] ?? false;
 
-        if ($asked === true || $failed)
+        if ($shouldBeLogged === true)
         {
             $this->handler->log($logger, $request, $response, $exception, $stats, $options);
         }

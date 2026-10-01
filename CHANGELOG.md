@@ -90,8 +90,8 @@
   option for a log handler to read; a logger handed to the client still receives every call until
   one of your handlers says otherwise, and the levels below are what a threshold filters on
 * Which calls reach the log is the consumer's decision, taken in a log handler. README shows the
-  handler that keeps what was asked for plus every refusal, which is the shape most integrations
-  want: silencing a chatty call should not mean agreeing to lose the reason it failed
+  handler that keeps what was asked for and nothing else; the response reaches a handler too, so
+  keeping every refusal whatever the call asked for is one more condition in the same place
 * Guzzle's `http_errors` is back on its default, so a 4xx and a 5xx arrive as the rejection Guzzle
   means them to be and are translated here rather than suppressed and re-derived from the status.
   No exception a caller catches has changed, and the body still reaches `ApiExceptionFactory`

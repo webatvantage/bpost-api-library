@@ -226,6 +226,7 @@ class LoggingTest extends TestCase
 
 		$this->assertTrue($this->logHandler->lastChoice());
 
+		$this->logHandler->choices = [];
 		$this->mockResponse(200, '<Poi/>');
 		$client->geo()->servicePoints()->nearest(zone: '1000')->get();
 

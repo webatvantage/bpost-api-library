@@ -1,5 +1,15 @@
 # Changelog
 
+### 2.0.0-beta.2 - 2026-10-01
+
+#### Changed
+
+* Every call carries a timeout: ten seconds for the whole transfer, two for the connection.
+  Guzzle sets neither, so a bpost connection that stalled held the calling process for as long
+  as the socket stayed open. Both are defaults under the client options, so naming `timeout` or
+  `connect_timeout` yourself still wins — worth doing for a bulk label call, which returns a
+  large PDF and is not safe to retry once bpost has consumed the barcodes
+
 ### 2.0.0-beta.1 - 2026-10-01
 
 #### Added

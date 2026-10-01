@@ -1,7 +1,7 @@
 {
   "name": "webatvantage/bpost-api-library",
   "type": "library",
-  "description": "A PHP client for the bpost APIs: Shipping Manager orders and labels, parcel announcement and tracking, and the Geolocator.",
+  "description": "Modern PHP 8.5 client for the full bpost API: Shipping Manager orders and labels, parcel announcement and tracking, and the Geolocator.",
   "keywords": [
     "bpost",
     "bpack",

@@ -11,13 +11,20 @@ Commit only when the user asks for it in that turn. Finishing a change is not pe
 commit it — an uncommitted diff is reviewable, a committed one is a step someone has to undo.
 The same holds for `git push`, `git commit --amend` and `git rebase`: each needs its own ask.
 
-This is a published package, so work goes on a topic branch and reaches `main` through a pull
-request. Committing straight to `main` takes **a second, explicit confirmation**: say that the
-target is `main`, name what will land, and wait for a yes. The ask that started the commit is not
-that yes.
+## main is where the work happens
 
-Branch names are lowercase kebab-case describing the subject, no prefix and no ticket number:
-`v2-review-fixes`, `refactor`.
+`main` is the development branch and commits land on it directly. Nothing downstream breaks when
+it moves, because what consumers install is a release: a tag cut deliberately from `main` by the
+`github-release` skill, and `composer require` follows the tag, not the branch. A commit on `main`
+is therefore a normal step, not an exposure.
+
+So do not open a topic branch on your own initiative, and do not open a pull request. If a change
+genuinely wants one — a rewrite you expect to abandon half of, work that has to sit unfinished
+while something else ships — **ask first and wait for a yes**. The ask that started the commit is
+not that yes.
+
+Branch names, when one is asked for, are lowercase kebab-case describing the subject, no prefix
+and no ticket number: `v2-review-fixes`, `refactor`.
 
 ## Stage deliberately
 
@@ -117,8 +124,9 @@ Hard limits for the body:
 
 ## Pull requests
 
-The PR title becomes the merge commit's subject, so it follows the subject rules above — past
-tense, no prefix, 72 characters. Give the description the room the commit body does not have: the
+Only when one was asked for — see above. The title becomes the merge commit's subject, so it
+follows the subject rules above — past tense, no prefix, 72 characters. Give the description the
+room the commit body does not have: the
 reasoning, the alternatives rejected, the verification. End it with:
 
 ```

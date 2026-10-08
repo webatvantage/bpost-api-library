@@ -1,5 +1,12 @@
 # Changelog
 
+### 2.0.0-beta.3 - 2026-10-08
+
+#### Changed
+
+* The logger is now required as `webatvantage/guzzle-log-middleware` from Packagist. You can drop
+  the `covergenius/guzzle_logger` VCS repository from your composer.json
+
 ### 2.0.0-beta.2 - 2026-10-01
 
 #### Changed

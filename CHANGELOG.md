@@ -1,5 +1,12 @@
 # Changelog
 
+### Unreleased
+
+#### Changed
+
+* Guzzle 8 is supported alongside 7.8 and up. The logger moves to
+  `webatvantage/guzzle-log-middleware` 3.0, the first release that runs on Guzzle 8
+
 ### 2.0.0-beta.3 - 2026-10-08
 
 #### Changed

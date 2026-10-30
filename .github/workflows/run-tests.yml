@@ -18,9 +18,10 @@ jobs:
       fail-fast: true
       matrix:
         php: [ '8.5' ]
-        stability: [ prefer-lowest, prefer-stable ]
+        guzzle: [ '^7.8', '^8.0' ]
+        stability: [ lowest, highest ]
 
-    name: P${{ matrix.php }} - ${{ matrix.stability }}
+    name: P${{ matrix.php }} - G${{ matrix.guzzle }} - ${{ matrix.stability }}
 
     steps:
       - name: Checkout code
@@ -32,6 +33,9 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: curl, dom, libxml, mbstring
           coverage: none
+
+      - name: Pin the Guzzle major
+        run: composer require "guzzlehttp/guzzle:${{ matrix.guzzle }}" --no-update --no-interaction
 
       - name: Install composer dependencies
         uses: ramsey/composer-install@v4

@@ -15,5 +15,5 @@
 /.php-cs-fixer.cache
 /.phpunit.result.cache
 
-# Temp docs
-/docs
+# bpost manuals and XSDs
+/manuals

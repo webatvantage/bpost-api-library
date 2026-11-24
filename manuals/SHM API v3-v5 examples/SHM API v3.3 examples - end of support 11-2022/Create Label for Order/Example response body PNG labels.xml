@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<labels>
+ <label>
+<barcode>{Human readable value of de barcode in text}</barcode><!-- This part may be repeated if multiple boxes were created in the order-->
+<mimeType>image/png</mimeType>
+<bytes>{base64 encoded bytestring}</bytes>
+ </label>
+</labels>

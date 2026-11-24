@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<p:pickupRequest xmlns:p="http://schema.post.be/pickuprequest/v1/" xmlns:common="http://schema.post.be/announcement/common/v1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schema.post.be/pickuprequest/v1/ schema/pickupRequest-v1.xsd">
+<p:accountId>112958</p:accountId>
+<p:pickupCode>PCK112958000010</p:pickupCode>
+<p:pickupAddress>
+<common:name>Annick Hardy</common:name>
+<common:addressDepartment></common:addressDepartment>
+<common:addressContactName>Annick Hardy</common:addressContactName>
+<common:addressPlace></common:addressPlace>
+<common:address>
+<common:streetName>Sint hubertusstraat 53</common:streetName>
+<common:streetName2></common:streetName2>
+<common:houseNumber>0</common:houseNumber>
+<common:postalCode>3730</common:postalCode>
+<common:city>Hoeselt</common:city>
+<common:countryCode>BE</common:countryCode>
+</common:address>
+<common:contactDetail>
+<common:telephoneNumber>n/a</common:telephoneNumber>
+</common:contactDetail>
+</p:pickupAddress>
+<p:totalWeightInGrams>1</p:totalWeightInGrams>
+<p:totalVolumeInM3>0.008</p:totalVolumeInM3>
+<p:numberOfItems>1</p:numberOfItems>
+<p:pickupDate>2014-10-02</p:pickupDate>
+</p:pickupRequest>

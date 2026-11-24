@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<statusFile version="3.0" auditNr="795" type="Normal" xmlns="http://schema.post.be/lci-out/status/v1/">
+	<accountID>123456</accountID>
+	<items>
+		<item contentType="" barcode="323212345619958480151030">
+			<itemdetail>
+				<addressee>
+					<name>MADEMOISELLE Blabla</name>
+					<department></department>
+					<contactName></contactName>
+					<place></place>
+					<street>RUE DU CASINO</street>
+					<houseNumber>1</houseNumber>
+					<boxNumber></boxNumber>
+					<postalCode>1000</postalCode>
+					<city>BRUXELLES</city>
+					<country>BE</country>
+				</addressee>
+				<VAS></VAS>
+				<weight>340</weight>
+				<custRef1></custRef1>
+				<custRef2></custRef2>
+				<custRef3></custRef3>
+				<custRef4></custRef4>
+				<custRef5></custRef5>
+				<characteristics>
+					<characteristic name="Announced Weight" number="516">0.618</characteristic>
+				</characteristics>	
+			</itemdetail>	
+			<statuses>
+				<status value="T00">
+					<date>2014-10-14T01:37:06</date>
+					<location>99990067 Charleroi X Parcel Sorter</location>
+				</status>
+			</statuses>	
+		</item>
+	</items>
+</statusFile>

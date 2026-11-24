@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:order xmlns="http://schema.post.be/shm/deepintegration/v5/national" xmlns:common="http://schema.post.be/shm/deepintegration/v5/common" xmlns:tns="http://schema.post.be/shm/deepintegration/v5/" xmlns:international="http://schema.post.be/shm/deepintegration/v5/international" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schema.post.be/shm/deepintegration/v5/">
+    <tns:accountId>{accountID}</tns:accountId>
+    <tns:reference>bpack 24h Pro - Signed</tns:reference>
+    <tns:costCenter>Cost Center</tns:costCenter>
+    <tns:orderLine>
+        <tns:text>Product 1</tns:text>
+        <tns:nbOfItems>1</tns:nbOfItems>
+    </tns:orderLine>
+    <tns:orderLine>
+        <tns:text>Product 1</tns:text>
+        <tns:nbOfItems>5</tns:nbOfItems>
+    </tns:orderLine>
+    <tns:box>
+        <tns:sender>
+                <common:name>SENDER NAME</common:name>
+                <common:company>SENDER COMPANY</common:company>
+                <common:address>
+                    <common:streetName>MUNT</common:streetName>
+                    <common:number>1</common:number>
+                    <common:box>1</common:box><!-- When box is empty this tag has to be removed -->
+                    <common:postalCode>1000</common:postalCode>
+                    <common:locality>Brussel</common:locality>
+                    <common:countryCode>BE</common:countryCode>
+                </common:address>
+                <common:emailAddress>sender@mail.be</common:emailAddress>
+                <common:phoneNumber>022011111</common:phoneNumber>
+        </tns:sender>
+        <tns:nationalBox>
+            <atHome>
+                <product>bpack 24h Pro</product>
+                <options>
+                <common:signed/>
+                </options>
+                <weight>500</weight>
+                <receiver>
+                    <common:name>RECEIVER NAME</common:name>
+                    <common:company>RECEIVER COMPANY</common:company>
+                    <common:address>
+                        <common:streetName>GROTE MARKT</common:streetName>
+                        <common:number>10</common:number>
+                        <common:box>A</common:box><!-- When box is empty this tag has to be removed -->
+                        <common:postalCode>2000</common:postalCode>
+                        <common:locality>Antwerpen</common:locality>
+                        <common:countryCode>BE</common:countryCode>
+                    </common:address>
+                    <common:emailAddress>receiver@mail.be</common:emailAddress>
+                    <common:phoneNumber>0032475123456</common:phoneNumber>
+                </receiver>
+                <requestedDeliveryDate>2023-12-20</requestedDeliveryDate>
+            </atHome>
+        </tns:nationalBox>
+        <tns:remark>bpack 24h Pro VAS 036 - Signed</tns:remark>
+        <tns:additionalCustomerReference>Reference that can be used for cross-referencing</tns:additionalCustomerReference>
+    </tns:box>
+</tns:order>

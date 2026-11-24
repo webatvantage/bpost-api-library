@@ -37,7 +37,7 @@ Never stage:
 - `tests/phpunit-credentials.php` — a 1.x leftover in `.gitignore`; nothing loads it now, since the
   connection tests read `BPOST_*` from the environment. If a copy ever appears it holds account
   credentials, so the rule stays
-- `/vendor`, `/build`, `/reports`, `/manuals` — installed or generated output (gitignored, but a `-f`
+- `/vendor`, `/build`, `/reports` — installed or generated output (gitignored, but a `-f`
   add defeats that)
 - `.php-cs-fixer.cache`, `.phpunit.cache`, `.phpunit.result.cache` — tool state
 - Working notes — any file written to think in rather than to ship: a todo or next-steps list, a

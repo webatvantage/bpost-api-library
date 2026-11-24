@@ -1,0 +1,2383 @@
+{
+    "info": {
+        "name": "bpost API",
+        "_postman_id": "8f2c1d7e-0b64-4a3f-9a2c-6f1f0f4f5c11",
+        "description": "The bpost APIs, as the `webatvantage/bpost-api-library` PHP client calls them: the\nShipping Manager (orders and labels), the Geolocator (pick-up points, parcel points and\nparcel lockers), and trackedmail (parcel announcement and tracking).\n\nBuilt against the bpack integration manual v3.3.35 and bpost's own SHM API v5 example set.\n\n## Credentials\n\nEach service is a separate API with its own host and credentials — bpost issues them\nseparately, so holding one set does not mean you hold the others.\n\n| Variable | What it is |\n| --- | --- |\n| `accountId` | Your bpost account id. It is the HTTP Basic username *and* appears in every Shipping Manager URL; bpost checks the two match and answers 401 when they do not. |\n| `shmPassphrase` | The Shipping Manager webservice password, from the Admin panel of the Shipping Manager backend — not your bpost portal login. |\n| `parcelPassword` | Issued separately from the Shipping Manager passphrase. Request it from esolutions@bpost.be. |\n| `geoPartner` | Your account id again, activated for the Geolocator. Sent as `Partner`, except on Get All Service Points where it is `Account`. |\n| `geoApiKey` | The `x-api-key` bpost issues per account. Mandatory on every request to pudo.bpost.cloud since manual section B.4.1.0. |\n| `geoAppId` | Optional four-character application id, used by bpost for statistics. |\n\nFill them in on the collection's **Variables** tab, or point the collection at an\nenvironment holding the same names.\n\n## Notes\n\n- Every media type is versioned per operation, and bpost does not bump them in lockstep —\n  a v5 operation can still answer a v3.4 media type. The Accept and Content-Type headers\n  on each request are the ones that operation actually wants.\n- The Geolocator reports failure in the body, not the status code: a\n  `type=\"TaxipostLocatorError\"` document comes back with HTTP 200.\n- `deliveryDate` is set to today by a collection pre-request script, in bpost's `d-m-Y`\n  format.\n- An order reference or a barcode names one shipment rather than the account, so it is a\n  **path variable** on the request that uses it — fill it in on that request's Params\n  tab. The Geolocator passes its point id as the `Id` query parameter instead, since it\n  has no path to bind.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "// bpost wants the expected delivery date as d-m-Y; keep it on today by default.",
+                    "if (!pm.collectionVariables.get('deliveryDate')) {",
+                    "    const now = new Date();",
+                    "    const pad = function (n) { return String(n).padStart(2, '0'); };",
+                    "    pm.collectionVariables.set('deliveryDate', pad(now.getDate()) + '-' + pad(now.getMonth() + 1) + '-' + now.getFullYear());",
+                    "}"
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "shmBaseUrl",
+            "value": "https://shm-rest.bpost.cloud/services/shm",
+            "type": "string"
+        },
+        {
+            "key": "geoBaseUrl",
+            "value": "https://pudo.bpost.cloud",
+            "type": "string"
+        },
+        {
+            "key": "parcelBaseUrl",
+            "value": "https://api.parcel.bpost.cloud",
+            "type": "string"
+        },
+        {
+            "key": "accountId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "shmPassphrase",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "parcelPassword",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "geoPartner",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "geoApiKey",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "geoAppId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "deliveryDate",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Shipping Manager — Orders",
+            "description": "Orders live under `/{accountId}/orders`. An order is one reference and the parcels sent under it; a basket split across two parcels is one order with two boxes.",
+            "auth": {
+                "type": "basic",
+                "basic": [
+                    {
+                        "key": "username",
+                        "value": "{{accountId}}",
+                        "type": "string"
+                    },
+                    {
+                        "key": "password",
+                        "value": "{{shmPassphrase}}",
+                        "type": "string"
+                    }
+                ]
+            },
+            "item": [
+                {
+                    "name": "Create Order — home or office delivery",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/vnd.bpost.shm-order-v5+XML"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{shmBaseUrl}}/{{accountId}}/orders",
+                            "host": [
+                                "{{shmBaseUrl}}"
+                            ],
+                            "path": [
+                                "{{accountId}}",
+                                "orders"
+                            ]
+                        },
+                        "description": "Creates the order and its boxes. Posting an order whose reference already exists adds boxes to it rather than replacing it.\n\nbpost answers 201 with an empty body and the order's location in a header.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tns:order xmlns=\"http://schema.post.be/shm/deepintegration/v5/national\" xmlns:common=\"http://schema.post.be/shm/deepintegration/v5/common\" xmlns:tns=\"http://schema.post.be/shm/deepintegration/v5/\" xmlns:international=\"http://schema.post.be/shm/deepintegration/v5/international\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v5/\">\n  <tns:accountId>{{accountId}}</tns:accountId>\n  <tns:reference>ref_0123456789</tns:reference>\n  <tns:costCenter>Webshop</tns:costCenter>\n  <tns:orderLine>\n    <tns:text>Article description</tns:text>\n    <tns:nbOfItems>1</tns:nbOfItems>\n  </tns:orderLine>\n  <tns:box>\n    <tns:sender>\n      <common:name>Business Solutions Team</common:name>\n      <common:company>bpost - bpack</common:company>\n      <common:address>\n        <common:streetName>Muntcentrum</common:streetName>\n        <common:number>1</common:number>\n        <common:postalCode>1000</common:postalCode>\n        <common:locality>Brussel</common:locality>\n        <common:countryCode>BE</common:countryCode>\n      </common:address>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:phoneNumber>0032499123456</common:phoneNumber>\n    </tns:sender>\n    <tns:nationalBox>\n      <atHome>\n        <product>bpack 24h Pro</product>\n        <options>\n          <common:infoNextDay language=\"NL\">\n            <common:emailAddress>alma@example.com</common:emailAddress>\n          </common:infoNextDay>\n          <common:insured>\n            <common:additionalInsurance value=\"2\"/>\n          </common:insured>\n        </options>\n        <weight>2000</weight>\n        <receiver>\n          <common:name>Alma van Appel</common:name>\n          <common:company>Appel bvba</common:company>\n          <common:address>\n            <common:streetName>Grote Markt</common:streetName>\n            <common:number>10</common:number>\n            <common:box>A</common:box>\n            <common:postalCode>2000</common:postalCode>\n            <common:locality>Antwerpen</common:locality>\n            <common:countryCode>BE</common:countryCode>\n          </common:address>\n          <common:emailAddress>alma@example.com</common:emailAddress>\n          <common:phoneNumber>0032475123456</common:phoneNumber>\n        </receiver>\n      </atHome>\n    </tns:nationalBox>\n    <tns:remark>Handle with care</tns:remark>\n    <tns:additionalCustomerReference>webshop-order-4711</tns:additionalCustomerReference>\n  </tns:box>\n</tns:order>",
+                            "options": {
+                                "raw": {
+                                    "language": "xml"
+                                }
+                            }
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "201 Created",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.shm-order-v5+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/orders",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "orders"
+                                    ]
+                                },
+                                "description": "Creates the order and its boxes. Posting an order whose reference already exists adds boxes to it rather than replacing it.\n\nbpost answers 201 with an empty body and the order's location in a header.",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tns:order xmlns=\"http://schema.post.be/shm/deepintegration/v5/national\" xmlns:common=\"http://schema.post.be/shm/deepintegration/v5/common\" xmlns:tns=\"http://schema.post.be/shm/deepintegration/v5/\" xmlns:international=\"http://schema.post.be/shm/deepintegration/v5/international\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v5/\">\n  <tns:accountId>{{accountId}}</tns:accountId>\n  <tns:reference>ref_0123456789</tns:reference>\n  <tns:costCenter>Webshop</tns:costCenter>\n  <tns:orderLine>\n    <tns:text>Article description</tns:text>\n    <tns:nbOfItems>1</tns:nbOfItems>\n  </tns:orderLine>\n  <tns:box>\n    <tns:sender>\n      <common:name>Business Solutions Team</common:name>\n      <common:company>bpost - bpack</common:company>\n      <common:address>\n        <common:streetName>Muntcentrum</common:streetName>\n        <common:number>1</common:number>\n        <common:postalCode>1000</common:postalCode>\n        <common:locality>Brussel</common:locality>\n        <common:countryCode>BE</common:countryCode>\n      </common:address>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:phoneNumber>0032499123456</common:phoneNumber>\n    </tns:sender>\n    <tns:nationalBox>\n      <atHome>\n        <product>bpack 24h Pro</product>\n        <options>\n          <common:infoNextDay language=\"NL\">\n            <common:emailAddress>alma@example.com</common:emailAddress>\n          </common:infoNextDay>\n          <common:insured>\n            <common:additionalInsurance value=\"2\"/>\n          </common:insured>\n        </options>\n        <weight>2000</weight>\n        <receiver>\n          <common:name>Alma van Appel</common:name>\n          <common:company>Appel bvba</common:company>\n          <common:address>\n            <common:streetName>Grote Markt</common:streetName>\n            <common:number>10</common:number>\n            <common:box>A</common:box>\n            <common:postalCode>2000</common:postalCode>\n            <common:locality>Antwerpen</common:locality>\n            <common:countryCode>BE</common:countryCode>\n          </common:address>\n          <common:emailAddress>alma@example.com</common:emailAddress>\n          <common:phoneNumber>0032475123456</common:phoneNumber>\n        </receiver>\n      </atHome>\n    </tns:nationalBox>\n    <tns:remark>Handle with care</tns:remark>\n    <tns:additionalCustomerReference>webshop-order-4711</tns:additionalCustomerReference>\n  </tns:box>\n</tns:order>",
+                                    "options": {
+                                        "raw": {
+                                            "language": "xml"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Created",
+                            "code": 201,
+                            "_postman_previewlanguage": "text",
+                            "header": [
+                                {
+                                    "key": "Location",
+                                    "value": "{{shmBaseUrl}}/{{accountId}}/orders/ref_0123456789"
+                                }
+                            ],
+                            "body": ""
+                        },
+                        {
+                            "name": "409 Business exception",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.shm-order-v5+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/orders",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "orders"
+                                    ]
+                                },
+                                "description": "Creates the order and its boxes. Posting an order whose reference already exists adds boxes to it rather than replacing it.\n\nbpost answers 201 with an empty body and the order's location in a header.",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tns:order xmlns=\"http://schema.post.be/shm/deepintegration/v5/national\" xmlns:common=\"http://schema.post.be/shm/deepintegration/v5/common\" xmlns:tns=\"http://schema.post.be/shm/deepintegration/v5/\" xmlns:international=\"http://schema.post.be/shm/deepintegration/v5/international\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v5/\">\n  <tns:accountId>{{accountId}}</tns:accountId>\n  <tns:reference>ref_0123456789</tns:reference>\n  <tns:costCenter>Webshop</tns:costCenter>\n  <tns:orderLine>\n    <tns:text>Article description</tns:text>\n    <tns:nbOfItems>1</tns:nbOfItems>\n  </tns:orderLine>\n  <tns:box>\n    <tns:sender>\n      <common:name>Business Solutions Team</common:name>\n      <common:company>bpost - bpack</common:company>\n      <common:address>\n        <common:streetName>Muntcentrum</common:streetName>\n        <common:number>1</common:number>\n        <common:postalCode>1000</common:postalCode>\n        <common:locality>Brussel</common:locality>\n        <common:countryCode>BE</common:countryCode>\n      </common:address>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:phoneNumber>0032499123456</common:phoneNumber>\n    </tns:sender>\n    <tns:nationalBox>\n      <atHome>\n        <product>bpack 24h Pro</product>\n        <options>\n          <common:infoNextDay language=\"NL\">\n            <common:emailAddress>alma@example.com</common:emailAddress>\n          </common:infoNextDay>\n          <common:insured>\n            <common:additionalInsurance value=\"2\"/>\n          </common:insured>\n        </options>\n        <weight>2000</weight>\n        <receiver>\n          <common:name>Alma van Appel</common:name>\n          <common:company>Appel bvba</common:company>\n          <common:address>\n            <common:streetName>Grote Markt</common:streetName>\n            <common:number>10</common:number>\n            <common:box>A</common:box>\n            <common:postalCode>2000</common:postalCode>\n            <common:locality>Antwerpen</common:locality>\n            <common:countryCode>BE</common:countryCode>\n          </common:address>\n          <common:emailAddress>alma@example.com</common:emailAddress>\n          <common:phoneNumber>0032475123456</common:phoneNumber>\n        </receiver>\n      </atHome>\n    </tns:nationalBox>\n    <tns:remark>Handle with care</tns:remark>\n    <tns:additionalCustomerReference>webshop-order-4711</tns:additionalCustomerReference>\n  </tns:box>\n</tns:order>",
+                                    "options": {
+                                        "raw": {
+                                            "language": "xml"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Conflict",
+                            "code": 409,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/xml"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<ns2:businessException xmlns=\"http://schema.post.be/common/exception/v1/\"\n                       xmlns:ns2=\"http://schema.post.be/api/shm/v1/\">\n    <code>409</code>\n    <message>The order is in CANCELLED state and cannot be modified anymore.</message>\n</ns2:businessException>"
+                        }
+                    ]
+                },
+                {
+                    "name": "Create Order — pick-up point (bpack@bpost)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/vnd.bpost.shm-order-v5+XML"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{shmBaseUrl}}/{{accountId}}/orders",
+                            "host": [
+                                "{{shmBaseUrl}}"
+                            ],
+                            "path": [
+                                "{{accountId}}",
+                                "orders"
+                            ]
+                        },
+                        "description": "Delivery at a pick-up point. The pugo id, name and address come from the Geolocator.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tns:order xmlns=\"http://schema.post.be/shm/deepintegration/v5/national\" xmlns:common=\"http://schema.post.be/shm/deepintegration/v5/common\" xmlns:tns=\"http://schema.post.be/shm/deepintegration/v5/\" xmlns:international=\"http://schema.post.be/shm/deepintegration/v5/international\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v5/\">\n  <tns:accountId>{{accountId}}</tns:accountId>\n  <tns:reference>ref_0123456789</tns:reference>\n  <tns:costCenter>Webshop</tns:costCenter>\n  <tns:orderLine>\n    <tns:text>Article description</tns:text>\n    <tns:nbOfItems>1</tns:nbOfItems>\n  </tns:orderLine>\n  <tns:box>\n    <tns:sender>\n      <common:name>Business Solutions Team</common:name>\n      <common:company>bpost - bpack</common:company>\n      <common:address>\n        <common:streetName>Muntcentrum</common:streetName>\n        <common:number>1</common:number>\n        <common:postalCode>1000</common:postalCode>\n        <common:locality>Brussel</common:locality>\n        <common:countryCode>BE</common:countryCode>\n      </common:address>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:phoneNumber>0032499123456</common:phoneNumber>\n    </tns:sender>\n    <tns:nationalBox>\n      <atBpost>\n        <product>bpack@bpost</product>\n        <options>\n          <common:keepMeInformed language=\"NL\">\n            <common:mobilePhone>0032475123456</common:mobilePhone>\n          </common:keepMeInformed>\n          <common:cod>\n            <common:codAmount>1251</common:codAmount>\n            <common:iban>BE19210023508812</common:iban>\n            <common:bic>GEBABEBB</common:bic>\n          </common:cod>\n        </options>\n        <weight>2000</weight>\n        <pugoId>207500</pugoId>\n        <pugoName>WIJNEGEM</pugoName>\n        <pugoAddress>\n          <common:streetName>Turnhoutsebaan</common:streetName>\n          <common:number>468</common:number>\n          <common:box>A</common:box>\n          <common:postalCode>2110</common:postalCode>\n          <common:locality>Wijnegem</common:locality>\n          <common:countryCode>BE</common:countryCode>\n        </pugoAddress>\n        <receiverName>Alma van Appel</receiverName>\n        <receiverCompany>Appel bvba</receiverCompany>\n      </atBpost>\n    </tns:nationalBox>\n    <tns:remark>Pick-up point delivery</tns:remark>\n  </tns:box>\n</tns:order>",
+                            "options": {
+                                "raw": {
+                                    "language": "xml"
+                                }
+                            }
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "201 Created",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.shm-order-v5+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/orders",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "orders"
+                                    ]
+                                },
+                                "description": "Delivery at a pick-up point. The pugo id, name and address come from the Geolocator.",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tns:order xmlns=\"http://schema.post.be/shm/deepintegration/v5/national\" xmlns:common=\"http://schema.post.be/shm/deepintegration/v5/common\" xmlns:tns=\"http://schema.post.be/shm/deepintegration/v5/\" xmlns:international=\"http://schema.post.be/shm/deepintegration/v5/international\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v5/\">\n  <tns:accountId>{{accountId}}</tns:accountId>\n  <tns:reference>ref_0123456789</tns:reference>\n  <tns:costCenter>Webshop</tns:costCenter>\n  <tns:orderLine>\n    <tns:text>Article description</tns:text>\n    <tns:nbOfItems>1</tns:nbOfItems>\n  </tns:orderLine>\n  <tns:box>\n    <tns:sender>\n      <common:name>Business Solutions Team</common:name>\n      <common:company>bpost - bpack</common:company>\n      <common:address>\n        <common:streetName>Muntcentrum</common:streetName>\n        <common:number>1</common:number>\n        <common:postalCode>1000</common:postalCode>\n        <common:locality>Brussel</common:locality>\n        <common:countryCode>BE</common:countryCode>\n      </common:address>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:phoneNumber>0032499123456</common:phoneNumber>\n    </tns:sender>\n    <tns:nationalBox>\n      <atBpost>\n        <product>bpack@bpost</product>\n        <options>\n          <common:keepMeInformed language=\"NL\">\n            <common:mobilePhone>0032475123456</common:mobilePhone>\n          </common:keepMeInformed>\n          <common:cod>\n            <common:codAmount>1251</common:codAmount>\n            <common:iban>BE19210023508812</common:iban>\n            <common:bic>GEBABEBB</common:bic>\n          </common:cod>\n        </options>\n        <weight>2000</weight>\n        <pugoId>207500</pugoId>\n        <pugoName>WIJNEGEM</pugoName>\n        <pugoAddress>\n          <common:streetName>Turnhoutsebaan</common:streetName>\n          <common:number>468</common:number>\n          <common:box>A</common:box>\n          <common:postalCode>2110</common:postalCode>\n          <common:locality>Wijnegem</common:locality>\n          <common:countryCode>BE</common:countryCode>\n        </pugoAddress>\n        <receiverName>Alma van Appel</receiverName>\n        <receiverCompany>Appel bvba</receiverCompany>\n      </atBpost>\n    </tns:nationalBox>\n    <tns:remark>Pick-up point delivery</tns:remark>\n  </tns:box>\n</tns:order>",
+                                    "options": {
+                                        "raw": {
+                                            "language": "xml"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Created",
+                            "code": 201,
+                            "_postman_previewlanguage": "text",
+                            "header": [
+                                {
+                                    "key": "Location",
+                                    "value": "{{shmBaseUrl}}/{{accountId}}/orders/ref_0123456789"
+                                }
+                            ],
+                            "body": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Create Order — parcel locker (bpack 24/7)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/vnd.bpost.shm-order-v5+XML"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{shmBaseUrl}}/{{accountId}}/orders",
+                            "host": [
+                                "{{shmBaseUrl}}"
+                            ],
+                            "path": [
+                                "{{accountId}}",
+                                "orders"
+                            ]
+                        },
+                        "description": "Delivery in a parcel locker. The parcels depot id, name and address come from the Geolocator; `unregistered` carries the receiver bpost has to notify.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tns:order xmlns=\"http://schema.post.be/shm/deepintegration/v5/national\" xmlns:common=\"http://schema.post.be/shm/deepintegration/v5/common\" xmlns:tns=\"http://schema.post.be/shm/deepintegration/v5/\" xmlns:international=\"http://schema.post.be/shm/deepintegration/v5/international\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v5/\">\n  <tns:accountId>{{accountId}}</tns:accountId>\n  <tns:reference>ref_0123456789</tns:reference>\n  <tns:costCenter>Webshop</tns:costCenter>\n  <tns:orderLine>\n    <tns:text>Article description</tns:text>\n    <tns:nbOfItems>1</tns:nbOfItems>\n  </tns:orderLine>\n  <tns:box>\n    <tns:sender>\n      <common:name>Business Solutions Team</common:name>\n      <common:company>bpost - bpack</common:company>\n      <common:address>\n        <common:streetName>Muntcentrum</common:streetName>\n        <common:number>1</common:number>\n        <common:postalCode>1000</common:postalCode>\n        <common:locality>Brussel</common:locality>\n        <common:countryCode>BE</common:countryCode>\n      </common:address>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:phoneNumber>0032499123456</common:phoneNumber>\n    </tns:sender>\n    <tns:nationalBox>\n      <at24-7>\n        <product>bpack 24/7</product>\n        <options>\n          <common:insured>\n            <common:additionalInsurance value=\"3\"/>\n          </common:insured>\n        </options>\n        <weight>2000</weight>\n        <parcelsDepotId>014472</parcelsDepotId>\n        <parcelsDepotName>WIJNEGEM</parcelsDepotName>\n        <parcelsDepotAddress>\n          <common:streetName>Turnhoutsebaan</common:streetName>\n          <common:number>468</common:number>\n          <common:box>A</common:box>\n          <common:postalCode>2110</common:postalCode>\n          <common:locality>Wijnegem</common:locality>\n          <common:countryCode>BE</common:countryCode>\n        </parcelsDepotAddress>\n        <unregistered>\n          <language>NL</language>\n          <mobilePhone>0032475123456</mobilePhone>\n          <emailAddress>alma@example.com</emailAddress>\n          <reducedMobilityZone/>\n        </unregistered>\n        <receiverName>Alma van Appel</receiverName>\n      </at24-7>\n    </tns:nationalBox>\n    <tns:remark>Parcel locker delivery</tns:remark>\n  </tns:box>\n</tns:order>",
+                            "options": {
+                                "raw": {
+                                    "language": "xml"
+                                }
+                            }
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "201 Created",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.shm-order-v5+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/orders",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "orders"
+                                    ]
+                                },
+                                "description": "Delivery in a parcel locker. The parcels depot id, name and address come from the Geolocator; `unregistered` carries the receiver bpost has to notify.",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tns:order xmlns=\"http://schema.post.be/shm/deepintegration/v5/national\" xmlns:common=\"http://schema.post.be/shm/deepintegration/v5/common\" xmlns:tns=\"http://schema.post.be/shm/deepintegration/v5/\" xmlns:international=\"http://schema.post.be/shm/deepintegration/v5/international\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v5/\">\n  <tns:accountId>{{accountId}}</tns:accountId>\n  <tns:reference>ref_0123456789</tns:reference>\n  <tns:costCenter>Webshop</tns:costCenter>\n  <tns:orderLine>\n    <tns:text>Article description</tns:text>\n    <tns:nbOfItems>1</tns:nbOfItems>\n  </tns:orderLine>\n  <tns:box>\n    <tns:sender>\n      <common:name>Business Solutions Team</common:name>\n      <common:company>bpost - bpack</common:company>\n      <common:address>\n        <common:streetName>Muntcentrum</common:streetName>\n        <common:number>1</common:number>\n        <common:postalCode>1000</common:postalCode>\n        <common:locality>Brussel</common:locality>\n        <common:countryCode>BE</common:countryCode>\n      </common:address>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:phoneNumber>0032499123456</common:phoneNumber>\n    </tns:sender>\n    <tns:nationalBox>\n      <at24-7>\n        <product>bpack 24/7</product>\n        <options>\n          <common:insured>\n            <common:additionalInsurance value=\"3\"/>\n          </common:insured>\n        </options>\n        <weight>2000</weight>\n        <parcelsDepotId>014472</parcelsDepotId>\n        <parcelsDepotName>WIJNEGEM</parcelsDepotName>\n        <parcelsDepotAddress>\n          <common:streetName>Turnhoutsebaan</common:streetName>\n          <common:number>468</common:number>\n          <common:box>A</common:box>\n          <common:postalCode>2110</common:postalCode>\n          <common:locality>Wijnegem</common:locality>\n          <common:countryCode>BE</common:countryCode>\n        </parcelsDepotAddress>\n        <unregistered>\n          <language>NL</language>\n          <mobilePhone>0032475123456</mobilePhone>\n          <emailAddress>alma@example.com</emailAddress>\n          <reducedMobilityZone/>\n        </unregistered>\n        <receiverName>Alma van Appel</receiverName>\n      </at24-7>\n    </tns:nationalBox>\n    <tns:remark>Parcel locker delivery</tns:remark>\n  </tns:box>\n</tns:order>",
+                                    "options": {
+                                        "raw": {
+                                            "language": "xml"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Created",
+                            "code": 201,
+                            "_postman_previewlanguage": "text",
+                            "header": [
+                                {
+                                    "key": "Location",
+                                    "value": "{{shmBaseUrl}}/{{accountId}}/orders/ref_0123456789"
+                                }
+                            ],
+                            "body": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Create Order — international with customs",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/vnd.bpost.shm-order-v5+XML"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{shmBaseUrl}}/{{accountId}}/orders",
+                            "host": [
+                                "{{shmBaseUrl}}"
+                            ],
+                            "path": [
+                                "{{accountId}}",
+                                "orders"
+                            ]
+                        },
+                        "description": "An address abroad. `customsInfo` and `parcelContents` are the customs declaration; outside the EU the parcel value must equal the sum of the contents.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tns:order xmlns=\"http://schema.post.be/shm/deepintegration/v5/national\" xmlns:common=\"http://schema.post.be/shm/deepintegration/v5/common\" xmlns:tns=\"http://schema.post.be/shm/deepintegration/v5/\" xmlns:international=\"http://schema.post.be/shm/deepintegration/v5/international\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v5/\">\n  <tns:accountId>{{accountId}}</tns:accountId>\n  <tns:reference>ref_0123456789</tns:reference>\n  <tns:costCenter>Webshop</tns:costCenter>\n  <tns:orderLine>\n    <tns:text>Article description</tns:text>\n    <tns:nbOfItems>2</tns:nbOfItems>\n  </tns:orderLine>\n  <tns:box>\n    <tns:sender>\n      <common:name>Business Solutions Team</common:name>\n      <common:company>bpost - bpack</common:company>\n      <common:address>\n        <common:streetName>Muntcentrum</common:streetName>\n        <common:number>1</common:number>\n        <common:postalCode>1000</common:postalCode>\n        <common:locality>Brussel</common:locality>\n        <common:countryCode>BE</common:countryCode>\n      </common:address>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:phoneNumber>0032499123456</common:phoneNumber>\n    </tns:sender>\n    <tns:internationalBox>\n      <international:international>\n        <international:product>bpack World Business</international:product>\n        <international:options>\n          <common:insured>\n            <common:additionalInsurance value=\"3\"/>\n          </common:insured>\n        </international:options>\n        <international:receiver>\n          <common:name>John Doe</common:name>\n          <common:address>\n            <common:streetName>Pennsylvania Plaza</common:streetName>\n            <common:number>4</common:number>\n            <common:postalCode>10001</common:postalCode>\n            <common:locality>New York</common:locality>\n            <common:countryCode>US</common:countryCode>\n          </common:address>\n          <common:emailAddress>john@example.com</common:emailAddress>\n          <common:phoneNumber>+12124657414</common:phoneNumber>\n        </international:receiver>\n        <international:parcelWeight>900</international:parcelWeight>\n        <international:customsInfo>\n          <international:parcelValue>1100</international:parcelValue>\n          <international:contentDescription>T-shirts</international:contentDescription>\n          <international:shipmentType>GOODS</international:shipmentType>\n          <international:parcelReturnInstructions>RTS</international:parcelReturnInstructions>\n          <international:privateAddress>false</international:privateAddress>\n          <international:currency>EUR</international:currency>\n          <international:amtPostagePaidByAddresse>12.50</international:amtPostagePaidByAddresse>\n        </international:customsInfo>\n        <international:parcelContents>\n          <international:parcelContent>\n            <international:numberOfItemType>2</international:numberOfItemType>\n            <international:valueOfItem>200</international:valueOfItem>\n            <international:itemDescription>t-shirt ARMANI L</international:itemDescription>\n            <international:nettoWeight>400</international:nettoWeight>\n            <international:hsTariffCode>61091000</international:hsTariffCode>\n            <international:originOfGoods>BE</international:originOfGoods>\n          </international:parcelContent>\n          <international:parcelContent>\n            <international:numberOfItemType>4</international:numberOfItemType>\n            <international:valueOfItem>900</international:valueOfItem>\n            <international:itemDescription>t-shirt ARMANI M</international:itemDescription>\n            <international:nettoWeight>500</international:nettoWeight>\n            <international:hsTariffCode>61091000</international:hsTariffCode>\n            <international:originOfGoods>BE</international:originOfGoods>\n          </international:parcelContent>\n        </international:parcelContents>\n      </international:international>\n    </tns:internationalBox>\n    <tns:remark>International shipment</tns:remark>\n  </tns:box>\n</tns:order>",
+                            "options": {
+                                "raw": {
+                                    "language": "xml"
+                                }
+                            }
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "201 Created",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.shm-order-v5+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/orders",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "orders"
+                                    ]
+                                },
+                                "description": "An address abroad. `customsInfo` and `parcelContents` are the customs declaration; outside the EU the parcel value must equal the sum of the contents.",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tns:order xmlns=\"http://schema.post.be/shm/deepintegration/v5/national\" xmlns:common=\"http://schema.post.be/shm/deepintegration/v5/common\" xmlns:tns=\"http://schema.post.be/shm/deepintegration/v5/\" xmlns:international=\"http://schema.post.be/shm/deepintegration/v5/international\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v5/\">\n  <tns:accountId>{{accountId}}</tns:accountId>\n  <tns:reference>ref_0123456789</tns:reference>\n  <tns:costCenter>Webshop</tns:costCenter>\n  <tns:orderLine>\n    <tns:text>Article description</tns:text>\n    <tns:nbOfItems>2</tns:nbOfItems>\n  </tns:orderLine>\n  <tns:box>\n    <tns:sender>\n      <common:name>Business Solutions Team</common:name>\n      <common:company>bpost - bpack</common:company>\n      <common:address>\n        <common:streetName>Muntcentrum</common:streetName>\n        <common:number>1</common:number>\n        <common:postalCode>1000</common:postalCode>\n        <common:locality>Brussel</common:locality>\n        <common:countryCode>BE</common:countryCode>\n      </common:address>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:phoneNumber>0032499123456</common:phoneNumber>\n    </tns:sender>\n    <tns:internationalBox>\n      <international:international>\n        <international:product>bpack World Business</international:product>\n        <international:options>\n          <common:insured>\n            <common:additionalInsurance value=\"3\"/>\n          </common:insured>\n        </international:options>\n        <international:receiver>\n          <common:name>John Doe</common:name>\n          <common:address>\n            <common:streetName>Pennsylvania Plaza</common:streetName>\n            <common:number>4</common:number>\n            <common:postalCode>10001</common:postalCode>\n            <common:locality>New York</common:locality>\n            <common:countryCode>US</common:countryCode>\n          </common:address>\n          <common:emailAddress>john@example.com</common:emailAddress>\n          <common:phoneNumber>+12124657414</common:phoneNumber>\n        </international:receiver>\n        <international:parcelWeight>900</international:parcelWeight>\n        <international:customsInfo>\n          <international:parcelValue>1100</international:parcelValue>\n          <international:contentDescription>T-shirts</international:contentDescription>\n          <international:shipmentType>GOODS</international:shipmentType>\n          <international:parcelReturnInstructions>RTS</international:parcelReturnInstructions>\n          <international:privateAddress>false</international:privateAddress>\n          <international:currency>EUR</international:currency>\n          <international:amtPostagePaidByAddresse>12.50</international:amtPostagePaidByAddresse>\n        </international:customsInfo>\n        <international:parcelContents>\n          <international:parcelContent>\n            <international:numberOfItemType>2</international:numberOfItemType>\n            <international:valueOfItem>200</international:valueOfItem>\n            <international:itemDescription>t-shirt ARMANI L</international:itemDescription>\n            <international:nettoWeight>400</international:nettoWeight>\n            <international:hsTariffCode>61091000</international:hsTariffCode>\n            <international:originOfGoods>BE</international:originOfGoods>\n          </international:parcelContent>\n          <international:parcelContent>\n            <international:numberOfItemType>4</international:numberOfItemType>\n            <international:valueOfItem>900</international:valueOfItem>\n            <international:itemDescription>t-shirt ARMANI M</international:itemDescription>\n            <international:nettoWeight>500</international:nettoWeight>\n            <international:hsTariffCode>61091000</international:hsTariffCode>\n            <international:originOfGoods>BE</international:originOfGoods>\n          </international:parcelContent>\n        </international:parcelContents>\n      </international:international>\n    </tns:internationalBox>\n    <tns:remark>International shipment</tns:remark>\n  </tns:box>\n</tns:order>",
+                                    "options": {
+                                        "raw": {
+                                            "language": "xml"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Created",
+                            "code": 201,
+                            "_postman_previewlanguage": "text",
+                            "header": [
+                                {
+                                    "key": "Location",
+                                    "value": "{{shmBaseUrl}}/{{accountId}}/orders/ref_0123456789"
+                                }
+                            ],
+                            "body": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Retrieve Order Information",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/vnd.bpost.shm-order-v3.5+XML"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{shmBaseUrl}}/{{accountId}}/orders/:orderReference",
+                            "host": [
+                                "{{shmBaseUrl}}"
+                            ],
+                            "path": [
+                                "{{accountId}}",
+                                "orders",
+                                ":orderReference"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "orderReference",
+                                    "value": "ref_0123456789",
+                                    "description": "The reference you gave the order when you created it."
+                                }
+                            ]
+                        },
+                        "description": "Everything bpost holds under one reference, including each box's barcode and status.\n\nThe Accept type is v3.5 rather than v5: bpost versions each operation separately."
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/vnd.bpost.shm-order-v3.5+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/orders/:orderReference",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "orders",
+                                        ":orderReference"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "orderReference",
+                                            "value": "ref_0123456789",
+                                            "description": "The reference you gave the order when you created it."
+                                        }
+                                    ]
+                                },
+                                "description": "Everything bpost holds under one reference, including each box's barcode and status.\n\nThe Accept type is v3.5 rather than v5: bpost versions each operation separately."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/vnd.bpost.shm-order-v3.5+XML"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\n<!--\n  Taken from bpost's \"Retrieve Order Information / Example response.xml\", with the\n  namespace declarations added. The published file uses the ns2 and ns3 prefixes without\n  declaring either, so it is not well-formed and no parser accepts it as written. The\n  bindings below are the v3 namespaces the live API answers with (see CHANGELOG 3.5.1).\n-->\n<orderInfo\n\txmlns:ns2=\"http://schema.post.be/shm/deepintegration/v3/common\"\n\txmlns:ns3=\"http://schema.post.be/shm/deepintegration/v3/national\">\n\t<accountId>{{accountId}}</accountId>\n\t<reference>bpack 24h B2B - Ins(El)+iR+iND+iD</reference>\n\t<costCenter>Cost Center</costCenter>\n\t<orderLine>\n\t\t<text>Product 1</text>\n\t\t<nbOfItems>5</nbOfItems>\n\t</orderLine>\n\t<orderLine>\n\t\t<text>Product 1</text>\n\t\t<nbOfItems>1</nbOfItems>\n\t</orderLine>\n\t<box>\n\t\t<sender>\n\t\t\t<ns2:name>SENDER NAME</ns2:name>\n\t\t\t<ns2:company>SENDER COMPANY</ns2:company>\n\t\t\t<ns2:address>\n\t\t\t\t<ns2:streetName>MUNT</ns2:streetName>\n\t\t\t\t<ns2:number>1</ns2:number>\n\t\t\t\t<ns2:box>1</ns2:box>\n\t\t\t\t<ns2:postalCode>1000</ns2:postalCode>\n\t\t\t\t<ns2:locality>Brussel</ns2:locality>\n\t\t\t\t<ns2:countryCode>BE</ns2:countryCode>\n\t\t\t</ns2:address>\n\t\t\t<ns2:emailAddress>sender@mail.be</ns2:emailAddress>\n\t\t\t<ns2:phoneNumber>022011111</ns2:phoneNumber>\n\t\t</sender>\n\t\t<nationalBox>\n\t\t\t<ns3:atHome>\n\t\t\t\t<ns3:product>bpack 24h business</ns3:product>\n\t\t\t\t<ns3:options>\n\t\t\t\t\t<ns2:infoDistributed language=\"EN\">\n\t\t\t\t\t\t<ns2:mobilePhone>0476123456</ns2:mobilePhone>\n\t\t\t\t\t</ns2:infoDistributed>\n\t\t\t\t\t<ns2:infoNextDay language=\"EN\">\n\t\t\t\t\t\t<ns2:emailAddress>receiver@mail.be</ns2:emailAddress>\n\t\t\t\t\t</ns2:infoNextDay>\n\t\t\t\t\t<ns2:infoReminder language=\"EN\">\n\t\t\t\t\t\t<ns2:mobilePhone>0032475123456</ns2:mobilePhone>\n\t\t\t\t\t</ns2:infoReminder>\n\t\t\t\t\t<ns2:automaticSecondPresentation />\n\t\t\t\t\t<ns2:insured>\n\t\t\t\t\t\t<ns2:additionalInsurance value=\"2\" />\n\t\t\t\t\t</ns2:insured>\n\t\t\t\t\t<ns2:signed />\n\t\t\t\t</ns3:options>\n\t\t\t\t<ns3:weight>2000</ns3:weight>\n\t\t\t\t<ns3:openingHours>\n\t\t\t\t\t<ns3:Monday>10:00-12:00/13:00-17:30</ns3:Monday>\n\t\t\t\t\t<ns3:Tuesday>10:00-12:00/13:00-17:30</ns3:Tuesday>\n\t\t\t\t\t<ns3:Wednesday>-/-</ns3:Wednesday>\n\t\t\t\t\t<ns3:Thursday>08:00-17:30</ns3:Thursday>\n\t\t\t\t\t<ns3:Friday>08:00-17:30</ns3:Friday>\n\t\t\t\t\t<ns3:Saturday>12:00-17:30</ns3:Saturday>\n\t\t\t\t</ns3:openingHours>\n\t\t\t\t<ns3:desiredDeliveryPlace>Place your delivery instructions here</ns3:desiredDeliveryPlace>\n\t\t\t\t<ns3:receiver>\n\t\t\t\t\t<ns2:name>RECEIVER NAME</ns2:name>\n\t\t\t\t\t<ns2:company>RECEIVER COMPANY</ns2:company>\n\t\t\t\t\t<ns2:address>\n\t\t\t\t\t\t<ns2:streetName>GROTE MARKT</ns2:streetName>\n\t\t\t\t\t\t<ns2:number>10</ns2:number>\n\t\t\t\t\t\t<ns2:box>A</ns2:box>\n\t\t\t\t\t\t<ns2:postalCode>2000</ns2:postalCode>\n\t\t\t\t\t\t<ns2:locality>Antwerpen</ns2:locality>\n\t\t\t\t\t\t<ns2:countryCode>BE</ns2:countryCode>\n\t\t\t\t\t</ns2:address>\n\t\t\t\t\t<ns2:emailAddress>receiver@mail.be</ns2:emailAddress>\n\t\t\t\t\t<ns2:phoneNumber>0032475123456</ns2:phoneNumber>\n\t\t\t\t</ns3:receiver>\n\t\t\t</ns3:atHome>\n\t\t</nationalBox>\n\t\t<remark>bpack 24h B2B VAS 126 - Ins(El)+iR+iND+iD</remark>\n\t\t<additionalCustomerReference>Reference that can be used for cross-referencing</additionalCustomerReference>\n\t\t<status>PENDING</status>\n\t</box>\n\t<box>\n\t\t<sender>\n\t\t\t<ns2:name>SENDER NAME</ns2:name>\n\t\t\t<ns2:company>SENDER COMPANY</ns2:company>\n\t\t\t<ns2:address>\n\t\t\t\t<ns2:streetName>MUNT</ns2:streetName>\n\t\t\t\t<ns2:number>1</ns2:number>\n\t\t\t\t<ns2:box>1</ns2:box>\n\t\t\t\t<ns2:postalCode>1000</ns2:postalCode>\n\t\t\t\t<ns2:locality>Brussel</ns2:locality>\n\t\t\t\t<ns2:countryCode>BE</ns2:countryCode>\n\t\t\t</ns2:address>\n\t\t\t<ns2:emailAddress>sender@mail.be</ns2:emailAddress>\n\t\t\t<ns2:phoneNumber>022011111</ns2:phoneNumber>\n\t\t</sender>\n\t\t<nationalBox>\n\t\t\t<ns3:atHome>\n\t\t\t\t<ns3:product>bpack 24h business</ns3:product>\n\t\t\t\t<ns3:options>\n\t\t\t\t\t<ns2:infoDistributed language=\"EN\">\n\t\t\t\t\t\t<ns2:mobilePhone>0476123456</ns2:mobilePhone>\n\t\t\t\t\t</ns2:infoDistributed>\n\t\t\t\t\t<ns2:infoNextDay language=\"EN\">\n\t\t\t\t\t\t<ns2:emailAddress>receiver@mail.be</ns2:emailAddress>\n\t\t\t\t\t</ns2:infoNextDay>\n\t\t\t\t\t<ns2:infoReminder language=\"EN\">\n\t\t\t\t\t\t<ns2:mobilePhone>0032475123456</ns2:mobilePhone>\n\t\t\t\t\t</ns2:infoReminder>\n\t\t\t\t\t<ns2:automaticSecondPresentation />\n\t\t\t\t\t<ns2:insured>\n\t\t\t\t\t\t<ns2:additionalInsurance value=\"2\" />\n\t\t\t\t\t</ns2:insured>\n\t\t\t\t\t<ns2:signed />\n\t\t\t\t\t<ns2:saturdayDelivery />\n\t\t\t\t</ns3:options>\n\t\t\t\t<ns3:weight>2000</ns3:weight>\n\t\t\t\t<ns3:openingHours>\n\t\t\t\t\t<ns3:Monday>10:00-12:00/13:00-17:30</ns3:Monday>\n\t\t\t\t\t<ns3:Tuesday>10:00-12:00/13:00-17:30</ns3:Tuesday>\n\t\t\t\t\t<ns3:Wednesday>-/-</ns3:Wednesday>\n\t\t\t\t\t<ns3:Thursday>08:00-17:30</ns3:Thursday>\n\t\t\t\t\t<ns3:Friday>08:00-17:30</ns3:Friday>\n\t\t\t\t\t<ns3:Saturday>12:00-17:30</ns3:Saturday>\n\t\t\t\t</ns3:openingHours>\n\t\t\t\t<ns3:desiredDeliveryPlace>Place your delivery instructions here</ns3:desiredDeliveryPlace>\n\t\t\t\t<ns3:receiver>\n\t\t\t\t\t<ns2:name>RECEIVER NAME</ns2:name>\n\t\t\t\t\t<ns2:company>RECEIVER COMPANY</ns2:company>\n\t\t\t\t\t<ns2:address>\n\t\t\t\t\t\t<ns2:streetName>GROTE MARKT</ns2:streetName>\n\t\t\t\t\t\t<ns2:number>10</ns2:number>\n\t\t\t\t\t\t<ns2:box>A</ns2:box>\n\t\t\t\t\t\t<ns2:postalCode>2000</ns2:postalCode>\n\t\t\t\t\t\t<ns2:locality>Antwerpen</ns2:locality>\n\t\t\t\t\t\t<ns2:countryCode>BE</ns2:countryCode>\n\t\t\t\t\t</ns2:address>\n\t\t\t\t\t<ns2:emailAddress>receiver@mail.be</ns2:emailAddress>\n\t\t\t\t\t<ns2:phoneNumber>0032475123456</ns2:phoneNumber>\n\t\t\t\t</ns3:receiver>\n\t\t\t\t<ns3:requestedDeliveryDate>2015-04-18+02:00</ns3:requestedDeliveryDate>\n\t\t\t</ns3:atHome>\n\t\t</nationalBox>\n\t\t<remark>bpack 24h B2B VAS 126 - Ins(El)+iR+iND+iD</remark>\n\t\t<additionalCustomerReference>Reference that can be used for cross-referencing</additionalCustomerReference>\n\t\t<status>PENDING</status>\n\t</box>\n</orderInfo>"
+                        }
+                    ]
+                },
+                {
+                    "name": "Update Order Status",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/vnd.bpost.shm-orderUpdate-v3+XML"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{shmBaseUrl}}/{{accountId}}/orders/:orderReference",
+                            "host": [
+                                "{{shmBaseUrl}}"
+                            ],
+                            "path": [
+                                "{{accountId}}",
+                                "orders",
+                                ":orderReference"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "orderReference",
+                                    "value": "ref_0123456789",
+                                    "description": "The reference you gave the order when you created it."
+                                }
+                            ]
+                        },
+                        "description": "Sets the status of every unprinted box in the order; printed boxes are left alone.\n\nOnly OPEN, CANCELLED and ON-HOLD may be set — the rest are bpost's to set. The payload is still on the v3 namespace.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<orderUpdate xmlns=\"http://schema.post.be/shm/deepintegration/v3/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v3/\">\n  <status>OPEN</status>\n</orderUpdate>",
+                            "options": {
+                                "raw": {
+                                    "language": "xml"
+                                }
+                            }
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.shm-orderUpdate-v3+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/orders/:orderReference",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "orders",
+                                        ":orderReference"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "orderReference",
+                                            "value": "ref_0123456789",
+                                            "description": "The reference you gave the order when you created it."
+                                        }
+                                    ]
+                                },
+                                "description": "Sets the status of every unprinted box in the order; printed boxes are left alone.\n\nOnly OPEN, CANCELLED and ON-HOLD may be set — the rest are bpost's to set. The payload is still on the v3 namespace.",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<orderUpdate xmlns=\"http://schema.post.be/shm/deepintegration/v3/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v3/\">\n  <status>OPEN</status>\n</orderUpdate>",
+                                    "options": {
+                                        "raw": {
+                                            "language": "xml"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "text",
+                            "header": [],
+                            "body": ""
+                        },
+                        {
+                            "name": "409 Business exception",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.shm-orderUpdate-v3+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/orders/:orderReference",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "orders",
+                                        ":orderReference"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "orderReference",
+                                            "value": "ref_0123456789",
+                                            "description": "The reference you gave the order when you created it."
+                                        }
+                                    ]
+                                },
+                                "description": "Sets the status of every unprinted box in the order; printed boxes are left alone.\n\nOnly OPEN, CANCELLED and ON-HOLD may be set — the rest are bpost's to set. The payload is still on the v3 namespace.",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<orderUpdate xmlns=\"http://schema.post.be/shm/deepintegration/v3/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v3/\">\n  <status>OPEN</status>\n</orderUpdate>",
+                                    "options": {
+                                        "raw": {
+                                            "language": "xml"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Conflict",
+                            "code": 409,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/xml"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<ns2:businessException xmlns=\"http://schema.post.be/common/exception/v1/\"\n                       xmlns:ns2=\"http://schema.post.be/api/shm/v1/\">\n    <code>409</code>\n    <message>The order is in CANCELLED state and cannot be modified anymore.</message>\n</ns2:businessException>"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Product configuration",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/vnd.bpost.shm-productConfiguration-v3.1+XML"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{shmBaseUrl}}/{{accountId}}/productconfig",
+                            "host": [
+                                "{{shmBaseUrl}}"
+                            ],
+                            "path": [
+                                "{{accountId}}",
+                                "productconfig"
+                            ]
+                        },
+                        "description": "The products, prices and options this account may use. Worth reading before building an order: an order naming a product the account is not configured for is refused."
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK (excerpt)",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/vnd.bpost.shm-productConfiguration-v3.1+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/productconfig",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "productconfig"
+                                    ]
+                                },
+                                "description": "The products, prices and options this account may use. Worth reading before building an order: an order naming a product the account is not configured for is refused."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/vnd.bpost.shm-productConfiguration-v3.1+XML"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\n <productConfiguration>\n <deliveryMethod name=\"home or office\">\n <product name=\"bpack Pallet\">\n<price price20To30=\"550\" price10To20=\"550\" price5To10=\"550\" price2To5=\"550\" priceLessThan2=\"50\" countryIso2Code=\"BE\" />\n<option price=\"0\" name=\"Signature\" />\n </product>\n<product name=\"bpack Easy Retour\">\n<price price20To30=\"550\" price10To20=\"550\" price5To10=\"550\" price2To5=\"550\" priceLessThan2=\"50\" countryIso2Code=\"BE\" />\n</product>\n<product name=\"bpack 24h business\">\n<price price20To30=\"550\" price10To20=\"550\" price5To10=\"550\" price2To5=\"550\" priceLessThan2=\"50\" countryIso2Code=\"BE\" />\n</product>\n <product name=\"bpack 24h Pro\">\n<price price20To30=\"550\" price10To20=\"550\" price5To10=\"550\" price2To5=\"550\" priceLessThan2=\"50\" countryIso2Code=\"BE\" />\n<option price=\"800\" name=\"Info &quot;Next Day&quot;\" />\n<option price=\"100\" name=\"Saturday\" />\n </product>\n<product name=\"bpack Bus\">\n<price price20To30=\"550\" price10To20=\"550\" price5To10=\"550\" price2To5=\"550\" priceLessThan2=\"50\" countryIso2Code=\"BE\" />\n</product>\n </deliveryMethod>\n<deliveryMethod name=\"pick-up point\">\n <product name=\"bpack@bpost\">\n<price price20To30=\"1000\" price10To20=\"700\" price5To10=\"600\" price2To5=\"500\" priceLessThan2=\"400\" countryIso2Code=\"BE\" />\n<option price=\"0\" name=\"Keep me informed via\" />\n </product>\n</deliveryMethod>\n<deliveryMethod name=\"Parcel locker\">\n<product name=\"bpack 24/7\">\n<price price20To30=\"400\" price10To20=\"400\" price5To10=\"400\" price2To5=\"400\" priceLessThan2=\"400\" countryIso2Code=\"BE\" />\n</product>\n</deliveryMethod>\n<!-- Truncated: the live response repeats <price> per country for every international product. -->\n</productConfiguration>"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Shipping Manager — Labels",
+            "description": "Three ways of asking for labels: for one order, for one box, or for several orders at once.\n\nA label request moves the boxes it returns to PRINTED. Boxes already printed are left alone and not returned, so each box ends up with exactly one label.",
+            "auth": {
+                "type": "basic",
+                "basic": [
+                    {
+                        "key": "username",
+                        "value": "{{accountId}}",
+                        "type": "string"
+                    },
+                    {
+                        "key": "password",
+                        "value": "{{shmPassphrase}}",
+                        "type": "string"
+                    }
+                ]
+            },
+            "item": [
+                {
+                    "name": "Create Label for Order (A6, PDF)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/vnd.bpost.shm-label-pdf-v3.4+XML"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/vnd.bpost.shm-labelRequest-v5+XML"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{shmBaseUrl}}/{{accountId}}/orders/:orderReference/labels/A6",
+                            "host": [
+                                "{{shmBaseUrl}}"
+                            ],
+                            "path": [
+                                "{{accountId}}",
+                                "orders",
+                                ":orderReference",
+                                "labels",
+                                "A6"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "orderReference",
+                                    "value": "ref_0123456789",
+                                    "description": "The reference you gave the order when you created it."
+                                }
+                            ]
+                        },
+                        "description": "Labels for every unprinted box in the order. The boxes it returns move to PRINTED; ones already printed are left alone and not returned.\n\nThe Content-Type is labelRequest-v5 while the Accept type stays at v3.4."
+                    },
+                    "response": [
+                        {
+                            "name": "200 PDF labels",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/vnd.bpost.shm-label-pdf-v3.4+XML"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.shm-labelRequest-v5+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/orders/:orderReference/labels/A6",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "orders",
+                                        ":orderReference",
+                                        "labels",
+                                        "A6"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "orderReference",
+                                            "value": "ref_0123456789",
+                                            "description": "The reference you gave the order when you created it."
+                                        }
+                                    ]
+                                },
+                                "description": "Labels for every unprinted box in the order. The boxes it returns move to PRINTED; ones already printed are left alone and not returned.\n\nThe Content-Type is labelRequest-v5 while the Accept type stays at v3.4."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/vnd.bpost.shm-label-pdf-v3.4+XML"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\r\n<labels>\r\n\t<label>\r\n\t\t<barcodeWithReference>\r\n\t\t\t<barcode>{Human readable value of de barcode in text}</barcode>\r\n\t\t\t<reference>reference of the order used in create order request</reference>\r\n\t\t\t<!-- This part may be repeated if multiple boxes were created in the order-->\r\n\t\t</barcodeWithReference>\r\n\t\t<mimeType>application/pdf</mimeType>\r\n\t\t<bytes>{base64 encoded bytestring}</bytes>\r\n\t</label>\r\n</labels>"
+                        }
+                    ]
+                },
+                {
+                    "name": "Create Label for Order (A4, PDF, with return labels)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/vnd.bpost.shm-label-pdf-v3.4+XML"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/vnd.bpost.shm-labelRequest-v5+XML"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{shmBaseUrl}}/{{accountId}}/orders/:orderReference/labels/A4/withReturnLabels",
+                            "host": [
+                                "{{shmBaseUrl}}"
+                            ],
+                            "path": [
+                                "{{accountId}}",
+                                "orders",
+                                ":orderReference",
+                                "labels",
+                                "A4",
+                                "withReturnLabels"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "orderReference",
+                                    "value": "ref_0123456789",
+                                    "description": "The reference you gave the order when you created it."
+                                }
+                            ]
+                        },
+                        "description": "Adds a return label next to each outbound one."
+                    },
+                    "response": [
+                        {
+                            "name": "200 PDF labels",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/vnd.bpost.shm-label-pdf-v3.4+XML"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.shm-labelRequest-v5+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/orders/:orderReference/labels/A4/withReturnLabels",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "orders",
+                                        ":orderReference",
+                                        "labels",
+                                        "A4",
+                                        "withReturnLabels"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "orderReference",
+                                            "value": "ref_0123456789",
+                                            "description": "The reference you gave the order when you created it."
+                                        }
+                                    ]
+                                },
+                                "description": "Adds a return label next to each outbound one."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/vnd.bpost.shm-label-pdf-v3.4+XML"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\r\n<labels>\r\n\t<label>\r\n\t\t<barcodeWithReference>\r\n\t\t\t<barcode>{Human readable value of de barcode in text}</barcode>\r\n\t\t\t<reference>reference of the order used in create order request</reference>\r\n\t\t\t<!-- This part may be repeated if multiple boxes were created in the order-->\r\n\t\t</barcodeWithReference>\r\n\t\t<mimeType>application/pdf</mimeType>\r\n\t\t<bytes>{base64 encoded bytestring}</bytes>\r\n\t</label>\r\n</labels>"
+                        }
+                    ]
+                },
+                {
+                    "name": "Create Label for Order (A6, ZPL)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/vnd.bpost.shm-label-zpl-v5+XML"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/vnd.bpost.shm-labelRequest-v5+XML"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{shmBaseUrl}}/{{accountId}}/orders/:orderReference/labels/A6",
+                            "host": [
+                                "{{shmBaseUrl}}"
+                            ],
+                            "path": [
+                                "{{accountId}}",
+                                "orders",
+                                ":orderReference",
+                                "labels",
+                                "A6"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "orderReference",
+                                    "value": "ref_0123456789",
+                                    "description": "The reference you gave the order when you created it."
+                                }
+                            ]
+                        },
+                        "description": "ZPL for a 203 dpi label printer. bpost only produces it in A6."
+                    },
+                    "response": [
+                        {
+                            "name": "200 ZPL labels",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/vnd.bpost.shm-label-zpl-v5+XML"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.shm-labelRequest-v5+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/orders/:orderReference/labels/A6",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "orders",
+                                        ":orderReference",
+                                        "labels",
+                                        "A6"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "orderReference",
+                                            "value": "ref_0123456789",
+                                            "description": "The reference you gave the order when you created it."
+                                        }
+                                    ]
+                                },
+                                "description": "ZPL for a 203 dpi label printer. bpost only produces it in A6."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/vnd.bpost.shm-label-zpl-v5+XML"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\n<labels>\n\t<label>\n\t\t<barcodeWithReference>\n\t\t\t<barcode>{human readable barcode}</barcode>\n\t\t\t<reference>ref_0123456789</reference>\n\t\t</barcodeWithReference>\n\t\t<mimeType>text/zpl</mimeType>\n\t\t<bytes>{base64 encoded bytestring}</bytes>\n\t</label>\n</labels>"
+                        }
+                    ]
+                },
+                {
+                    "name": "Create Label for Box (A6, PNG)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/vnd.bpost.shm-label-image-v3.4+XML"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/vnd.bpost.shm-labelRequest-v5+XML"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{shmBaseUrl}}/{{accountId}}/boxes/:barcode/labels/A6",
+                            "host": [
+                                "{{shmBaseUrl}}"
+                            ],
+                            "path": [
+                                "{{accountId}}",
+                                "boxes",
+                                ":barcode",
+                                "labels",
+                                "A6"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "barcode",
+                                    "value": "323212345689100101119030",
+                                    "description": "The box's barcode, as a label or a Retrieve Order Information call returned it."
+                                }
+                            ]
+                        },
+                        "description": "The label for one box, by its barcode. Only works on a box that is already PRINTED, and is meant for reprinting the original label."
+                    },
+                    "response": [
+                        {
+                            "name": "200 PNG labels",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/vnd.bpost.shm-label-image-v3.4+XML"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.shm-labelRequest-v5+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/boxes/:barcode/labels/A6",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "boxes",
+                                        ":barcode",
+                                        "labels",
+                                        "A6"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "barcode",
+                                            "value": "323212345689100101119030",
+                                            "description": "The box's barcode, as a label or a Retrieve Order Information call returned it."
+                                        }
+                                    ]
+                                },
+                                "description": "The label for one box, by its barcode. Only works on a box that is already PRINTED, and is meant for reprinting the original label."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/vnd.bpost.shm-label-image-v3.4+XML"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\r\n<labels>\r\n\t<label>\r\n\t\t<barcodeWithReference>\r\n\t\t\t<barcode>{Human readable value of de barcode in text}</barcode>\r\n\t\t\t<!-- This part may be repeated if multiple boxes were created in the order-->\r\n\t\t\t<reference>reference of the order used in create order request</reference>\r\n\t\t</barcodeWithReference>\r\n\t\t<mimeType>image/png</mimeType>\r\n\t\t<bytes>{base64 encoded bytestring}</bytes>\r\n\t</label>\r\n</labels>"
+                        }
+                    ]
+                },
+                {
+                    "name": "Create Label in bulk for Orders (A6, PDF)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/vnd.bpost.shm-label-pdf-v3.4+XML"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/vnd.bpost.shm-labelRequest-v5+XML"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{shmBaseUrl}}/{{accountId}}/labels/A6",
+                            "host": [
+                                "{{shmBaseUrl}}"
+                            ],
+                            "path": [
+                                "{{accountId}}",
+                                "labels",
+                                "A6"
+                            ]
+                        },
+                        "description": "Labels for the unprinted boxes of several orders at once, listed in the body.\n\nbpost's manual says GET while also putting the references in the body, which cannot both be taken literally; POST is what the library has used against the live API for years.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<batchLabels xmlns=\"http://schema.post.be/shm/deepintegration/v5/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v5/\">\n  <order>ref_0123456789</order>\n  <order>ref_0123456790</order>\n</batchLabels>",
+                            "options": {
+                                "raw": {
+                                    "language": "xml"
+                                }
+                            }
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "200 PDF labels",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/vnd.bpost.shm-label-pdf-v3.4+XML"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.shm-labelRequest-v5+XML"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{shmBaseUrl}}/{{accountId}}/labels/A6",
+                                    "host": [
+                                        "{{shmBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "{{accountId}}",
+                                        "labels",
+                                        "A6"
+                                    ]
+                                },
+                                "description": "Labels for the unprinted boxes of several orders at once, listed in the body.\n\nbpost's manual says GET while also putting the references in the body, which cannot both be taken literally; POST is what the library has used against the live API for years.",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<batchLabels xmlns=\"http://schema.post.be/shm/deepintegration/v5/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://schema.post.be/shm/deepintegration/v5/\">\n  <order>ref_0123456789</order>\n  <order>ref_0123456790</order>\n</batchLabels>",
+                                    "options": {
+                                        "raw": {
+                                            "language": "xml"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/vnd.bpost.shm-label-pdf-v3.4+XML"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\r\n<labels>\r\n\t<label>\r\n\t\t<barcodeWithReference>\r\n\t\t\t<barcode>{Human readable value of de barcode in text}</barcode>\r\n\t\t\t<reference>reference of the order used in create order request</reference>\r\n\t\t\t<!-- This part may be repeated if multiple boxes were created in the order-->\r\n\t\t</barcodeWithReference>\r\n\t\t<mimeType>application/pdf</mimeType>\r\n\t\t<bytes>{base64 encoded bytestring}</bytes>\r\n\t</label>\r\n</labels>"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Geolocator",
+            "description": "Four operations, all `GET /Locator`, distinguished only by `Function`. There is no Basic auth here — the `x-api-key` header is what identifies you.",
+            "auth": {
+                "type": "noauth"
+            },
+            "item": [
+                {
+                    "name": "Nearest service points (Function=search)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "x-api-key",
+                                "value": "{{geoApiKey}}"
+                            },
+                            {
+                                "key": "Accept-Encoding",
+                                "value": "gzip"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{geoBaseUrl}}/Locator?Function=search&Partner={{geoPartner}}&Zone=1020&Street=Araucarialaan&Number=13&Country=BE&Language=NL&Type=7&DD={{deliveryDate}}&CheckDate=1&CheckOpen=1&Limit=10&Info=1&IncludeBoxNumber=1&IncludeAttributes=1",
+                            "host": [
+                                "{{geoBaseUrl}}"
+                            ],
+                            "path": [
+                                "Locator"
+                            ],
+                            "query": [
+                                {
+                                    "key": "Function",
+                                    "value": "search",
+                                    "description": "Which Geolocator operation this is: search, info, page or getallservicepoints."
+                                },
+                                {
+                                    "key": "Partner",
+                                    "value": "{{geoPartner}}",
+                                    "description": "Your bpost account id, activated for the Geolocator."
+                                },
+                                {
+                                    "key": "AppId",
+                                    "value": "{{geoAppId}}",
+                                    "description": "Optional four-character application id, used by bpost for statistics. Enable this row only if bpost issued you one.",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "Zone",
+                                    "value": "1020",
+                                    "description": "Postal code and/or city of the address to search around. Mandatory."
+                                },
+                                {
+                                    "key": "Street",
+                                    "value": "Araucarialaan",
+                                    "description": "Street of the address to search around."
+                                },
+                                {
+                                    "key": "Number",
+                                    "value": "13",
+                                    "description": "House number of the address to search around."
+                                },
+                                {
+                                    "key": "Country",
+                                    "value": "BE",
+                                    "description": "Country of the address. bpost accepts BE, FR and NL."
+                                },
+                                {
+                                    "key": "Language",
+                                    "value": "NL",
+                                    "description": "NL or FR."
+                                },
+                                {
+                                    "key": "Type",
+                                    "value": "7",
+                                    "description": "Bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16. Sum them, so 7 is the first three."
+                                },
+                                {
+                                    "key": "DD",
+                                    "value": "{{deliveryDate}}",
+                                    "description": "The day the parcel is expected to be delivered, d-m-Y. Points closed then are left out."
+                                },
+                                {
+                                    "key": "CheckDate",
+                                    "value": "1",
+                                    "description": "Mandatory per manual B.4.1.1: leave out and bpost returns points that cannot take a delivery that day."
+                                },
+                                {
+                                    "key": "CheckOpen",
+                                    "value": "1",
+                                    "description": "Mandatory per manual B.4.1.1: only return points that are open."
+                                },
+                                {
+                                    "key": "Limit",
+                                    "value": "10",
+                                    "description": "How many points to return."
+                                },
+                                {
+                                    "key": "Info",
+                                    "value": "1",
+                                    "description": "Return opening hours and the other per-point details. Without it the response carries no <Hours>."
+                                },
+                                {
+                                    "key": "IncludeBoxNumber",
+                                    "value": "1",
+                                    "description": "Include the box number of each point."
+                                },
+                                {
+                                    "key": "IncludeAttributes",
+                                    "value": "1",
+                                    "description": "Include the locker attributes. Only meaningful for parcel lockers in Belgium."
+                                }
+                            ]
+                        },
+                        "description": "The pick-up points nearest an address. `Zone` is the postal code and/or city and is mandatory.\n\n`DD`, `CheckDate` and `CheckOpen` are mandatory per manual B.4.1.1; leaving them out returns points that cannot take a delivery on the day concerned. `Info=1` is what makes bpost return `<Hours>`.\n\n`Type` is a bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16."
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-api-key",
+                                        "value": "{{geoApiKey}}"
+                                    },
+                                    {
+                                        "key": "Accept-Encoding",
+                                        "value": "gzip"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{geoBaseUrl}}/Locator?Function=search&Partner={{geoPartner}}&Zone=1020&Street=Araucarialaan&Number=13&Country=BE&Language=NL&Type=7&DD={{deliveryDate}}&CheckDate=1&CheckOpen=1&Limit=10&Info=1&IncludeBoxNumber=1&IncludeAttributes=1",
+                                    "host": [
+                                        "{{geoBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "Locator"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "Function",
+                                            "value": "search",
+                                            "description": "Which Geolocator operation this is: search, info, page or getallservicepoints."
+                                        },
+                                        {
+                                            "key": "Partner",
+                                            "value": "{{geoPartner}}",
+                                            "description": "Your bpost account id, activated for the Geolocator."
+                                        },
+                                        {
+                                            "key": "AppId",
+                                            "value": "{{geoAppId}}",
+                                            "description": "Optional four-character application id, used by bpost for statistics. Enable this row only if bpost issued you one.",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "Zone",
+                                            "value": "1020",
+                                            "description": "Postal code and/or city of the address to search around. Mandatory."
+                                        },
+                                        {
+                                            "key": "Street",
+                                            "value": "Araucarialaan",
+                                            "description": "Street of the address to search around."
+                                        },
+                                        {
+                                            "key": "Number",
+                                            "value": "13",
+                                            "description": "House number of the address to search around."
+                                        },
+                                        {
+                                            "key": "Country",
+                                            "value": "BE",
+                                            "description": "Country of the address. bpost accepts BE, FR and NL."
+                                        },
+                                        {
+                                            "key": "Language",
+                                            "value": "NL",
+                                            "description": "NL or FR."
+                                        },
+                                        {
+                                            "key": "Type",
+                                            "value": "7",
+                                            "description": "Bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16. Sum them, so 7 is the first three."
+                                        },
+                                        {
+                                            "key": "DD",
+                                            "value": "{{deliveryDate}}",
+                                            "description": "The day the parcel is expected to be delivered, d-m-Y. Points closed then are left out."
+                                        },
+                                        {
+                                            "key": "CheckDate",
+                                            "value": "1",
+                                            "description": "Mandatory per manual B.4.1.1: leave out and bpost returns points that cannot take a delivery that day."
+                                        },
+                                        {
+                                            "key": "CheckOpen",
+                                            "value": "1",
+                                            "description": "Mandatory per manual B.4.1.1: only return points that are open."
+                                        },
+                                        {
+                                            "key": "Limit",
+                                            "value": "10",
+                                            "description": "How many points to return."
+                                        },
+                                        {
+                                            "key": "Info",
+                                            "value": "1",
+                                            "description": "Return opening hours and the other per-point details. Without it the response carries no <Hours>."
+                                        },
+                                        {
+                                            "key": "IncludeBoxNumber",
+                                            "value": "1",
+                                            "description": "Include the box number of each point."
+                                        },
+                                        {
+                                            "key": "IncludeAttributes",
+                                            "value": "1",
+                                            "description": "Include the locker attributes. Only meaningful for parcel lockers in Belgium."
+                                        }
+                                    ]
+                                },
+                                "description": "The pick-up points nearest an address. `Zone` is the postal code and/or city and is mandatory.\n\n`DD`, `CheckDate` and `CheckOpen` are mandatory per manual B.4.1.1; leaving them out returns points that cannot take a delivery on the day concerned. `Info=1` is what makes bpost return `<Hours>`.\n\n`Type` is a bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/xml"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<TaxipostLocator version=\"1.0\" type=\"TaxipostLocatorList\">\n    <PoiList>\n        <Poi>\n            <Record>\n                <Id>42599</Id>\n                <Type>4</Type>\n                <Name>DISTRIBUTEUR LAKEN DE WAND BPOST</Name>\n                <Street>AVENUE DE LA BRISE</Street>\n                <Number>13-15</Number>\n                <BoxNumber>b</BoxNumber>\n                <Zip>1020</Zip>\n                <City>BRUXELLES</City>\n                <Country>BE</Country>\n                <Longitude>4.35852</Longitude>\n                <Latitude>50.89749</Latitude>\n                <Attributes>\n                    <Attribute>\n                        <AttributeCode>LOCKERTYPE</AttributeCode>\n                        <TextValue>CLASSIC</TextValue>\n                    </Attribute>\n                    <Attribute>\n                        <AttributeCode>NIGHTDELIVERY</AttributeCode>\n                        <TextValue>FALSE</TextValue>\n                    </Attribute>\n                </Attributes>\n                <Hours>\n                    <Monday>\n                        <AMOpen>00:01</AMOpen>\n                        <AMClose>23:59</AMClose>\n                        <PMOpen></PMOpen>\n                        <PMClose></PMClose>\n                    </Monday>\n                </Hours>\n            </Record>\n            <Distance>547.81</Distance>\n            <Info ServiceRef=\"https://pudo.bpost.cloud/Locator?Function=info&amp;Id=42599\"/>\n        </Poi>\n    </PoiList>\n</TaxipostLocator>"
+                        },
+                        {
+                            "name": "200 Locator error",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-api-key",
+                                        "value": "{{geoApiKey}}"
+                                    },
+                                    {
+                                        "key": "Accept-Encoding",
+                                        "value": "gzip"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{geoBaseUrl}}/Locator?Function=search&Partner={{geoPartner}}&Zone=1020&Street=Araucarialaan&Number=13&Country=BE&Language=NL&Type=7&DD={{deliveryDate}}&CheckDate=1&CheckOpen=1&Limit=10&Info=1&IncludeBoxNumber=1&IncludeAttributes=1",
+                                    "host": [
+                                        "{{geoBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "Locator"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "Function",
+                                            "value": "search",
+                                            "description": "Which Geolocator operation this is: search, info, page or getallservicepoints."
+                                        },
+                                        {
+                                            "key": "Partner",
+                                            "value": "{{geoPartner}}",
+                                            "description": "Your bpost account id, activated for the Geolocator."
+                                        },
+                                        {
+                                            "key": "AppId",
+                                            "value": "{{geoAppId}}",
+                                            "description": "Optional four-character application id, used by bpost for statistics. Enable this row only if bpost issued you one.",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "Zone",
+                                            "value": "1020",
+                                            "description": "Postal code and/or city of the address to search around. Mandatory."
+                                        },
+                                        {
+                                            "key": "Street",
+                                            "value": "Araucarialaan",
+                                            "description": "Street of the address to search around."
+                                        },
+                                        {
+                                            "key": "Number",
+                                            "value": "13",
+                                            "description": "House number of the address to search around."
+                                        },
+                                        {
+                                            "key": "Country",
+                                            "value": "BE",
+                                            "description": "Country of the address. bpost accepts BE, FR and NL."
+                                        },
+                                        {
+                                            "key": "Language",
+                                            "value": "NL",
+                                            "description": "NL or FR."
+                                        },
+                                        {
+                                            "key": "Type",
+                                            "value": "7",
+                                            "description": "Bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16. Sum them, so 7 is the first three."
+                                        },
+                                        {
+                                            "key": "DD",
+                                            "value": "{{deliveryDate}}",
+                                            "description": "The day the parcel is expected to be delivered, d-m-Y. Points closed then are left out."
+                                        },
+                                        {
+                                            "key": "CheckDate",
+                                            "value": "1",
+                                            "description": "Mandatory per manual B.4.1.1: leave out and bpost returns points that cannot take a delivery that day."
+                                        },
+                                        {
+                                            "key": "CheckOpen",
+                                            "value": "1",
+                                            "description": "Mandatory per manual B.4.1.1: only return points that are open."
+                                        },
+                                        {
+                                            "key": "Limit",
+                                            "value": "10",
+                                            "description": "How many points to return."
+                                        },
+                                        {
+                                            "key": "Info",
+                                            "value": "1",
+                                            "description": "Return opening hours and the other per-point details. Without it the response carries no <Hours>."
+                                        },
+                                        {
+                                            "key": "IncludeBoxNumber",
+                                            "value": "1",
+                                            "description": "Include the box number of each point."
+                                        },
+                                        {
+                                            "key": "IncludeAttributes",
+                                            "value": "1",
+                                            "description": "Include the locker attributes. Only meaningful for parcel lockers in Belgium."
+                                        }
+                                    ]
+                                },
+                                "description": "The pick-up points nearest an address. `Zone` is the postal code and/or city and is mandatory.\n\n`DD`, `CheckDate` and `CheckOpen` are mandatory per manual B.4.1.1; leaving them out returns points that cannot take a delivery on the day concerned. `Info=1` is what makes bpost return `<Hours>`.\n\n`Type` is a bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/xml"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<TaxipostLocator version=\"1.0\" type=\"TaxipostLocatorError\">\n    <status>10</status>\n    <txt>Not enough parameters</txt>\n</TaxipostLocator>"
+                        }
+                    ]
+                },
+                {
+                    "name": "Service point details (Function=info)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "x-api-key",
+                                "value": "{{geoApiKey}}"
+                            },
+                            {
+                                "key": "Accept-Encoding",
+                                "value": "gzip"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{geoBaseUrl}}/Locator?Function=info&Partner={{geoPartner}}&Id=220000&Type=1&Country=BE&Language=NL",
+                            "host": [
+                                "{{geoBaseUrl}}"
+                            ],
+                            "path": [
+                                "Locator"
+                            ],
+                            "query": [
+                                {
+                                    "key": "Function",
+                                    "value": "info",
+                                    "description": "Which Geolocator operation this is: search, info, page or getallservicepoints."
+                                },
+                                {
+                                    "key": "Partner",
+                                    "value": "{{geoPartner}}",
+                                    "description": "Your bpost account id, activated for the Geolocator."
+                                },
+                                {
+                                    "key": "AppId",
+                                    "value": "{{geoAppId}}",
+                                    "description": "Optional four-character application id, used by bpost for statistics. Enable this row only if bpost issued you one.",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "Id",
+                                    "value": "220000",
+                                    "description": "The point id, as a search returned it."
+                                },
+                                {
+                                    "key": "Type",
+                                    "value": "1",
+                                    "description": "Bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16. Sum them, so 7 is the first three."
+                                },
+                                {
+                                    "key": "Country",
+                                    "value": "BE",
+                                    "description": "Country of the address. bpost accepts BE, FR and NL."
+                                },
+                                {
+                                    "key": "Language",
+                                    "value": "NL",
+                                    "description": "NL or FR."
+                                }
+                            ]
+                        },
+                        "description": "The details of one pick-up point, by id and type. A details lookup answers the uppercase element spellings (`OFFICE`, `STREET`, `NR`, `BOXNR`), unlike a search."
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-api-key",
+                                        "value": "{{geoApiKey}}"
+                                    },
+                                    {
+                                        "key": "Accept-Encoding",
+                                        "value": "gzip"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{geoBaseUrl}}/Locator?Function=info&Partner={{geoPartner}}&Id=220000&Type=1&Country=BE&Language=NL",
+                                    "host": [
+                                        "{{geoBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "Locator"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "Function",
+                                            "value": "info",
+                                            "description": "Which Geolocator operation this is: search, info, page or getallservicepoints."
+                                        },
+                                        {
+                                            "key": "Partner",
+                                            "value": "{{geoPartner}}",
+                                            "description": "Your bpost account id, activated for the Geolocator."
+                                        },
+                                        {
+                                            "key": "AppId",
+                                            "value": "{{geoAppId}}",
+                                            "description": "Optional four-character application id, used by bpost for statistics. Enable this row only if bpost issued you one.",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "Id",
+                                            "value": "220000",
+                                            "description": "The point id, as a search returned it."
+                                        },
+                                        {
+                                            "key": "Type",
+                                            "value": "1",
+                                            "description": "Bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16. Sum them, so 7 is the first three."
+                                        },
+                                        {
+                                            "key": "Country",
+                                            "value": "BE",
+                                            "description": "Country of the address. bpost accepts BE, FR and NL."
+                                        },
+                                        {
+                                            "key": "Language",
+                                            "value": "NL",
+                                            "description": "NL or FR."
+                                        }
+                                    ]
+                                },
+                                "description": "The details of one pick-up point, by id and type. A details lookup answers the uppercase element spellings (`OFFICE`, `STREET`, `NR`, `BOXNR`), unlike a search."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/xml"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<TaxipostLocator version=\"1.0\" type=\"TaxipostLocatorInfo\">\n    <Poi>\n        <Record>\n            <ID>220000</ID>\n            <Type>1</Type>\n            <OFFICE>BRUSSEL DE BROUCKERE</OFFICE>\n            <STREET>ANSPACHLAAN</STREET>\n            <NR>1</NR>\n            <ZIP>1000</ZIP>\n            <CITY>BRUSSEL</CITY>\n            <Country>BE</Country>\n            <Services>\n                <Service category=\"parcel\" flag=\"Y\">bpack@bpost</Service>\n            </Services>\n        </Record>\n        <Page ServiceRef=\"https://pudo.bpost.cloud/Locator?Function=page&amp;Id=220000\"/>\n    </Poi>\n</TaxipostLocator>"
+                        },
+                        {
+                            "name": "200 Locator error",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-api-key",
+                                        "value": "{{geoApiKey}}"
+                                    },
+                                    {
+                                        "key": "Accept-Encoding",
+                                        "value": "gzip"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{geoBaseUrl}}/Locator?Function=info&Partner={{geoPartner}}&Id=220000&Type=1&Country=BE&Language=NL",
+                                    "host": [
+                                        "{{geoBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "Locator"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "Function",
+                                            "value": "info",
+                                            "description": "Which Geolocator operation this is: search, info, page or getallservicepoints."
+                                        },
+                                        {
+                                            "key": "Partner",
+                                            "value": "{{geoPartner}}",
+                                            "description": "Your bpost account id, activated for the Geolocator."
+                                        },
+                                        {
+                                            "key": "AppId",
+                                            "value": "{{geoAppId}}",
+                                            "description": "Optional four-character application id, used by bpost for statistics. Enable this row only if bpost issued you one.",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "Id",
+                                            "value": "220000",
+                                            "description": "The point id, as a search returned it."
+                                        },
+                                        {
+                                            "key": "Type",
+                                            "value": "1",
+                                            "description": "Bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16. Sum them, so 7 is the first three."
+                                        },
+                                        {
+                                            "key": "Country",
+                                            "value": "BE",
+                                            "description": "Country of the address. bpost accepts BE, FR and NL."
+                                        },
+                                        {
+                                            "key": "Language",
+                                            "value": "NL",
+                                            "description": "NL or FR."
+                                        }
+                                    ]
+                                },
+                                "description": "The details of one pick-up point, by id and type. A details lookup answers the uppercase element spellings (`OFFICE`, `STREET`, `NR`, `BOXNR`), unlike a search."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/xml"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<TaxipostLocator version=\"1.0\" type=\"TaxipostLocatorError\">\n    <status>10</status>\n    <txt>Not enough parameters</txt>\n</TaxipostLocator>"
+                        }
+                    ]
+                },
+                {
+                    "name": "All service points (Function=getallservicepoints)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "x-api-key",
+                                "value": "{{geoApiKey}}"
+                            },
+                            {
+                                "key": "Accept-Encoding",
+                                "value": "gzip"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{geoBaseUrl}}/Locator?Function=getallservicepoints&Account={{geoPartner}}&Language=NL&Country=BE&Type=4&Zip=9000&AttributeFilter=LOCKERTYPE%3ACLASSIC&AttributeFilter=NIGHTDELIVERY%3AFALSE",
+                            "host": [
+                                "{{geoBaseUrl}}"
+                            ],
+                            "path": [
+                                "Locator"
+                            ],
+                            "query": [
+                                {
+                                    "key": "Function",
+                                    "value": "getallservicepoints",
+                                    "description": "Which Geolocator operation this is: search, info, page or getallservicepoints."
+                                },
+                                {
+                                    "key": "Account",
+                                    "value": "{{geoPartner}}",
+                                    "description": "Your bpost account id. Get All Service Points calls it Account; every other operation calls the same value Partner."
+                                },
+                                {
+                                    "key": "Language",
+                                    "value": "NL",
+                                    "description": "NL or FR."
+                                },
+                                {
+                                    "key": "Country",
+                                    "value": "BE",
+                                    "description": "Country of the address. bpost accepts BE, FR and NL."
+                                },
+                                {
+                                    "key": "Type",
+                                    "value": "4",
+                                    "description": "Bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16. Sum them, so 7 is the first three."
+                                },
+                                {
+                                    "key": "Zip",
+                                    "value": "9000",
+                                    "description": "Narrow to one postal code. Left out, bpost returns the whole country."
+                                },
+                                {
+                                    "key": "AttributeFilter",
+                                    "value": "LOCKERTYPE:CLASSIC",
+                                    "description": "Repeatable. LOCKERTYPE:CLASSIC or LOCKERTYPE:LEANLOCKER (no space, unlike the spelling bpost answers with), NIGHTDELIVERY:TRUE or NIGHTDELIVERY:FALSE."
+                                },
+                                {
+                                    "key": "AttributeFilter",
+                                    "value": "NIGHTDELIVERY:FALSE",
+                                    "description": "Repeatable. LOCKERTYPE:CLASSIC or LOCKERTYPE:LEANLOCKER (no space, unlike the spelling bpost answers with), NIGHTDELIVERY:TRUE or NIGHTDELIVERY:FALSE."
+                                }
+                            ]
+                        },
+                        "description": "Every point in a country, optionally narrowed by type and zip.\n\nThis is the one operation that can answer more than 10 MB, so `Accept-Encoding: gzip` is required — without it bpost truncates the download. Note it identifies the caller with `Account` rather than `Partner`, though the value is the same."
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-api-key",
+                                        "value": "{{geoApiKey}}"
+                                    },
+                                    {
+                                        "key": "Accept-Encoding",
+                                        "value": "gzip"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{geoBaseUrl}}/Locator?Function=getallservicepoints&Account={{geoPartner}}&Language=NL&Country=BE&Type=4&Zip=9000&AttributeFilter=LOCKERTYPE%3ACLASSIC&AttributeFilter=NIGHTDELIVERY%3AFALSE",
+                                    "host": [
+                                        "{{geoBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "Locator"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "Function",
+                                            "value": "getallservicepoints",
+                                            "description": "Which Geolocator operation this is: search, info, page or getallservicepoints."
+                                        },
+                                        {
+                                            "key": "Account",
+                                            "value": "{{geoPartner}}",
+                                            "description": "Your bpost account id. Get All Service Points calls it Account; every other operation calls the same value Partner."
+                                        },
+                                        {
+                                            "key": "Language",
+                                            "value": "NL",
+                                            "description": "NL or FR."
+                                        },
+                                        {
+                                            "key": "Country",
+                                            "value": "BE",
+                                            "description": "Country of the address. bpost accepts BE, FR and NL."
+                                        },
+                                        {
+                                            "key": "Type",
+                                            "value": "4",
+                                            "description": "Bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16. Sum them, so 7 is the first three."
+                                        },
+                                        {
+                                            "key": "Zip",
+                                            "value": "9000",
+                                            "description": "Narrow to one postal code. Left out, bpost returns the whole country."
+                                        },
+                                        {
+                                            "key": "AttributeFilter",
+                                            "value": "LOCKERTYPE:CLASSIC",
+                                            "description": "Repeatable. LOCKERTYPE:CLASSIC or LOCKERTYPE:LEANLOCKER (no space, unlike the spelling bpost answers with), NIGHTDELIVERY:TRUE or NIGHTDELIVERY:FALSE."
+                                        },
+                                        {
+                                            "key": "AttributeFilter",
+                                            "value": "NIGHTDELIVERY:FALSE",
+                                            "description": "Repeatable. LOCKERTYPE:CLASSIC or LOCKERTYPE:LEANLOCKER (no space, unlike the spelling bpost answers with), NIGHTDELIVERY:TRUE or NIGHTDELIVERY:FALSE."
+                                        }
+                                    ]
+                                },
+                                "description": "Every point in a country, optionally narrowed by type and zip.\n\nThis is the one operation that can answer more than 10 MB, so `Accept-Encoding: gzip` is required — without it bpost truncates the download. Note it identifies the caller with `Account` rather than `Partner`, though the value is the same."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/xml"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<TaxipostLocator version=\"1.0\" type=\"TaxipostLocatorList\">\n    <PickupPointList>\n        <Point>\n            <Id>014472</Id>\n            <Type>4</Type>\n            <Name>WIJNEGEM</Name>\n            <Street>Turnhoutsebaan</Street>\n            <Number>468</Number>\n            <Zip>2110</Zip>\n            <City>Wijnegem</City>\n        </Point>\n    </PickupPointList>\n</TaxipostLocator>"
+                        },
+                        {
+                            "name": "200 Locator error",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-api-key",
+                                        "value": "{{geoApiKey}}"
+                                    },
+                                    {
+                                        "key": "Accept-Encoding",
+                                        "value": "gzip"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{geoBaseUrl}}/Locator?Function=getallservicepoints&Account={{geoPartner}}&Language=NL&Country=BE&Type=4&Zip=9000&AttributeFilter=LOCKERTYPE%3ACLASSIC&AttributeFilter=NIGHTDELIVERY%3AFALSE",
+                                    "host": [
+                                        "{{geoBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "Locator"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "Function",
+                                            "value": "getallservicepoints",
+                                            "description": "Which Geolocator operation this is: search, info, page or getallservicepoints."
+                                        },
+                                        {
+                                            "key": "Account",
+                                            "value": "{{geoPartner}}",
+                                            "description": "Your bpost account id. Get All Service Points calls it Account; every other operation calls the same value Partner."
+                                        },
+                                        {
+                                            "key": "Language",
+                                            "value": "NL",
+                                            "description": "NL or FR."
+                                        },
+                                        {
+                                            "key": "Country",
+                                            "value": "BE",
+                                            "description": "Country of the address. bpost accepts BE, FR and NL."
+                                        },
+                                        {
+                                            "key": "Type",
+                                            "value": "4",
+                                            "description": "Bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16. Sum them, so 7 is the first three."
+                                        },
+                                        {
+                                            "key": "Zip",
+                                            "value": "9000",
+                                            "description": "Narrow to one postal code. Left out, bpost returns the whole country."
+                                        },
+                                        {
+                                            "key": "AttributeFilter",
+                                            "value": "LOCKERTYPE:CLASSIC",
+                                            "description": "Repeatable. LOCKERTYPE:CLASSIC or LOCKERTYPE:LEANLOCKER (no space, unlike the spelling bpost answers with), NIGHTDELIVERY:TRUE or NIGHTDELIVERY:FALSE."
+                                        },
+                                        {
+                                            "key": "AttributeFilter",
+                                            "value": "NIGHTDELIVERY:FALSE",
+                                            "description": "Repeatable. LOCKERTYPE:CLASSIC or LOCKERTYPE:LEANLOCKER (no space, unlike the spelling bpost answers with), NIGHTDELIVERY:TRUE or NIGHTDELIVERY:FALSE."
+                                        }
+                                    ]
+                                },
+                                "description": "Every point in a country, optionally narrowed by type and zip.\n\nThis is the one operation that can answer more than 10 MB, so `Accept-Encoding: gzip` is required — without it bpost truncates the download. Note it identifies the caller with `Account` rather than `Partner`, though the value is the same."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/xml"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<TaxipostLocator version=\"1.0\" type=\"TaxipostLocatorError\">\n    <status>10</status>\n    <txt>Not enough parameters</txt>\n</TaxipostLocator>"
+                        }
+                    ]
+                },
+                {
+                    "name": "Service point page (Function=page)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "x-api-key",
+                                "value": "{{geoApiKey}}"
+                            },
+                            {
+                                "key": "Accept-Encoding",
+                                "value": "gzip"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{geoBaseUrl}}/Locator?Function=page&Partner={{geoPartner}}&Id=220000&Type=1&Language=NL",
+                            "host": [
+                                "{{geoBaseUrl}}"
+                            ],
+                            "path": [
+                                "Locator"
+                            ],
+                            "query": [
+                                {
+                                    "key": "Function",
+                                    "value": "page",
+                                    "description": "Which Geolocator operation this is: search, info, page or getallservicepoints."
+                                },
+                                {
+                                    "key": "Partner",
+                                    "value": "{{geoPartner}}",
+                                    "description": "Your bpost account id, activated for the Geolocator."
+                                },
+                                {
+                                    "key": "AppId",
+                                    "value": "{{geoAppId}}",
+                                    "description": "Optional four-character application id, used by bpost for statistics. Enable this row only if bpost issued you one.",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "Id",
+                                    "value": "220000",
+                                    "description": "The point id, as a search returned it."
+                                },
+                                {
+                                    "key": "Type",
+                                    "value": "1",
+                                    "description": "Bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16. Sum them, so 7 is the first three."
+                                },
+                                {
+                                    "key": "Language",
+                                    "value": "NL",
+                                    "description": "NL or FR."
+                                }
+                            ]
+                        },
+                        "description": "bpost's own HTML details page for one point, meant for a browser or an iframe rather than for parsing."
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-api-key",
+                                        "value": "{{geoApiKey}}"
+                                    },
+                                    {
+                                        "key": "Accept-Encoding",
+                                        "value": "gzip"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{geoBaseUrl}}/Locator?Function=page&Partner={{geoPartner}}&Id=220000&Type=1&Language=NL",
+                                    "host": [
+                                        "{{geoBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "Locator"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "Function",
+                                            "value": "page",
+                                            "description": "Which Geolocator operation this is: search, info, page or getallservicepoints."
+                                        },
+                                        {
+                                            "key": "Partner",
+                                            "value": "{{geoPartner}}",
+                                            "description": "Your bpost account id, activated for the Geolocator."
+                                        },
+                                        {
+                                            "key": "AppId",
+                                            "value": "{{geoAppId}}",
+                                            "description": "Optional four-character application id, used by bpost for statistics. Enable this row only if bpost issued you one.",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "Id",
+                                            "value": "220000",
+                                            "description": "The point id, as a search returned it."
+                                        },
+                                        {
+                                            "key": "Type",
+                                            "value": "1",
+                                            "description": "Bitmask: post office 1, post point 2, parcel locker 4, Click & Collect 8, parcel point 16. Sum them, so 7 is the first three."
+                                        },
+                                        {
+                                            "key": "Language",
+                                            "value": "NL",
+                                            "description": "NL or FR."
+                                        }
+                                    ]
+                                },
+                                "description": "bpost's own HTML details page for one point, meant for a browser or an iframe rather than for parsing."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "html",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "text/html"
+                                }
+                            ],
+                            "body": "<html><!-- bpost renders the point's address, opening hours and services --></html>"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Parcel — announcement and tracking",
+            "description": "The trackedmail services: announcing a parcel before it reaches bpost, and following it afterwards.",
+            "auth": {
+                "type": "basic",
+                "basic": [
+                    {
+                        "key": "username",
+                        "value": "{{accountId}}",
+                        "type": "string"
+                    },
+                    {
+                        "key": "password",
+                        "value": "{{parcelPassword}}",
+                        "type": "string"
+                    }
+                ]
+            },
+            "item": [
+                {
+                    "name": "Create announcement — national",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/vnd.bpost.announcement-v1+XML;charset=UTF-8"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{parcelBaseUrl}}/services/trackedmail/announcement",
+                            "host": [
+                                "{{parcelBaseUrl}}"
+                            ],
+                            "path": [
+                                "services",
+                                "trackedmail",
+                                "announcement"
+                            ]
+                        },
+                        "description": "Tells bpost a parcel is coming, before it physically reaches them. This is the route for anyone printing their own labels: the barcode already exists, and this supplies what would otherwise have come with the order.\n\nA 201 does not mean the announcement was clean — read the feedback body for warnings and errors.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<inst:announcement xmlns:common=\"http://schema.post.be/announcement/common/v1/\" xmlns:inst=\"http://schema.post.be/announcement/v1/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n  <inst:accountId>{{accountId}}</inst:accountId>\n  <inst:type>00</inst:type>\n  <inst:itemCode>323212345689100101119030</inst:itemCode>\n  <inst:productCode>030</inst:productCode>\n  <inst:sender>\n    <common:name>bpost - bpack</common:name>\n    <common:addressContactName>Business Solutions Team</common:addressContactName>\n    <common:address>\n      <common:streetName>Muntcentrum</common:streetName>\n      <common:houseNumber>1</common:houseNumber>\n      <common:postalCode>1000</common:postalCode>\n      <common:city>Brussel</common:city>\n      <common:countryCode>BE</common:countryCode>\n    </common:address>\n    <common:contactDetail>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:telephoneNumber>0032499123456</common:telephoneNumber>\n    </common:contactDetail>\n  </inst:sender>\n  <inst:receiver>\n    <common:name>Alma van Appel</common:name>\n    <common:address>\n      <common:streetName>Grote Markt</common:streetName>\n      <common:houseNumber>10</common:houseNumber>\n      <common:boxNumber>A</common:boxNumber>\n      <common:postalCode>2000</common:postalCode>\n      <common:city>Antwerpen</common:city>\n      <common:countryCode>BE</common:countryCode>\n    </common:address>\n    <common:contactDetail>\n      <common:emailAddress>alma@example.com</common:emailAddress>\n      <common:mobilePhone>0032475123456</common:mobilePhone>\n    </common:contactDetail>\n  </inst:receiver>\n  <inst:receiverOpeningHours>\n    <inst:Monday>10:00-12:00/13:00-17:30</inst:Monday>\n    <inst:Wednesday>-/-</inst:Wednesday>\n  </inst:receiverOpeningHours>\n  <inst:weightInGrams>250</inst:weightInGrams>\n  <inst:customerReference>webshop-order-4711</inst:customerReference>\n  <inst:costCenter>Webshop</inst:costCenter>\n  <inst:deliveryMethod>\n    <common:atHome/>\n  </inst:deliveryMethod>\n  <inst:options>\n    <common:signature/>\n    <common:additionalInsurance>\n      <common:maxAmount>2</common:maxAmount>\n    </common:additionalInsurance>\n    <common:infoNextDay>\n      <common:language>NL</common:language>\n      <common:emailAddress>alma@example.com</common:emailAddress>\n    </common:infoNextDay>\n    <common:cashOnDelivery>\n      <common:amountTotalInEuroCents>1251</common:amountTotalInEuroCents>\n      <common:iban>BE19210023508812</common:iban>\n      <common:bic>GEBABEBB</common:bic>\n    </common:cashOnDelivery>\n  </inst:options>\n  <inst:dimensions>\n    <common:widthInMm>450</common:widthInMm>\n    <common:heightInMm>180</common:heightInMm>\n    <common:lengthInMm>1200</common:lengthInMm>\n  </inst:dimensions>\n</inst:announcement>",
+                            "options": {
+                                "raw": {
+                                    "language": "xml"
+                                }
+                            }
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "201 Created (clean)",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.announcement-v1+XML;charset=UTF-8"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{parcelBaseUrl}}/services/trackedmail/announcement",
+                                    "host": [
+                                        "{{parcelBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "services",
+                                        "trackedmail",
+                                        "announcement"
+                                    ]
+                                },
+                                "description": "Tells bpost a parcel is coming, before it physically reaches them. This is the route for anyone printing their own labels: the barcode already exists, and this supplies what would otherwise have come with the order.\n\nA 201 does not mean the announcement was clean — read the feedback body for warnings and errors.",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<inst:announcement xmlns:common=\"http://schema.post.be/announcement/common/v1/\" xmlns:inst=\"http://schema.post.be/announcement/v1/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n  <inst:accountId>{{accountId}}</inst:accountId>\n  <inst:type>00</inst:type>\n  <inst:itemCode>323212345689100101119030</inst:itemCode>\n  <inst:productCode>030</inst:productCode>\n  <inst:sender>\n    <common:name>bpost - bpack</common:name>\n    <common:addressContactName>Business Solutions Team</common:addressContactName>\n    <common:address>\n      <common:streetName>Muntcentrum</common:streetName>\n      <common:houseNumber>1</common:houseNumber>\n      <common:postalCode>1000</common:postalCode>\n      <common:city>Brussel</common:city>\n      <common:countryCode>BE</common:countryCode>\n    </common:address>\n    <common:contactDetail>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:telephoneNumber>0032499123456</common:telephoneNumber>\n    </common:contactDetail>\n  </inst:sender>\n  <inst:receiver>\n    <common:name>Alma van Appel</common:name>\n    <common:address>\n      <common:streetName>Grote Markt</common:streetName>\n      <common:houseNumber>10</common:houseNumber>\n      <common:boxNumber>A</common:boxNumber>\n      <common:postalCode>2000</common:postalCode>\n      <common:city>Antwerpen</common:city>\n      <common:countryCode>BE</common:countryCode>\n    </common:address>\n    <common:contactDetail>\n      <common:emailAddress>alma@example.com</common:emailAddress>\n      <common:mobilePhone>0032475123456</common:mobilePhone>\n    </common:contactDetail>\n  </inst:receiver>\n  <inst:receiverOpeningHours>\n    <inst:Monday>10:00-12:00/13:00-17:30</inst:Monday>\n    <inst:Wednesday>-/-</inst:Wednesday>\n  </inst:receiverOpeningHours>\n  <inst:weightInGrams>250</inst:weightInGrams>\n  <inst:customerReference>webshop-order-4711</inst:customerReference>\n  <inst:costCenter>Webshop</inst:costCenter>\n  <inst:deliveryMethod>\n    <common:atHome/>\n  </inst:deliveryMethod>\n  <inst:options>\n    <common:signature/>\n    <common:additionalInsurance>\n      <common:maxAmount>2</common:maxAmount>\n    </common:additionalInsurance>\n    <common:infoNextDay>\n      <common:language>NL</common:language>\n      <common:emailAddress>alma@example.com</common:emailAddress>\n    </common:infoNextDay>\n    <common:cashOnDelivery>\n      <common:amountTotalInEuroCents>1251</common:amountTotalInEuroCents>\n      <common:iban>BE19210023508812</common:iban>\n      <common:bic>GEBABEBB</common:bic>\n    </common:cashOnDelivery>\n  </inst:options>\n  <inst:dimensions>\n    <common:widthInMm>450</common:widthInMm>\n    <common:heightInMm>180</common:heightInMm>\n    <common:lengthInMm>1200</common:lengthInMm>\n  </inst:dimensions>\n</inst:announcement>",
+                                    "options": {
+                                        "raw": {
+                                            "language": "xml"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Created",
+                            "code": 201,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/xml"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<feedback/>"
+                        },
+                        {
+                            "name": "201 Created (with warnings)",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.announcement-v1+XML;charset=UTF-8"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{parcelBaseUrl}}/services/trackedmail/announcement",
+                                    "host": [
+                                        "{{parcelBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "services",
+                                        "trackedmail",
+                                        "announcement"
+                                    ]
+                                },
+                                "description": "Tells bpost a parcel is coming, before it physically reaches them. This is the route for anyone printing their own labels: the barcode already exists, and this supplies what would otherwise have come with the order.\n\nA 201 does not mean the announcement was clean — read the feedback body for warnings and errors.",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<inst:announcement xmlns:common=\"http://schema.post.be/announcement/common/v1/\" xmlns:inst=\"http://schema.post.be/announcement/v1/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n  <inst:accountId>{{accountId}}</inst:accountId>\n  <inst:type>00</inst:type>\n  <inst:itemCode>323212345689100101119030</inst:itemCode>\n  <inst:productCode>030</inst:productCode>\n  <inst:sender>\n    <common:name>bpost - bpack</common:name>\n    <common:addressContactName>Business Solutions Team</common:addressContactName>\n    <common:address>\n      <common:streetName>Muntcentrum</common:streetName>\n      <common:houseNumber>1</common:houseNumber>\n      <common:postalCode>1000</common:postalCode>\n      <common:city>Brussel</common:city>\n      <common:countryCode>BE</common:countryCode>\n    </common:address>\n    <common:contactDetail>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:telephoneNumber>0032499123456</common:telephoneNumber>\n    </common:contactDetail>\n  </inst:sender>\n  <inst:receiver>\n    <common:name>Alma van Appel</common:name>\n    <common:address>\n      <common:streetName>Grote Markt</common:streetName>\n      <common:houseNumber>10</common:houseNumber>\n      <common:boxNumber>A</common:boxNumber>\n      <common:postalCode>2000</common:postalCode>\n      <common:city>Antwerpen</common:city>\n      <common:countryCode>BE</common:countryCode>\n    </common:address>\n    <common:contactDetail>\n      <common:emailAddress>alma@example.com</common:emailAddress>\n      <common:mobilePhone>0032475123456</common:mobilePhone>\n    </common:contactDetail>\n  </inst:receiver>\n  <inst:receiverOpeningHours>\n    <inst:Monday>10:00-12:00/13:00-17:30</inst:Monday>\n    <inst:Wednesday>-/-</inst:Wednesday>\n  </inst:receiverOpeningHours>\n  <inst:weightInGrams>250</inst:weightInGrams>\n  <inst:customerReference>webshop-order-4711</inst:customerReference>\n  <inst:costCenter>Webshop</inst:costCenter>\n  <inst:deliveryMethod>\n    <common:atHome/>\n  </inst:deliveryMethod>\n  <inst:options>\n    <common:signature/>\n    <common:additionalInsurance>\n      <common:maxAmount>2</common:maxAmount>\n    </common:additionalInsurance>\n    <common:infoNextDay>\n      <common:language>NL</common:language>\n      <common:emailAddress>alma@example.com</common:emailAddress>\n    </common:infoNextDay>\n    <common:cashOnDelivery>\n      <common:amountTotalInEuroCents>1251</common:amountTotalInEuroCents>\n      <common:iban>BE19210023508812</common:iban>\n      <common:bic>GEBABEBB</common:bic>\n    </common:cashOnDelivery>\n  </inst:options>\n  <inst:dimensions>\n    <common:widthInMm>450</common:widthInMm>\n    <common:heightInMm>180</common:heightInMm>\n    <common:lengthInMm>1200</common:lengthInMm>\n  </inst:dimensions>\n</inst:announcement>",
+                                    "options": {
+                                        "raw": {
+                                            "language": "xml"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Created",
+                            "code": 201,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/xml"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<feedback>\n    <Warning>Unknown product code</Warning>\n    <Error>Weight too high</Error>\n</feedback>"
+                        }
+                    ]
+                },
+                {
+                    "name": "Create announcement — international with customs",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/vnd.bpost.announcement-v1+XML;charset=UTF-8"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{parcelBaseUrl}}/services/trackedmail/announcement",
+                            "host": [
+                                "{{parcelBaseUrl}}"
+                            ],
+                            "path": [
+                                "services",
+                                "trackedmail",
+                                "announcement"
+                            ]
+                        },
+                        "description": "`international` is the customs declaration, required for anything leaving Belgium. bpost also requires a phone or mobile number on the receiver.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<inst:announcement xmlns:common=\"http://schema.post.be/announcement/common/v1/\" xmlns:inst=\"http://schema.post.be/announcement/v1/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n  <inst:accountId>{{accountId}}</inst:accountId>\n  <inst:type>00</inst:type>\n  <inst:itemCode>323212345689100101119030</inst:itemCode>\n  <inst:sender>\n    <common:name>bpost - bpack</common:name>\n    <common:addressContactName>Business Solutions Team</common:addressContactName>\n    <common:address>\n      <common:streetName>Muntcentrum</common:streetName>\n      <common:houseNumber>1</common:houseNumber>\n      <common:postalCode>1000</common:postalCode>\n      <common:city>Brussel</common:city>\n      <common:countryCode>BE</common:countryCode>\n    </common:address>\n    <common:contactDetail>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:telephoneNumber>0032499123456</common:telephoneNumber>\n    </common:contactDetail>\n  </inst:sender>\n  <inst:receiver>\n    <common:name>John Doe</common:name>\n    <common:address>\n      <common:streetName>Pennsylvania Plaza</common:streetName>\n      <common:houseNumber>4</common:houseNumber>\n      <common:postalCode>10001</common:postalCode>\n      <common:city>New York</common:city>\n      <common:countryCode>US</common:countryCode>\n    </common:address>\n    <common:contactDetail>\n      <common:emailAddress>john@example.com</common:emailAddress>\n      <common:telephoneNumber>+12124657414</common:telephoneNumber>\n    </common:contactDetail>\n  </inst:receiver>\n  <inst:weightInGrams>900</inst:weightInGrams>\n  <inst:customerReference>webshop-order-4712</inst:customerReference>\n  <inst:international>\n    <common:parcelContent>T-shirts</common:parcelContent>\n    <common:itemCategory>GOODS</common:itemCategory>\n    <common:nonDeliveryInstructions>RTS</common:nonDeliveryInstructions>\n    <common:valueCurrencySender>31.23</common:valueCurrencySender>\n    <common:currencySender>EUR</common:currencySender>\n  </inst:international>\n  <inst:deliveryMethod>\n    <common:atHome/>\n  </inst:deliveryMethod>\n</inst:announcement>",
+                            "options": {
+                                "raw": {
+                                    "language": "xml"
+                                }
+                            }
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "201 Created (clean)",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/vnd.bpost.announcement-v1+XML;charset=UTF-8"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{parcelBaseUrl}}/services/trackedmail/announcement",
+                                    "host": [
+                                        "{{parcelBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "services",
+                                        "trackedmail",
+                                        "announcement"
+                                    ]
+                                },
+                                "description": "`international` is the customs declaration, required for anything leaving Belgium. bpost also requires a phone or mobile number on the receiver.",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<inst:announcement xmlns:common=\"http://schema.post.be/announcement/common/v1/\" xmlns:inst=\"http://schema.post.be/announcement/v1/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n  <inst:accountId>{{accountId}}</inst:accountId>\n  <inst:type>00</inst:type>\n  <inst:itemCode>323212345689100101119030</inst:itemCode>\n  <inst:sender>\n    <common:name>bpost - bpack</common:name>\n    <common:addressContactName>Business Solutions Team</common:addressContactName>\n    <common:address>\n      <common:streetName>Muntcentrum</common:streetName>\n      <common:houseNumber>1</common:houseNumber>\n      <common:postalCode>1000</common:postalCode>\n      <common:city>Brussel</common:city>\n      <common:countryCode>BE</common:countryCode>\n    </common:address>\n    <common:contactDetail>\n      <common:emailAddress>esolutions@bpost.be</common:emailAddress>\n      <common:telephoneNumber>0032499123456</common:telephoneNumber>\n    </common:contactDetail>\n  </inst:sender>\n  <inst:receiver>\n    <common:name>John Doe</common:name>\n    <common:address>\n      <common:streetName>Pennsylvania Plaza</common:streetName>\n      <common:houseNumber>4</common:houseNumber>\n      <common:postalCode>10001</common:postalCode>\n      <common:city>New York</common:city>\n      <common:countryCode>US</common:countryCode>\n    </common:address>\n    <common:contactDetail>\n      <common:emailAddress>john@example.com</common:emailAddress>\n      <common:telephoneNumber>+12124657414</common:telephoneNumber>\n    </common:contactDetail>\n  </inst:receiver>\n  <inst:weightInGrams>900</inst:weightInGrams>\n  <inst:customerReference>webshop-order-4712</inst:customerReference>\n  <inst:international>\n    <common:parcelContent>T-shirts</common:parcelContent>\n    <common:itemCategory>GOODS</common:itemCategory>\n    <common:nonDeliveryInstructions>RTS</common:nonDeliveryInstructions>\n    <common:valueCurrencySender>31.23</common:valueCurrencySender>\n    <common:currencySender>EUR</common:currencySender>\n  </inst:international>\n  <inst:deliveryMethod>\n    <common:atHome/>\n  </inst:deliveryMethod>\n</inst:announcement>",
+                                    "options": {
+                                        "raw": {
+                                            "language": "xml"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Created",
+                            "code": 201,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/xml"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<feedback/>"
+                        }
+                    ]
+                },
+                {
+                    "name": "Fetch tracking info",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{parcelBaseUrl}}/services/trackedmail/item/:barcode/trackingInfo",
+                            "host": [
+                                "{{parcelBaseUrl}}"
+                            ],
+                            "path": [
+                                "services",
+                                "trackedmail",
+                                "item",
+                                ":barcode",
+                                "trackingInfo"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "barcode",
+                                    "value": "323212345689100101119030",
+                                    "description": "The box's barcode, as a label or a Retrieve Order Information call returned it."
+                                }
+                            ]
+                        },
+                        "description": "Where a parcel has been. The `stateInfo` entries are in chronological order; the last one is the current state."
+                    },
+                    "response": [
+                        {
+                            "name": "200 OK",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{parcelBaseUrl}}/services/trackedmail/item/:barcode/trackingInfo",
+                                    "host": [
+                                        "{{parcelBaseUrl}}"
+                                    ],
+                                    "path": [
+                                        "services",
+                                        "trackedmail",
+                                        "item",
+                                        ":barcode",
+                                        "trackingInfo"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "barcode",
+                                            "value": "323212345689100101119030",
+                                            "description": "The box's barcode, as a label or a Retrieve Order Information call returned it."
+                                        }
+                                    ]
+                                },
+                                "description": "Where a parcel has been. The `stateInfo` entries are in chronological order; the last one is the current state."
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "xml",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/xml"
+                                }
+                            ],
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<!--\n  Transcribed from the tracking response example in manual section E.3.4.\n-->\n<itemTracking xmlns=\"http://schema.post.be/tracking/v1/\"\n              xmlns:ns2=\"http://schema.post.be/announcement/common/v1/\">\n    <itemCode>323212345659900040669030</itemCode>\n    <sender>\n        <ns2:name>TEST COMPANY NAME</ns2:name>\n        <ns2:address>\n            <ns2:streetName>WETSTRAAT</ns2:streetName>\n            <ns2:houseNumber>1</ns2:houseNumber>\n            <ns2:postalCode>1000</ns2:postalCode>\n            <ns2:city>BRUSSELS</ns2:city>\n            <ns2:countryCode>BE</ns2:countryCode>\n        </ns2:address>\n    </sender>\n    <addressee>\n        <ns2:name>BARCODE TEAM BPACK</ns2:name>\n        <ns2:address>\n            <ns2:streetName>MUNTCENTRUM</ns2:streetName>\n            <ns2:postalCode>1000</ns2:postalCode>\n            <ns2:city>BRUSSELS</ns2:city>\n            <ns2:countryCode>BE</ns2:countryCode>\n        </ns2:address>\n        <ns2:contactDetail>\n            <ns2:emailAddress>BARCODESPARCELS@POST.BE</ns2:emailAddress>\n        </ns2:contactDetail>\n    </addressee>\n    <cityOrCountryOfdeparture>BRUSSELS</cityOrCountryOfdeparture>\n    <cityOrCountryOfDestination>BRUSSELS</cityOrCountryOfDestination>\n    <nameOfDestination>BARCODE TEAM BPACK</nameOfDestination>\n    <deliveryTime>2012-11-23T09:31:07+01:00</deliveryTime>\n    <customerReference>TEST AUTOMATIC SORTER</customerReference>\n    <itemDetail>\n        <weightInGrams>380</weightInGrams>\n        <type>01</type>\n        <options/>\n    </itemDetail>\n    <stateInfo>\n        <time>2012-11-22T23:19:29+01:00</time>\n        <stateCode>T00</stateCode>\n        <stateDescription>Sorted - sorted_out</stateDescription>\n    </stateInfo>\n    <stateInfo>\n        <time>2012-11-23T07:11:18.923+01:00</time>\n        <stateCode>L00</stateCode>\n        <stateDescription>BoundToRound - out_for_distribution</stateDescription>\n    </stateInfo>\n    <stateInfo>\n        <time>2012-11-23T09:31:07.427+01:00</time>\n        <stateCode>U01</stateCode>\n        <stateDescription>DistributedNormally - regular</stateDescription>\n    </stateInfo>\n    <trackingId>gqwxvsyt</trackingId>\n    <pickupPoint>\n        <id>805140</id>\n        <name>LIBRAIRIE WILSON</name>\n        <streetName>RUE WASHINGTON / WASHINGTONSTRAAT</streetName>\n        <houseNumber>66</houseNumber>\n        <postalCode>1050</postalCode>\n        <city>IXELLES</city>\n    </pickupPoint>\n</itemTracking>"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

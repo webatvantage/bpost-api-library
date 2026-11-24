@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:tns="http://schema.post.be/lci-out/status/v1/"
+  targetNamespace="http://schema.post.be/lci-out/status/v1/" attributeFormDefault="unqualified"
+  version="1.0" elementFormDefault="qualified">
+  <xsd:element name="statusFile">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="accountID" type="xsd:string">
+          <xsd:annotation>
+            <xsd:documentation>Receiver number</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="items" maxOccurs="1" minOccurs="1">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="item" type="tns:Item" minOccurs="1" maxOccurs="unbounded" />
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="version" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>Template version</xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="auditNr" type="xsd:integer">
+        <xsd:annotation>
+          <xsd:documentation>Job id</xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="type">
+        <xsd:annotation>
+          <xsd:documentation>Light / Normal / Extended</xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="Light"></xsd:enumeration>
+            <xsd:enumeration value="Normal"></xsd:enumeration>
+            <xsd:enumeration value="Extended"></xsd:enumeration>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="Item">
+    <xsd:sequence>
+      <xsd:element name="itemdetail" type="tns:ItemDetail" minOccurs="1" maxOccurs="1" />
+      <xsd:element name="statuses" type="tns:Statuses" minOccurs="1" maxOccurs="1" />
+    </xsd:sequence>
+    <xsd:attribute name="contentType">
+      <xsd:annotation>
+        <xsd:documentation>
+          Leave blank
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="barcode" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation>Item code</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:complexType name="ItemDetail">
+    <xsd:sequence>
+      <xsd:element name="addressee" type="tns:Address" minOccurs="0" maxOccurs="1" />
+      <xsd:element name="VAS" type="xsd:string"/>
+      <xsd:element name="weight" type="xsd:integer">
+        <xsd:annotation>
+          <xsd:documentation>weightInGrams</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="custRef1" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>customerReference.reference</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="custRef2" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>customerReference.barcode</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="custRef3" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>customerReference.costCenter</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="custRef4" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>customerReference.freeTextOne</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="custRef5" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>customerReference.freeTextTwo</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="characteristics" type="tns:Characteristics"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="Statuses">
+    <xsd:sequence>
+      <xsd:element name="status" type="tns:StatusDetail" minOccurs="1" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="Address">
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>addresse customerFullName</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="department" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>?</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="contactName" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>?</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="place" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>?</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="street" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>addresseStreet</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="houseNumber" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>streetNumber</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="boxNumber" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>addressePostboxNumber</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="postalCode" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>addreseePostalCode</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="city" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>addreseeCity</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="country" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>addreseeCountryCode</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="Characteristics">
+    <xsd:sequence>
+      <xsd:element name="characteristic" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>property.value</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+          <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+              <xsd:attribute name="name" type="xsd:string">
+                <xsd:annotation>
+                  <xsd:documentation>property.description</xsd:documentation>
+                </xsd:annotation>
+              </xsd:attribute>
+              <xsd:attribute name="number" type="xsd:string">
+                <xsd:annotation>
+                  <xsd:documentation>property.startCode</xsd:documentation>
+                </xsd:annotation>
+              </xsd:attribute>
+            </xsd:extension>
+          </xsd:simpleContent>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="StatusDetail">
+    <xsd:sequence>
+      <xsd:element name="date" type="xsd:dateTime">
+        <xsd:annotation>
+          <xsd:documentation>$eventRecord.correctedEventCreationTime</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="location" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>$eventRecord.getLocation($eventRecord.unitCepCode)</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="value">
+      <xsd:annotation>
+        <xsd:documentation>$data.statusMapper.getLciStatus($eventRecord)</xsd:documentation>
+      </xsd:annotation>
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:pattern value="[A-Z][A-Z0-9]\d"></xsd:pattern>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+  </xsd:complexType>
+
+</xsd:schema>

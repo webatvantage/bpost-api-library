@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schema.post.be/lci-out/feedback/v1/" targetNamespace="http://schema.post.be/lci-out/feedback/v1/" attributeFormDefault="unqualified" version="1.0" elementFormDefault="qualified">
+  
+  <xsd:element name="feedbackFile">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="accountID" type="xsd:string">
+          <xsd:annotation>
+            <xsd:documentation>Receiver number</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="itemAnnouncements" maxOccurs="1" minOccurs="1">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="itemAnnouncement" type="tns:ItemAnnouncement" minOccurs="1" maxOccurs="unbounded" />
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="version" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>Template version</xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="auditNr" type="xsd:integer">
+        <xsd:annotation>
+          <xsd:documentation>Job id</xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="ItemAnnouncement">
+    <xsd:sequence>
+      <xsd:element name="status" type="tns:FeedbackStatus" minOccurs="1" maxOccurs="1" />
+      <xsd:element name="date" type="xsd:dateTime" minOccurs="1" maxOccurs="1">
+        <xsd:annotation>
+          <xsd:documentation>
+            Original date/time of the item announcement.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="messages" minOccurs="0" maxOccurs="1">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="message" type="tns:FeedbackMessage" minOccurs="0" maxOccurs="unbounded" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="barcode" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation>Item code</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:simpleType name="FeedbackStatus">
+    <xsd:annotation>
+      <xsd:documentation>
+        Validation status
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="OK" />
+      <xsd:enumeration value="DUPLICATE" />
+      <xsd:enumeration value="ERROR" />
+      <xsd:enumeration value="WARNING" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:complexType name="FeedbackMessage">
+    <xsd:simpleContent>
+      <xsd:annotation>
+        <xsd:documentation>
+          Clarifying message that goes with the validation status
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="type" type="tns:FeedbackStatus">
+          <xsd:annotation>
+            <xsd:documentation>
+              The validation status
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+</xsd:schema>

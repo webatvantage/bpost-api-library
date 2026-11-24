@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:order xmlns="http://schema.post.be/shm/deepintegration/v5/national" xmlns:common="http://schema.post.be/shm/deepintegration/v5/common" xmlns:tns="http://schema.post.be/shm/deepintegration/v5/" xmlns:international="http://schema.post.be/shm/deepintegration/v5/international" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schema.post.be/shm/deepintegration/v5/">
+    <tns:accountId>{accountID}</tns:accountId>
+    <tns:reference>bpack@bpost VAS 038 - COD</tns:reference>
+    <tns:costCenter>Cost Center</tns:costCenter>
+    <tns:orderLine>
+        <tns:text>Product 1</tns:text>
+        <tns:nbOfItems>1</tns:nbOfItems>
+    </tns:orderLine>
+    <tns:orderLine>
+        <tns:text>Product 1</tns:text>
+        <tns:nbOfItems>5</tns:nbOfItems>
+    </tns:orderLine>
+    <tns:box>
+        <tns:sender>
+                <common:name>SENDER NAME</common:name>
+                <common:company>SENDER COMPANY</common:company>
+                <common:address>
+                    <common:streetName>MUNT</common:streetName>
+                    <common:number>1</common:number>
+                    <common:box>1</common:box><!-- When box is empty this tag has to be removed -->
+                    <common:postalCode>1000</common:postalCode>
+                    <common:locality>Brussel</common:locality>
+                    <common:countryCode>BE</common:countryCode>
+                </common:address>
+                <common:emailAddress>sender@mail.be</common:emailAddress>
+                <common:phoneNumber>022011111</common:phoneNumber>
+        </tns:sender>
+        <tns:nationalBox>
+            <atBpost>
+                <product>bpack@bpost</product>
+                <options>
+                <common:keepMeInformed language="EN">
+                    <common:mobilePhone>0032475123456</common:mobilePhone>
+                </common:keepMeInformed>
+                <common:cod>
+                        <common:codAmount>1251</common:codAmount>
+                        <common:iban>BE19210023508812</common:iban>
+                        <common:bic>GEBABEBB</common:bic>
+                </common:cod>
+                </options>
+                <weight>2000</weight>
+                <pugoId>207500</pugoId>
+                <pugoName>WIJNEGEM</pugoName>
+                <pugoAddress>
+                    <common:streetName>Turnhoutsebaan</common:streetName>
+                    <common:number>468</common:number>
+                    <common:box>A</common:box><!-- When box is empty this tag has to be removed -->
+                    <common:postalCode>2110</common:postalCode>
+                    <common:locality>Wijnegem</common:locality>
+                    <common:countryCode>BE</common:countryCode>
+                </pugoAddress>
+                <receiverName>RECEIVER NAME</receiverName>
+                <receiverCompany>RECEIVER COMPANY</receiverCompany>
+                <requestedDeliveryDate>2023-12-20</requestedDeliveryDate>
+            </atBpost>
+        </tns:nationalBox>
+        <tns:remark>bpack@bpost VAS 038 - COD</tns:remark>
+        <tns:additionalCustomerReference>Reference that can be used for cross-referencing</tns:additionalCustomerReference>
+    </tns:box>
+</tns:order>

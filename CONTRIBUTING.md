@@ -52,7 +52,7 @@ or that a URL the library builds actually resolves.
 ### Working from the manual
 
 The client is built against the *bpack integration manual* and bpost's own SHM API example files.
-Both live in `manuals/`, which is not tracked. If you are changing what goes on the wire, check it
+Both live in `manuals/`. If you are changing what goes on the wire, check it
 against the example for that operation rather than against the manual's tables: the tables list the
 elements but not reliably their order, and bpost validates the sequence.
 

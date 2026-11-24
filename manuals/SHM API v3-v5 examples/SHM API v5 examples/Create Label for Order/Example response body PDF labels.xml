@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<labels>
+	<label>
+		<barcodeWithReference>
+			<barcode>{Human readable value of de barcode in text}</barcode>
+			<reference>reference of the order used in create order request</reference>
+			<!-- This part may be repeated if multiple boxes were created in the order-->
+		</barcodeWithReference>
+		<mimeType>application/pdf</mimeType>
+		<bytes>{base64 encoded bytestring}</bytes>
+	</label>
+</labels>

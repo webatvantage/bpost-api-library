@@ -1,0 +1,15 @@
+Type of request:
+GET
+
+URL PROD:
+https://api.bpost.be/services/shm/{accountID}/boxes/{barcode}/labels/{labelFormat}
+
+Headers for PDF labels:
+Authorization: Basic AccountID:pass-phrase (base64)
+Content-Type: application/vnd.bpost.shm-labelRequest-v5+XML
+Accept: application/vnd.bpost.shm-label-pdf-v3.4+XML
+
+Headers for PNG labels:
+Authorization: Basic AccountID:pass-phrase (base64)
+Content-Type: application/vnd.bpost.shm-labelRequest-v5+XML
+Accept: application/vnd.bpost.shm-label-image-v3.4+XML

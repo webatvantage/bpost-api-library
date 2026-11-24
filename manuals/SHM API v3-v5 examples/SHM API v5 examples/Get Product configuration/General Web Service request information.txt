@@ -1,0 +1,9 @@
+Type of request:
+GET
+
+URL PROD:
+https://api.bpost.be/services/shm/{accountID}/orders/
+
+Headers:
+Authorization: Basic AccountID:pass-phrase (base64)
+Accept: application/vnd.bpost.shm-productConfiguration-v3.1+XML
